@@ -177,7 +177,12 @@ select option{background:#1a1a1a}
 
 
 @media(max-width:900px){.two{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:650px){.sidebar{display:none}.mob-nav{display:block}.page{padding:16px 14px 80px}.stats{grid-template-columns:1fr 1fr}}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:8px 0 14px;z-index:50;backdrop-filter:blur(10px)}
+.mob-nav-inner{display:flex;justify-content:space-around}
+.mob-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;color:var(--txt3);cursor:pointer;font-size:9px;font-weight:600;border:none;background:none;font-family:var(--font)}
+.mob-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mob-btn.active{color:var(--g)}
+@media(max-width:650px){.sidebar{display:none}.mob-nav{display:block}.page{padding:16px 14px 90px}.stats{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -533,7 +538,7 @@ async function signIn() {
 async function signOut() {
   await sb.auth.signOut();
   document.getElementById('main-app').style.display = 'none';
-  document.getElementById('mob-nav').style.display = 'none';
+
   document.getElementById('auth-screen').style.display = 'flex';
 }
 
@@ -586,6 +591,12 @@ async function loadApp(user) {
 }
 
 // ── NAV ──────────────────────────────────────────────────
+function setMob(page) {
+  document.querySelectorAll('.mob-btn').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('mn-' + page);
+  if (el) el.classList.add('active');
+}
+
 function nav(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
