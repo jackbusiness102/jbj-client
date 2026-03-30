@@ -547,7 +547,9 @@ async function loadApp(user) {
   const name = profile?.full_name || '';
   
   // If no display name set, show onboarding
-  if (!name || name === user.email.split('@')[0] || name.includes('@')) {
+  // Only show if name is empty, is literally the email address, or looks like an email
+  const needsName = !name || name.trim() === '' || name === user.email || (name.includes('@') && name.includes('.'));
+  if (needsName) {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('onboarding-screen').style.display = 'flex';
     return;
