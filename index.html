@@ -456,9 +456,10 @@ async function loadMessages() {
     if (!coachId) return;
   }
   console.log('Loading messages - me:', currentUser.id, 'coach:', coachId);
-  const { data } = await sb.from('messages').select('*')
-    .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${coachId}),and(sender_id.eq.${coachId},receiver_id.eq.${currentUser.id})`)
+  const { data, error } = await sb.from('messages').select('*')
+    .or('sender_id.eq.' + currentUser.id + ',receiver_id.eq.' + currentUser.id)
     .order('created_at');
+  console.log('Messages fetched:', data?.length, error);
   const wrap = document.getElementById('c-messages');
   wrap.innerHTML = data?.length ? data.map(m => {
     const sent = m.sender_id === currentUser.id;
