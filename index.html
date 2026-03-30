@@ -299,7 +299,19 @@ async function loadApp(user) {
 
   const { data: cr } = await sb.from('clients').select('*').eq('client_id', user.id).single();
   clientRecord = cr;
-  if (cr) coachId = cr.coach_id;
+  if (cr) { 
+    coachId = cr.coach_id;
+    console.log('Found coach_id from clients table:', coachId);
+  }
+  // Fallback: find coach by role
+  if (!coachId) {
+    const { data: coachProfile } = await sb.from('profiles').select('id').eq('role', 'coach').single();
+    if (coachProfile) { 
+      coachId = coachProfile.id; 
+      console.log('Found coach_id by role:', coachId);
+    }
+  }
+  console.log('Final coachId:', coachId, 'currentUser:', user.id);
 
   loadHome();
   loadWorkoutHistory();
@@ -435,10 +447,15 @@ async function loadWeightHistory() {
 
 async function loadMessages() {
   if (!coachId) {
-    // Try to find coach again
     const { data: cr } = await sb.from('clients').select('*').eq('client_id', currentUser.id).single();
-    if (cr) { clientRecord = cr; coachId = cr.coach_id; } else return;
+    if (cr) { clientRecord = cr; coachId = cr.coach_id; }
+    if (!coachId) {
+      const { data: cp } = await sb.from('profiles').select('id').eq('role', 'coach').single();
+      if (cp) coachId = cp.id;
+    }
+    if (!coachId) return;
   }
+  console.log('Loading messages - me:', currentUser.id, 'coach:', coachId);
   const { data } = await sb.from('messages').select('*')
     .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${coachId}),and(sender_id.eq.${coachId},receiver_id.eq.${currentUser.id})`)
     .order('created_at');
@@ -456,12 +473,24 @@ async function loadMessages() {
 }
 
 async function sendMessage() {
-  if (!coachId) { toast('Cannot find coach'); return; }
+  // Always try to get coachId fresh if missing
+  if (!coachId) {
+    const { data: cr } = await sb.from('clients').select('coach_id').eq('client_id', currentUser.id).single();
+    if (cr) coachId = cr.coach_id;
+  }
+  if (!coachId) {
+    // Last resort - find coach by role
+    const { data: coach } = await sb.from('profiles').select('id').eq('role', 'coach').single();
+    if (coach) coachId = coach.id;
+  }
+  if (!coachId) { toast('Cannot find coach - contact Jack directly'); return; }
   const input = document.getElementById('c-msg-input');
   const content = input.value.trim();
   if (!content) return;
   input.value = '';
-  await sb.from('messages').insert({ sender_id: currentUser.id, receiver_id: coachId, content });
+  console.log('Sending from:', currentUser.id, 'to coach:', coachId);
+  const { error } = await sb.from('messages').insert({ sender_id: currentUser.id, receiver_id: coachId, content });
+  console.log('Send error:', error);
   loadMessages();
 }
 
