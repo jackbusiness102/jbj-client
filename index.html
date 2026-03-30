@@ -434,7 +434,11 @@ async function loadWeightHistory() {
 }
 
 async function loadMessages() {
-  if (!coachId) return;
+  if (!coachId) {
+    // Try to find coach again
+    const { data: cr } = await sb.from('clients').select('*').eq('client_id', currentUser.id).single();
+    if (cr) { clientRecord = cr; coachId = cr.coach_id; } else return;
+  }
   const { data } = await sb.from('messages').select('*')
     .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${coachId}),and(sender_id.eq.${coachId},receiver_id.eq.${currentUser.id})`)
     .order('created_at');
@@ -462,12 +466,15 @@ async function sendMessage() {
 }
 
 function subscribeMessages() {
-  msgSub = sb.channel('client-messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-    if (payload.new.receiver_id === currentUser.id) {
-      document.getElementById('msg-dot').style.display = 'inline';
-      loadMessages();
-    }
-  }).subscribe();
+  if (msgSub) sb.removeChannel(msgSub);
+  msgSub = sb.channel('realtime-messages-client-' + currentUser.id)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+      if (payload.new.receiver_id === currentUser.id) {
+        document.getElementById('msg-dot').style.display = 'inline';
+        toast('New message from your coach!');
+        loadMessages();
+      }
+    }).subscribe();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
