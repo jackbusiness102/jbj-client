@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JackedByJack — Client Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#202020;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);--border3:rgba(255,255,255,0.18);
+  --txt:#e8e8e8;--txt2:#888;--txt3:#555;
+  --g:#39d98a;--gd:rgba(57,217,138,0.14);--gdark:#27ae60;
+  --b:#5b8dee;--bd:rgba(91,141,238,0.13);
+  --o:#f5a623;--od:rgba(245,166,35,0.13);
+  --r:#e05c5c;--rd:rgba(224,92,92,0.12);
+  --rad:8px;--rad2:12px;--rad3:16px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --mono:'Consolas','Courier New',monospace;
+}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--font);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rad3);padding:36px 40px;width:100%;max-width:380px}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.auth-mark{width:36px;height:36px;background:var(--g);color:#000;font-weight:700;font-size:12px;border-radius:var(--rad);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(57,217,138,.3)}
+.auth-title{font-size:16px;font-weight:700}.auth-title span{color:var(--g)}
+.auth-box h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.auth-box p{font-size:12px;color:var(--txt2);margin-bottom:24px}
+.auth-err{background:var(--rd);border:1px solid var(--r);border-radius:var(--rad);padding:8px 12px;font-size:12px;color:var(--r);margin-bottom:14px;display:none}
+
+.app{display:flex;flex-direction:column;min-height:100vh}
+.top-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;flex-shrink:0}
+.top-logo{display:flex;align-items:center;gap:8px}
+.top-mark{width:28px;height:28px;background:var(--g);color:#000;font-weight:700;font-size:10px;border-radius:6px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(57,217,138,.25)}
+.top-title{font-size:13px;font-weight:700}.top-title span{color:var(--g)}
+.top-user{display:flex;align-items:center;gap:10px}
+.top-av{width:28px;height:28px;border-radius:50%;background:var(--gd);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.top-name{font-size:12px;font-weight:500}
+.logout-btn{background:none;border:none;color:var(--txt3);cursor:pointer;font-size:11px;padding:4px 8px;border-radius:4px;transition:color .15s}
+.logout-btn:hover{color:var(--r)}
+
+.content{flex:1;overflow-y:auto;padding:24px 20px 80px}
+
+.tabs{display:flex;gap:2px;background:var(--bg3);border-radius:var(--rad);padding:3px;margin-bottom:20px;border:1px solid var(--border);overflow-x:auto}
+.tab{flex:1;min-width:60px;padding:7px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;text-align:center;color:var(--txt2);transition:all .15s;white-space:nowrap}
+.tab.active{background:var(--bg2);color:var(--txt)}
+
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rad2);padding:16px 18px;margin-bottom:12px}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ch h3{font-size:13px;font-weight:600}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rad2);padding:14px 16px;position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac,var(--g)),transparent);opacity:.5}
+.sc.b::after{--ac:var(--b)}.sc.o::after{--ac:var(--o)}
+.sc-val{font-size:20px;font-weight:700;margin-bottom:2px}
+.sc-lbl{font-size:11px;color:var(--txt2)}
+
+.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;font-family:var(--mono)}
+.bg{background:var(--gd);color:var(--g)}.bb{background:var(--bd);color:var(--b)}.bo{background:var(--od);color:var(--o)}.bm{background:var(--bg3);color:var(--txt2);border:1px solid var(--border)}
+
+.btn{padding:8px 16px;border-radius:var(--rad);font-size:12px;font-family:var(--font);font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--txt);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--bg4)}
+.btn-g{background:var(--g);color:#000;border-color:var(--g)}.btn-g:hover{background:var(--gdark)}
+.btn-ghost{background:transparent;border-color:transparent}.btn-ghost:hover{background:var(--bg3)}
+.btn-sm{padding:5px 11px;font-size:11px}
+
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.fg label{font-size:11px;color:var(--txt2);font-weight:600}
+.inp,.sel,.ta{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);color:var(--txt);font-family:var(--font);font-size:12px;padding:7px 10px;width:100%;outline:none;transition:border-color .15s}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--g)}
+.ta{resize:vertical;min-height:60px}
+.sel{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 20 20'%3E%3Cpath fill='%23666' d='M5 7l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
+select option{background:#1a1a1a}
+.inp-sm{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);color:var(--txt);font-size:12px;padding:6px 10px;outline:none}
+.inp-sm:focus{border-color:var(--g)}
+
+.session-item{padding:12px 0;border-bottom:1px solid var(--border)}
+.session-item:last-child{border-bottom:none}
+.session-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.session-name{font-size:13px;font-weight:600}
+.session-date{font-size:10px;color:var(--txt3);font-family:var(--mono)}
+.session-type{font-size:11px;color:var(--txt2);margin-bottom:6px}
+.ex-chips{display:flex;flex-wrap:wrap;gap:3px}
+.ec{padding:2px 6px;background:var(--bg3);border-radius:3px;font-size:10px;color:var(--txt2);font-family:var(--mono)}
+
+.pb{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:4px}
+.pf{height:100%;border-radius:2px;background:var(--g);transition:width .6s}
+
+.msg-wrap{display:flex;flex-direction:column;height:calc(100vh - 200px);background:var(--bg2);border:1px solid var(--border);border-radius:var(--rad2);overflow:hidden}
+.msg-head{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.msg-coach-av{width:28px;height:28px;border-radius:50%;background:var(--gd);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.msg-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.msg-bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5}
+.msg-bubble.sent{background:var(--g);color:#000;align-self:flex-end;border-bottom-right-radius:3px}
+.msg-bubble.recv{background:var(--bg3);color:var(--txt);align-self:flex-start;border-bottom-left-radius:3px}
+.msg-time{font-size:9px;opacity:.6;margin-top:3px}
+.msg-input-wrap{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.msg-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);color:var(--txt);font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;transition:border-color .15s}
+.msg-input:focus{border-color:var(--g)}
+
+.meal-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.meal-row:last-child{border-bottom:none}
+.meal-time{background:var(--bg3);border-radius:var(--rad);padding:3px 8px;font-size:10px;font-family:var(--mono);color:var(--txt2);flex-shrink:0;min-width:50px;text-align:center}
+.meal-name{font-size:12px;font-weight:600;margin-bottom:2px}
+.meal-foods{font-size:11px;color:var(--txt2);line-height:1.6}
+.meal-macros{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
+.mm{padding:2px 6px;border-radius:3px;font-size:10px;font-family:var(--mono);font-weight:500}
+.mm-p{background:rgba(57,217,138,.12);color:var(--g)}.mm-c{background:rgba(91,141,238,.12);color:var(--b)}.mm-f{background:rgba(245,166,35,.12);color:var(--o)}.mm-cal{background:var(--bg4);color:var(--txt2)}
+
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--txt3);font-size:13px;gap:10px}
+.spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.toast{position:fixed;bottom:22px;right:22px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rad);padding:10px 14px;font-size:12px;z-index:200;display:flex;align-items:center;gap:8px;transform:translateY(60px);opacity:0;transition:all .22s ease}
+.toast.show{transform:translateY(0);opacity:1}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--g);flex-shrink:0}
+
+.empty{text-align:center;padding:40px 20px;color:var(--txt3)}
+.empty .icon{font-size:36px;margin-bottom:10px}
+.empty p{font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="auth-mark">JBJ</div>
+        <div class="auth-title"><span>Jacked</span>ByJack</div>
+      </div>
+      <h2>Welcome back 💪</h2>
+      <p>Log in to your training portal</p>
+      <div class="auth-err" id="auth-err"></div>
+      <div class="fg"><label>Email</label><input class="inp" id="login-email" type="email" placeholder="your@email.com"></div>
+      <div class="fg"><label>Password</label><input class="inp" id="login-pass" type="password" placeholder="••••••••"></div>
+      <button class="btn btn-g" style="width:100%;justify-content:center;margin-top:6px" onclick="signIn()">Log in ↗</button>
+      <p style="font-size:11px;color:var(--txt3);text-align:center;margin-top:16px">Your coach will send you your login details</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" style="display:none" class="app">
+  <div class="top-bar">
+    <div class="top-logo">
+      <div class="top-mark">JBJ</div>
+      <div class="top-title"><span>Jacked</span>ByJack</div>
+    </div>
+    <div class="top-user">
+      <div class="top-av" id="top-av">?</div>
+      <div class="top-name" id="top-name">Loading...</div>
+      <button class="logout-btn" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('home',this)">Home</div>
+      <div class="tab" onclick="switchTab('workouts',this)">Workouts</div>
+      <div class="tab" onclick="switchTab('mealplan',this)">Meal Plan</div>
+      <div class="tab" onclick="switchTab('progress',this)">Progress</div>
+      <div class="tab" onclick="switchTab('messages',this)">Messages<span id="msg-dot" style="display:none;color:var(--g);margin-left:3px">●</span></div>
+    </div>
+
+    <!-- HOME -->
+    <div id="tab-home">
+      <div class="stats">
+        <div class="sc"><div class="sc-val" id="h-weight">—</div><div class="sc-lbl">Current weight</div></div>
+        <div class="sc b"><div class="sc-val" id="h-target">—</div><div class="sc-lbl">Target weight</div></div>
+        <div class="sc o"><div class="sc-val" id="h-sessions">—</div><div class="sc-lbl">Sessions done</div></div>
+        <div class="sc"><div class="sc-val" id="h-goal-pct">—</div><div class="sc-lbl">Goal progress</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><h3>My progress</h3></div>
+        <div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Weight goal</span><span id="prog-pct" style="font-family:var(--mono);color:var(--txt2)">0%</span></div>
+          <div class="pb"><div class="pf" id="prog-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><h3>Recent sessions</h3></div>
+        <div id="h-recent"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- WORKOUTS -->
+    <div id="tab-workouts" style="display:none">
+      <div class="card">
+        <div class="ch"><h3>Log today's session</h3><span class="badge bb" id="wo-date-badge"></span></div>
+        <div class="fg"><label>Session type</label>
+          <select class="sel" id="c-wo-type">
+            <option>Upper body — strength</option><option>Upper body — hypertrophy</option>
+            <option>Lower body — strength</option><option>Lower body — hypertrophy</option>
+            <option>Full body</option><option>Fat loss circuit</option><option>Cardio</option>
+          </select>
+        </div>
+        <div class="fg"><label>How did it go?</label><textarea class="ta" id="c-wo-notes" placeholder="e.g. Felt great today, hit a new squat PR!" rows="2"></textarea></div>
+        <div class="fg"><label>Rating</label>
+          <div style="display:flex;gap:4px" id="c-stars">
+            <span onclick="setRating(1)" style="cursor:pointer;font-size:22px">☆</span>
+            <span onclick="setRating(2)" style="cursor:pointer;font-size:22px">☆</span>
+            <span onclick="setRating(3)" style="cursor:pointer;font-size:22px">☆</span>
+            <span onclick="setRating(4)" style="cursor:pointer;font-size:22px">☆</span>
+            <span onclick="setRating(5)" style="cursor:pointer;font-size:22px">☆</span>
+          </div>
+        </div>
+        <button class="btn btn-g" style="width:100%;justify-content:center;margin-top:4px" onclick="logWorkout()">Log session ✓</button>
+      </div>
+      <div class="card">
+        <div class="ch"><h3>Session history</h3></div>
+        <div id="c-wo-history"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- MEAL PLAN -->
+    <div id="tab-mealplan" style="display:none">
+      <div id="c-meal-plan"><div class="loading"><div class="spinner"></div>Loading your meal plan...</div></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div id="tab-progress" style="display:none">
+      <div class="card">
+        <div class="ch"><h3>Log weigh-in</h3></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" class="inp-sm" id="new-weight" placeholder="Weight in kg" step="0.1" style="flex:1">
+          <button class="btn btn-g btn-sm" onclick="logWeighIn()">Log ↗</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><h3>Weight history</h3></div>
+        <div id="c-weight-history"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div id="tab-messages" style="display:none">
+      <div class="msg-wrap">
+        <div class="msg-head">
+          <div class="msg-coach-av">JB</div>
+          Jack — Your coach
+        </div>
+        <div class="msg-messages" id="c-messages">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+        <div class="msg-input-wrap">
+          <input class="msg-input" id="c-msg-input" placeholder="Message your coach..." onkeydown="if(event.key==='Enter')sendMessage()">
+          <button class="btn btn-g" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="tdot"></div><span id="toast-msg"></span></div>
+
+<script>
+const SUPABASE_URL = 'https://qdkqhqakexaizptxypla.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFka3FocWFrZXhhaXpwdHh5cGxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NjYyNzgsImV4cCI6MjA5MDQ0MjI3OH0.hwPxXE_PnhkNnNVk0eMk5Eob1oR4WsvFxD4HqrwNVdk';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let clientRecord = null;
+let coachId = null;
+let ratingVal = 0;
+let msgSub = null;
+
+async function signIn() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('auth-err');
+  err.style.display = 'none';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { err.textContent = error.message; err.style.display = 'block'; return; }
+  await loadApp(data.user);
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+async function loadApp(user) {
+  currentUser = user;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'flex';
+
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  const name = profile?.full_name || user.email.split('@')[0];
+  document.getElementById('top-name').textContent = name;
+  document.getElementById('top-av').textContent = name.slice(0,2).toUpperCase();
+
+  const { data: cr } = await sb.from('clients').select('*').eq('client_id', user.id).single();
+  clientRecord = cr;
+  if (cr) coachId = cr.coach_id;
+
+  loadHome();
+  loadWorkoutHistory();
+  loadMealPlan();
+  loadWeightHistory();
+  loadMessages();
+  subscribeMessages();
+
+  const now = new Date();
+  document.getElementById('wo-date-badge').textContent = now.toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'});
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).style.display = 'block';
+  el.classList.add('active');
+  if (tab === 'messages') { document.getElementById('msg-dot').style.display = 'none'; loadMessages(); }
+}
+
+async function loadHome() {
+  if (!clientRecord) return;
+  const sw = clientRecord.start_weight || 80;
+  const cw = clientRecord.current_weight || sw;
+  const tw = clientRecord.target_weight || 70;
+  const pct = sw === tw ? 100 : Math.min(100, Math.max(0, Math.round(Math.abs(sw-cw)/Math.abs(sw-tw)*100)));
+
+  document.getElementById('h-weight').textContent = cw + ' kg';
+  document.getElementById('h-target').textContent = tw + ' kg';
+  document.getElementById('h-goal-pct').textContent = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-bar').style.width = pct + '%';
+
+  const { count } = await sb.from('sessions').select('*', {count:'exact',head:true}).eq('client_id', currentUser.id);
+  document.getElementById('h-sessions').textContent = count || 0;
+
+  const { data: recent } = await sb.from('sessions').select('*').eq('client_id', currentUser.id).order('created_at', {ascending:false}).limit(3);
+  document.getElementById('h-recent').innerHTML = recent?.length ? recent.map(s => `
+    <div class="session-item">
+      <div class="session-head"><span class="session-name">${s.type}</span><span class="session-date">${s.date}</span></div>
+      ${s.rating ? `<div style="color:var(--o);font-size:12px;margin-bottom:4px">${'★'.repeat(s.rating)}</div>` : ''}
+      ${s.notes ? `<div class="session-type">${s.notes}</div>` : ''}
+    </div>`).join('') : '<div class="empty"><div class="icon">🏋️</div><p>No sessions logged yet. Start training!</p></div>';
+}
+
+function setRating(v) {
+  ratingVal = v;
+  document.querySelectorAll('#c-stars span').forEach((s, i) => { s.textContent = i<v ? '★' : '☆'; s.style.color = i<v ? 'var(--o)' : 'var(--txt3)'; });
+}
+
+async function logWorkout() {
+  const type = document.getElementById('c-wo-type').value;
+  const notes = document.getElementById('c-wo-notes').value;
+  const now = new Date();
+  await sb.from('sessions').insert({
+    coach_id: coachId,
+    client_id: currentUser.id,
+    date: now.toLocaleDateString('en-ZA', {day:'numeric',month:'short'}),
+    type, notes, rating: ratingVal, completed: true, exercises: [],
+  });
+  document.getElementById('c-wo-notes').value = '';
+  ratingVal = 0; setRating(0);
+  loadWorkoutHistory(); loadHome();
+  toast('Session logged ✓');
+}
+
+async function loadWorkoutHistory() {
+  const { data } = await sb.from('sessions').select('*').eq('client_id', currentUser.id).order('created_at', {ascending:false}).limit(10);
+  document.getElementById('c-wo-history').innerHTML = data?.length ? data.map(s => `
+    <div class="session-item">
+      <div class="session-head"><span class="session-name">${s.type}</span><span class="session-date">${s.date}</span></div>
+      ${s.rating ? `<div style="color:var(--o);font-size:11px;margin-bottom:3px">${'★'.repeat(s.rating)}</div>` : ''}
+      ${s.notes ? `<div class="session-type">${s.notes}</div>` : ''}
+      <div class="ex-chips">${(s.exercises||[]).map(e => `<span class="ec">${e.name}</span>`).join('')}</div>
+    </div>`).join('') : '<div class="empty"><div class="icon">📋</div><p>No sessions yet. Log your first one!</p></div>';
+}
+
+async function loadMealPlan() {
+  if (!currentUser) return;
+  const { data: plans } = await sb.from('meal_plans').select('*').eq('client_id', currentUser.id).order('created_at', {ascending:false});
+  if (!plans?.length) {
+    document.getElementById('c-meal-plan').innerHTML = '<div class="empty"><div class="icon">🥗</div><p>No meal plan assigned yet.<br>Your coach will add one soon!</p></div>';
+    return;
+  }
+  document.getElementById('c-meal-plan').innerHTML = plans.map(p => `
+    <div class="card">
+      <div class="ch"><h3>${p.name}</h3><span class="badge bg">${p.goal}</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <span style="font-family:var(--mono);font-size:12px;background:var(--bg3);padding:4px 10px;border-radius:var(--rad)">${p.calories} kcal/day</span>
+        <span style="color:var(--g);font-family:var(--mono);font-size:12px">P: ${p.protein}g</span>
+        <span style="color:var(--b);font-family:var(--mono);font-size:12px">C: ${p.carbs}g</span>
+        <span style="color:var(--o);font-family:var(--mono);font-size:12px">F: ${p.fats}g</span>
+      </div>
+      ${p.notes ? `<div style="font-size:12px;color:var(--txt2);background:var(--bg3);padding:10px 12px;border-radius:var(--rad);margin-bottom:12px;line-height:1.6">${p.notes}</div>` : ''}
+      ${(p.meals||[]).map(m => `
+        <div class="meal-row">
+          <div class="meal-time">${m.time}</div>
+          <div>
+            <div class="meal-name">${m.name}</div>
+            <div class="meal-foods">${(m.foods||[]).map(f => f.food + (f.g ? ` (${f.g}g)` : '')).join(', ')}</div>
+            <div class="meal-macros">
+              <span class="mm mm-p">P: ${(m.foods||[]).reduce((a,f)=>a+(+f.p||0),0)}g</span>
+              <span class="mm mm-c">C: ${(m.foods||[]).reduce((a,f)=>a+(+f.c||0),0)}g</span>
+              <span class="mm mm-f">F: ${(m.foods||[]).reduce((a,f)=>a+(+f.f||0),0)}g</span>
+              <span class="mm mm-cal">${(m.foods||[]).reduce((a,f)=>a+(+f.cal||0),0)} kcal</span>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+async function logWeighIn() {
+  const val = parseFloat(document.getElementById('new-weight').value);
+  if (isNaN(val) || val < 20 || val > 300) { toast('Enter a valid weight'); return; }
+  await sb.from('weight_logs').insert({ client_id: currentUser.id, weight: val });
+  if (clientRecord) {
+    await sb.from('clients').update({ current_weight: val }).eq('client_id', currentUser.id);
+    clientRecord.current_weight = val;
+  }
+  document.getElementById('new-weight').value = '';
+  loadWeightHistory(); loadHome();
+  toast('Weigh-in logged: ' + val + ' kg ✓');
+}
+
+async function loadWeightHistory() {
+  const { data } = await sb.from('weight_logs').select('*').eq('client_id', currentUser.id).order('logged_at', {ascending:false}).limit(12);
+  document.getElementById('c-weight-history').innerHTML = data?.length ? data.map(w => `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span style="font-family:var(--mono);font-weight:600">${w.weight} kg</span>
+      <span style="color:var(--txt3);font-size:11px;font-family:var(--mono)">${new Date(w.logged_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})}</span>
+    </div>`).join('') : '<div class="empty"><div class="icon">⚖️</div><p>No weigh-ins logged yet</p></div>';
+}
+
+async function loadMessages() {
+  if (!coachId) return;
+  const { data } = await sb.from('messages').select('*')
+    .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${coachId}),and(sender_id.eq.${coachId},receiver_id.eq.${currentUser.id})`)
+    .order('created_at');
+  const wrap = document.getElementById('c-messages');
+  wrap.innerHTML = data?.length ? data.map(m => {
+    const sent = m.sender_id === currentUser.id;
+    const time = new Date(m.created_at).toLocaleTimeString('en-ZA', {hour:'2-digit',minute:'2-digit'});
+    return `<div style="display:flex;flex-direction:column;align-items:${sent?'flex-end':'flex-start'}">
+      <div class="msg-bubble ${sent?'sent':'recv'}">${m.content}<div class="msg-time">${time}</div></div>
+    </div>`;
+  }).join('') : '<div class="empty" style="margin-top:40px"><div class="icon">💬</div><p>No messages yet.<br>Say hi to your coach!</p></div>';
+  wrap.scrollTop = wrap.scrollHeight;
+  // Mark coach messages as read
+  if (coachId) await sb.from('messages').update({read:true}).eq('sender_id', coachId).eq('receiver_id', currentUser.id);
+}
+
+async function sendMessage() {
+  if (!coachId) { toast('Cannot find coach'); return; }
+  const input = document.getElementById('c-msg-input');
+  const content = input.value.trim();
+  if (!content) return;
+  input.value = '';
+  await sb.from('messages').insert({ sender_id: currentUser.id, receiver_id: coachId, content });
+  loadMessages();
+}
+
+function subscribeMessages() {
+  msgSub = sb.channel('client-messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+    if (payload.new.receiver_id === currentUser.id) {
+      document.getElementById('msg-dot').style.display = 'inline';
+      loadMessages();
+    }
+  }).subscribe();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) await loadApp(session.user);
+});
+</script>
+</body>
+</html>
