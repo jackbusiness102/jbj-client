@@ -59,9 +59,11 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 /* MOBILE NAV */
 .mob-nav{position:fixed;bottom:0;left:0;right:0;background:var(–bg2);border-top:1px solid var(–border);padding:6px 0 16px;z-index:50;display:none}
 .mob-nav-inner{display:flex;justify-content:space-around}
-.mob-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;color:var(–txt3);cursor:pointer;font-size:9px;font-weight:600;border:none;background:none;font-family:var(–font);min-width:56px}
+.mob-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;color:var(–txt3);cursor:pointer;font-size:9px;font-weight:600;border:none;background:none;font-family:var(–font);min-width:56px;-webkit-appearance:none;appearance:none;outline:none;-webkit-tap-highlight-color:transparent}
 .mob-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.mob-btn.active{color:var(–g)}
+.mob-btn.active{color:var(–g) !important}
+.mob-btn:focus{outline:none;color:var(–txt3)}
+.mob-btn.active:focus{color:var(–g) !important}
 
 /* CARDS & LAYOUT */
 .card{background:var(–bg2);border:1px solid var(–border);border-radius:var(–rad2);padding:16px 18px;margin-bottom:12px}
