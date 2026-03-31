@@ -219,7 +219,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 <div class="auth-screen" id="onboarding-screen" style="display:none">
   <div class="auth-box">
     <div class="auth-logo"><div class="auth-mark">JBJ</div><div class="auth-title"><span>Jacked</span>ByJack</div></div>
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:4px">Welcome! 💪</h2>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;color:#e8e8e8">Welcome! 💪</h2>
     <p style="font-size:13px;color:var(--txt2);margin-bottom:20px">What should we call you?</p>
     <div class="fg"><label>Your name</label><input class="inp" id="display-name" placeholder="e.g. Michaela" maxlength="30" onkeydown="if(event.key==='Enter')saveDisplayName()"></div>
     <button class="btn-login" onclick="saveDisplayName()">Let's go ↗</button>
@@ -230,9 +230,15 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
 <div id="main-app" style="display:none">
   <!-- TOP BAR (mobile only) -->
-  <div class="top-bar" id="top-bar">
-    <div class="top-logo"><div class="top-mark">JBJ</div><div class="top-title"><span>Jacked</span>ByJack</div></div>
-    <div class="top-right"><div class="top-av" id="top-av">?</div><button class="signout" onclick="signOut()">Sign out</button></div>
+  <div id="top-bar" style="display:none;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:#111;border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;z-index:10">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:24px;height:24px;background:#39d98a;color:#000;font-weight:800;font-size:8px;border-radius:6px;display:flex;align-items:center;justify-content:center">JBJ</div>
+      <span style="font-size:13px;font-weight:700;color:#e8e8e8"><span style="color:#39d98a">Jacked</span>ByJack</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="top-av" style="width:28px;height:28px;border-radius:50%;background:rgba(57,217,138,0.15);color:#39d98a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">?</div>
+      <button onclick="signOut()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#888;font-size:12px;padding:5px 10px;cursor:pointer;font-family:-apple-system,sans-serif;-webkit-appearance:none">Sign out</button>
+    </div>
   </div>
 
   <div class="app-wrap">
@@ -361,10 +367,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
   <!-- MESSAGES -->
   <div class="page" id="page-messages">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div><h1 style="font-size:22px;font-weight:700">Messages</h1></div>
-      <button onclick="signOut()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--txt2);font-size:12px;padding:6px 12px;cursor:pointer;font-family:var(--font);-webkit-appearance:none">Sign out</button>
-    </div>
+    <div style="margin-bottom:14px"><h1 style="font-size:22px;font-weight:700">Messages</h1></div>
     <div class="msg-wrap">
       <div class="msg-head"><div class="msg-av">JB</div><div><div style="font-size:14px;font-weight:600">Jack</div><div style="font-size:11px;color:var(--txt2)">Your coach</div></div></div>
       <div class="msg-list" id="msg-list"><div class="loading"><div class="spinner"></div></div></div>
