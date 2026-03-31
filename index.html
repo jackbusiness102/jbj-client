@@ -23,10 +23,10 @@
 html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--font);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 
 /* AUTH */
-.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative;overflow:hidden;background:#0a0a0a}
+.auth-wrap{display:flex;align-items:center;justify-content:center;height:100vh;width:100vw;position:fixed;top:0;left:0;overflow:hidden;background:#0a0a0a}
 .auth-wrap::before{content:’’;position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(57,217,138,0.12),transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(57,217,138,0.07),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(57,217,138,0.05),transparent 40%);pointer-events:none;animation:bgPulse 6s ease-in-out infinite}
 @keyframes bgPulse{0%,100%{opacity:.8}50%{opacity:1}}
-.auth-box{background:rgba(17,17,17,0.92);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:28px 28px;width:90%;max-width:340px;position:relative;z-index:1;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.auth-box{background:rgba(17,17,17,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px 24px;width:85%;max-width:320px;position:relative;z-index:1}
 .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px}
 .auth-mark{width:30px;height:30px;background:#39d98a;color:#000;font-weight:700;font-size:10px;border-radius:6px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(57,217,138,.3)}
 .auth-title{font-size:13px;font-weight:700;color:#e8e8e8}.auth-title span{color:#39d98a}
@@ -78,9 +78,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .fg label{font-size:11px;color:var(–txt2);font-weight:600}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.inp,.sel,.ta{background:rgba(24,24,24,0.95);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#e8e8e8;font-family:var(–font);font-size:14px;padding:9px 12px;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none;-webkit-text-fill-color:#e8e8e8;color-scheme:dark}
-.inp:focus,.sel:focus,.ta:focus{border-color:#39d98a;background:rgba(24,24,24,0.95)}
-.inp::placeholder{color:rgba(120,120,120,0.8);-webkit-text-fill-color:rgba(120,120,120,0.8);opacity:1}
+.inp,.sel,.ta{background:#181818;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#e8e8e8;font-family:var(–font);font-size:13px;padding:8px 11px;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none;-webkit-text-fill-color:#e8e8e8;color-scheme:dark}
+.inp:focus,.sel:focus,.ta:focus{border-color:#39d98a;background:#181818}
+.inp::placeholder{color:rgba(100,100,100,0.8);-webkit-text-fill-color:rgba(100,100,100,0.8);opacity:1}
 .ta{resize:vertical;min-height:60px}
 select option{background:#1a1a1a}
 
@@ -190,7 +190,7 @@ select option{background:#1a1a1a}
 
 <!-- AUTH -->
 
-<div id="auth-screen" style="display:flex">
+<div id="auth-screen" style="display:flex;position:fixed;inset:0;background:#0a0a0a">
   <div class="auth-wrap">
     <div class="auth-box">
       <div class="auth-logo"><div class="auth-mark">JBJ</div><div class="auth-title"><span>Jacked</span>ByJack</div></div>
@@ -207,7 +207,7 @@ select option{background:#1a1a1a}
 
 <!-- ONBOARDING -->
 
-<div id="onboarding-screen" style="display:none">
+<div id="onboarding-screen" style="display:none;position:fixed;inset:0;background:#0a0a0a">
   <div class="auth-wrap">
     <div class="auth-box">
       <div class="auth-logo"><div class="auth-mark">JBJ</div><div class="auth-title"><span>Jacked</span>ByJack</div></div>
