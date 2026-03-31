@@ -74,9 +74,9 @@ body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:15p
 .stat{background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;position:relative;overflow:hidden}
 .stat::after{content:’’;position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(–ac,var(–g)),transparent);opacity:.6}
 .stat.b::after{–ac:var(–b)}.stat.o::after{–ac:var(–o)}.stat.p::after{–ac:var(–p)}
-.stat-icon{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.stat-icon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
 .stat-icon svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.stat-icon.g{background:var(–gd);color:var(–g)}.stat-icon.b{background:var(–bd);color:var(–b)}.stat-icon.o{background:var(–od);color:var(–o)}.stat-icon.p{background:var(–pd);color:var(–p)}
+.stat-icon.g{background:rgba(57,217,138,0.15);color:#39d98a}.stat-icon.b{background:rgba(91,141,238,0.15);color:#5b8dee}.stat-icon.o{background:rgba(245,166,35,0.15);color:#f5a623}.stat-icon.p{background:rgba(167,139,250,0.15);color:#a78bfa}
 .stat-val{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:1px}
 .stat-lbl{font-size:11px;color:var(–txt2)}
 
@@ -209,7 +209,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     <div class="auth-err" id="auth-err"></div>
     <div class="fg"><label>Email</label><input class="inp" id="login-email" type="email" placeholder="your@email.com" autocomplete="email"></div>
     <div class="fg"><label>Password</label><input class="inp" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()"></div>
-    <button class="btn-login" onclick="signIn()" style="background:#39d98a;color:#000;width:100%;padding:13px;font-family:-apple-system,sans-serif;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;margin-top:4px">Log in ↗</button>
+    <button onclick="signIn()" style="display:block;width:100%;padding:13px;background:#39d98a;color:#000;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;margin-top:8px;font-family:-apple-system,sans-serif;-webkit-appearance:none">Log in ↗</button>
     <p style="font-size:12px;color:var(--txt3);text-align:center;margin-top:14px">Your coach will send you your login details</p>
   </div>
 </div>
@@ -269,10 +269,10 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
   <div class="page active" id="page-home">
     <div class="ph"><h1 id="home-greeting">Hey 👋</h1><p class="ph-sub" id="home-date"></p></div>
     <div class="stats">
-      <div class="stat"><div class="stat-icon g"><svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="4"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div><div class="stat-val" id="h-weight">—</div><div class="stat-lbl">Current weight</div></div>
-      <div class="stat b"><div class="stat-icon b"><svg viewBox="0 0 20 20"><path d="M10 3v14M6 7l4-4 4 4" fill="none" stroke="currentColor" stroke-linecap="round"/></svg></div><div class="stat-val" id="h-target">—</div><div class="stat-lbl">Target weight</div></div>
-      <div class="stat o"><div class="stat-icon o"><svg viewBox="0 0 20 20"><path d="M3 10h2M15 10h2M5 10l2-3 3 6 3-4 2 1"/></svg></div><div class="stat-val" id="h-sessions">—</div><div class="stat-lbl">Sessions done</div></div>
-      <div class="stat p"><div class="stat-icon p"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/></svg></div><div class="stat-val" id="h-pct">—%</div><div class="stat-lbl">Goal progress</div></div>
+      <div class="stat"><div class="stat-icon g"><svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="4"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div><div class="stat-val" id="h-weight" >—</div><div class="stat-lbl">Current weight</div></div>
+      <div class="stat b"><div class="stat-icon b"><svg viewBox="0 0 20 20"><path d="M10 3v14M6 7l4-4 4 4" fill="none" stroke="currentColor" stroke-linecap="round"/></svg></div><div class="stat-val" id="h-target" >—</div><div class="stat-lbl">Target weight</div></div>
+      <div class="stat o"><div class="stat-icon o"><svg viewBox="0 0 20 20"><path d="M3 10h2M15 10h2M5 10l2-3 3 6 3-4 2 1"/></svg></div><div class="stat-val" id="h-sessions" >—</div><div class="stat-lbl">Sessions done</div></div>
+      <div class="stat p"><div class="stat-icon p"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/></svg></div><div class="stat-val" id="h-pct" >—%</div><div class="stat-lbl">Goal progress</div></div>
     </div>
     <div class="card"><div class="card-head"><h3>Today's workout</h3></div><div id="h-workout"><div class="loading"><div class="spinner"></div></div></div></div>
     <div class="card"><div class="card-head"><h3>Recent sessions</h3></div><div id="h-recent"><div class="loading"><div class="spinner"></div></div></div></div>
@@ -361,6 +361,10 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
   <!-- MESSAGES -->
   <div class="page" id="page-messages">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div><h1 style="font-size:22px;font-weight:700">Messages</h1></div>
+      <button onclick="signOut()" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--txt2);font-size:12px;padding:6px 12px;cursor:pointer;font-family:var(--font);-webkit-appearance:none">Sign out</button>
+    </div>
     <div class="msg-wrap">
       <div class="msg-head"><div class="msg-av">JB</div><div><div style="font-size:14px;font-weight:600">Jack</div><div style="font-size:11px;color:var(--txt2)">Your coach</div></div></div>
       <div class="msg-list" id="msg-list"><div class="loading"><div class="spinner"></div></div></div>
