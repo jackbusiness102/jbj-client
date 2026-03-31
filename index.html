@@ -25,8 +25,8 @@
   --mono:'Consolas','Courier New',monospace;
   --rad:10px;--rad2:14px;--rad3:18px;
 }
-html{background:var(--bg);-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+html,body{height:100%;background:var(--bg);}
+body{color:var(--txt);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden}
 
 /* AUTH */
 .auth-screen{position:fixed;inset:0;background:var(–bg);display:flex;align-items:center;justify-content:center;padding:24px;z-index:100}
@@ -58,20 +58,20 @@ body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:15p
 .signout{background:none;border:none;color:var(–txt3);font-size:12px;cursor:pointer;padding:4px 8px;-webkit-appearance:none}
 
 /* BOTTOM NAV */
-.bot-nav{position:fixed;bottom:0;left:0;right:0;background:#111;border-top:1px solid var(–border2);padding:8px 0;padding-bottom:calc(8px + env(safe-area-inset-bottom));z-index:50;display:none}
+.bot-nav{background:#111;border-top:1px solid var(–border2);padding:8px 0;padding-bottom:calc(8px + env(safe-area-inset-bottom));flex-shrink:0;display:none}
 .bot-nav-inner{display:flex;justify-content:space-around;align-items:center}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 10px;color:var(–txt3);font-size:10px;font-weight:600;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;min-width:56px}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 10px;color:#555;font-size:10px;font-weight:600;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;min-width:56px}
 .nav-item svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
 .nav-item.on{color:#39d98a}
 
 /* CARDS */
-.card{background:var(–bg2);border:1px solid var(–border);border-radius:var(–rad2);padding:14px 16px;margin-bottom:12px}
+.card{background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:12px}
 .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .card-head h3{font-size:14px;font-weight:600}
 
 /* STATS GRID */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.stat{background:var(–bg2);border:1px solid var(–border);border-radius:var(–rad2);padding:14px;position:relative;overflow:hidden}
+.stat{background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;position:relative;overflow:hidden}
 .stat::after{content:’’;position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(–ac,var(–g)),transparent);opacity:.6}
 .stat.b::after{–ac:var(–b)}.stat.o::after{–ac:var(–o)}.stat.p::after{–ac:var(–p)}
 .stat-icon{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
@@ -190,7 +190,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 .cav-d{width:28px;height:28px;border-radius:50%;background:var(–gd);color:var(–g);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
 .logout-d{background:none;border:none;color:var(–txt3);cursor:pointer;margin-left:auto;padding:4px;font-size:13px}
 .logout-d:hover{color:var(–r)}
-.content-area{margin-left:210px;flex:1;overflow-y:auto;min-height:100vh}
+.content-area{margin-left:210px;flex:1;overflow-y:auto}
 .top-bar{display:none}
 .page{padding:28px 28px 28px}
 }
@@ -228,9 +228,9 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
 <!-- MAIN APP -->
 
-<div id="main-app" style="display:none">
+<div id="main-app" style="display:none;height:100vh;display:none;flex-direction:column">
   <!-- TOP BAR (mobile only) -->
-  <div class="top-bar" id="top-bar">
+  <div class="top-bar" id="top-bar" style="flex-shrink:0">
     <div class="top-logo"><div class="top-mark">JBJ</div><div class="top-title"><span>Jacked</span>ByJack</div></div>
     <div class="top-right"><div class="top-av" id="top-av">?</div><button class="signout" onclick="signOut()">Sign out</button></div>
   </div>
@@ -264,7 +264,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     </aside>
 
 ```
-<div class="content-area" id="content-area">
+<div class="content-area" id="content-area" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <!-- HOME -->
   <div class="page active" id="page-home">
     <div class="ph"><h1 id="home-greeting">Hey 👋</h1><p class="ph-sub" id="home-date"></p></div>
@@ -464,7 +464,7 @@ async function boot(u){
   if(!coachId){const{data:cp}=await sb.from('profiles').select('id').eq('role','coach').single();coachId=cp?.id||null;}
 
   document.getElementById('auth-screen').style.display='none';
-  document.getElementById('main-app').style.display='block';
+  document.getElementById('main-app').style.cssText='display:flex;flex-direction:column;height:100vh;overflow:hidden';
 
   const isMobile=window.innerWidth<=650;
   if(isMobile){
