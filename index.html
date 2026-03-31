@@ -26,7 +26,7 @@
   --rad:10px;--rad2:14px;--rad3:18px;
 }
 html,body{height:100%;background:var(--bg);}
-body{color:var(--txt);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden}
+body{color:var(--txt);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
 /* AUTH */
 .auth-screen{position:fixed;inset:0;background:var(–bg);display:flex;align-items:center;justify-content:center;padding:24px;z-index:100}
@@ -209,7 +209,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     <div class="auth-err" id="auth-err"></div>
     <div class="fg"><label>Email</label><input class="inp" id="login-email" type="email" placeholder="your@email.com" autocomplete="email"></div>
     <div class="fg"><label>Password</label><input class="inp" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()"></div>
-    <button class="btn-login" onclick="signIn()">Log in ↗</button>
+    <button class="btn-login" onclick="signIn()" style="background:#39d98a;color:#000;width:100%;padding:13px;font-family:-apple-system,sans-serif;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;margin-top:4px">Log in ↗</button>
     <p style="font-size:12px;color:var(--txt3);text-align:center;margin-top:14px">Your coach will send you your login details</p>
   </div>
 </div>
@@ -228,7 +228,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
 <!-- MAIN APP -->
 
-<div id="main-app" style="display:none;height:100vh;display:none;flex-direction:column">
+<div id="main-app" style="display:none">
   <!-- TOP BAR (mobile only) -->
   <div class="top-bar" id="top-bar" style="flex-shrink:0">
     <div class="top-logo"><div class="top-mark">JBJ</div><div class="top-title"><span>Jacked</span>ByJack</div></div>
@@ -264,7 +264,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     </aside>
 
 ```
-<div class="content-area" id="content-area" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div class="content-area" id="content-area" style="flex:1;overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;min-height:0;position:relative">
   <!-- HOME -->
   <div class="page active" id="page-home">
     <div class="ph"><h1 id="home-greeting">Hey 👋</h1><p class="ph-sub" id="home-date"></p></div>
@@ -464,12 +464,14 @@ async function boot(u){
   if(!coachId){const{data:cp}=await sb.from('profiles').select('id').eq('role','coach').single();coachId=cp?.id||null;}
 
   document.getElementById('auth-screen').style.display='none';
-  document.getElementById('main-app').style.cssText='display:flex;flex-direction:column;height:100vh;overflow:hidden';
+  document.getElementById('main-app').style.cssText='display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden';
 
   const isMobile=window.innerWidth<=650;
   if(isMobile){
     document.getElementById('bot-nav').style.display='block';
+    document.getElementById('bot-nav').style.flexShrink='0';
     document.getElementById('top-bar').style.display='flex';
+    document.getElementById('top-bar').style.flexShrink='0';
     document.getElementById('sidebar').style.display='none';
     document.getElementById('top-av').textContent=name.slice(0,2).toUpperCase();
   } else {
