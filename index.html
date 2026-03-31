@@ -23,9 +23,10 @@
 html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--font);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 
 /* AUTH */
-.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative;overflow:hidden}
-.auth-wrap::before{content:’’;position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(57,217,138,0.08),transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(57,217,138,0.05),transparent 50%);pointer-events:none}
-.auth-box{background:#111111;border:1px solid rgba(255,255,255,0.11);border-radius:var(–rad3);padding:36px 40px;width:100%;max-width:400px;position:relative;z-index:1}
+.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative;overflow:hidden;background:#0a0a0a}
+.auth-wrap::before{content:’’;position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(57,217,138,0.12),transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(57,217,138,0.07),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(57,217,138,0.05),transparent 40%);pointer-events:none;animation:bgPulse 6s ease-in-out infinite}
+@keyframes bgPulse{0%,100%{opacity:.8}50%{opacity:1}}
+.auth-box{background:rgba(17,17,17,0.95);border:1px solid rgba(255,255,255,0.11);border-radius:20px;padding:36px 32px;width:100%;max-width:380px;position:relative;z-index:1;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px}
 .auth-mark{width:36px;height:36px;background:#39d98a;color:#000;font-weight:700;font-size:11px;border-radius:var(–rad);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(57,217,138,.3)}
 .auth-title{font-size:14px;font-weight:700;color:#e8e8e8}.auth-title span{color:#39d98a}
@@ -77,9 +78,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .fg label{font-size:11px;color:var(–txt2);font-weight:600}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.inp,.sel,.ta{background:#181818;border:1px solid rgba(255,255,255,0.11);border-radius:var(–rad);color:#e8e8e8;font-family:var(–font);font-size:16px;padding:10px 12px;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none;-webkit-text-fill-color:#e8e8e8;color-scheme:dark}
-.inp:focus,.sel:focus,.ta:focus{border-color:var(–g);background:#181818}
-.inp::placeholder{color:#555;-webkit-text-fill-color:#555;opacity:1}
+.inp,.sel,.ta{background:rgba(30,30,30,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e8e8e8;font-family:var(–font);font-size:16px;padding:12px 14px;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none;-webkit-text-fill-color:#e8e8e8;color-scheme:dark}
+.inp:focus,.sel:focus,.ta:focus{border-color:#39d98a;background:rgba(30,30,30,0.9)}
+.inp::placeholder{color:rgba(150,150,150,0.7);-webkit-text-fill-color:rgba(150,150,150,0.7);opacity:1}
 .ta{resize:vertical;min-height:60px}
 select option{background:#1a1a1a}
 
@@ -96,7 +97,7 @@ select option{background:#1a1a1a}
 .bg{background:var(–gd);color:var(–g)}.bb{background:var(–bd);color:var(–b)}.bo{background:rgba(245,166,35,.13);color:var(–o)}
 .btn{padding:8px 16px;border-radius:var(–rad);font-size:12px;font-family:var(–font);font-weight:600;cursor:pointer;border:1px solid var(–border2);background:var(–bg3);color:var(–txt);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .btn:active{transform:scale(.97)}
-.btn-g{background:#39d98a !important;color:#000 !important;border-color:#39d98a !important;-webkit-appearance:none}.btn-g:hover{background:#27ae60 !important}
+.btn-g{background:#39d98a !important;color:#000 !important;border-color:#39d98a !important;-webkit-appearance:none;border-radius:12px !important;font-size:15px !important;padding:13px 20px !important;font-weight:700 !important}.btn-g:hover{background:#27ae60 !important}
 .btn-sm{padding:5px 11px;font-size:11px}
 .pb{height:4px;background:var(–bg4);border-radius:2px;overflow:hidden}
 .pf{height:100%;border-radius:2px;background:var(–g);transition:width .6s}
