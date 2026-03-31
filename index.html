@@ -197,18 +197,16 @@ select option{background:#1a1a1a}
 </head>
 <body>
 
-<!-- SPLASH SCREEN -->
+```
+<div style="font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px"><span style="color:var(--g)">Jacked</span>ByJack</div>
+<div style="font-size:13px;color:var(--txt3);letter-spacing:2px;text-transform:uppercase">Training Portal</div>
+<div style="margin-top:40px;display:flex;gap:6px;justify-content:center" id="splash-dots">
+  <div style="width:6px;height:6px;border-radius:50%;background:var(--g);animation:dot 1.2s ease-in-out infinite"></div>
+  <div style="width:6px;height:6px;border-radius:50%;background:var(--g);animation:dot 1.2s ease-in-out 0.2s infinite"></div>
+  <div style="width:6px;height:6px;border-radius:50%;background:var(--g);animation:dot 1.2s ease-in-out 0.4s infinite"></div>
+</div>
+```
 
-<div id="splash-screen" style="position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000">
-  <div id="splash-inner" style="text-align:center;opacity:0;transform:scale(0.8);transition:all 0.6s cubic-bezier(.22,1,.36,1)">
-    <div style="width:72px;height:72px;background:var(--g);color:#000;font-weight:800;font-size:20px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 40px rgba(57,217,138,.5);animation:pulse 2s ease-in-out infinite">JBJ</div>
-    <div style="font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px"><span style="color:var(--g)">Jacked</span>ByJack</div>
-    <div style="font-size:13px;color:var(--txt3);letter-spacing:2px;text-transform:uppercase">Training Portal</div>
-    <div style="margin-top:40px;display:flex;gap:6px;justify-content:center" id="splash-dots">
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--g);animation:dot 1.2s ease-in-out infinite"></div>
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--g);animation:dot 1.2s ease-in-out 0.2s infinite"></div>
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--g);animation:dot 1.2s ease-in-out 0.4s infinite"></div>
-    </div>
   </div>
   <style>
     @keyframes pulse{0%,100%{box-shadow:0 0 20px rgba(57,217,138,.3)}50%{box-shadow:0 0 50px rgba(57,217,138,.7)}}
@@ -450,7 +448,6 @@ const MILESTONE_ICONS = {
   'first_session': '🌟',
 };
 
-
 // ── TODAY'S SESSION ───────────────────────────────────────
 let sessionExCompleted = {};
 let activeSessionId = null;
@@ -549,34 +546,6 @@ async function finishSession(sessionId) {
   toast('Session complete! Great work 💪');
 }
 
-
-// ── SPLASH ────────────────────────────────────────────────
-function initSplash(callback) {
-  const splash = document.getElementById('splash-screen');
-  const inner = document.getElementById('splash-inner');
-  // Animate in
-  setTimeout(() => {
-    inner.style.opacity = '1';
-    inner.style.transform = 'scale(1)';
-  }, 100);
-  // After 2s, fade out and run callback
-  setTimeout(() => {
-    splash.style.transition = 'opacity 0.5s ease';
-    splash.style.opacity = '0';
-    setTimeout(() => {
-      splash.style.display = 'none';
-      callback();
-    }, 500);
-  }, 2200);
-}
-
-function animateAppIn() {
-  const app = document.getElementById('main-app');
-  if (app) {
-    app.style.animation = 'slideInApp 0.4s ease forwards';
-  }
-}
-
 // ── AUTH ─────────────────────────────────────────────────
 async function saveDisplayName() {
   const name = document.getElementById('display-name').value.trim();
@@ -596,7 +565,6 @@ async function signIn() {
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   if (error) { err.textContent = error.message; err.style.display = 'block'; return; }
   await loadApp(data.user);
-  animateAppIn();
 }
 
 async function signOut() {
