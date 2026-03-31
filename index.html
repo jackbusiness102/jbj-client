@@ -470,10 +470,8 @@ async function boot(u){
   if(isMobile){
     document.getElementById('bot-nav').style.display='block';
     document.getElementById('bot-nav').style.flexShrink='0';
-    document.getElementById('top-bar').style.display='flex';
-    document.getElementById('top-bar').style.flexShrink='0';
+    document.getElementById('top-bar').style.display='none';
     document.getElementById('sidebar').style.display='none';
-    document.getElementById('top-av').textContent=name.slice(0,2).toUpperCase();
   } else {
     document.getElementById('bot-nav').style.display='none';
     document.getElementById('top-bar').style.display='none';
