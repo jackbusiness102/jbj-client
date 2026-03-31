@@ -36,7 +36,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 .app{display:flex;height:100vh;overflow:hidden}
 .sidebar{width:210px;background:var(–bg2);border-right:1px solid var(–border);display:flex;flex-direction:column;flex-shrink:0}
 .main{flex:1;overflow-y:auto}
-.page{display:none;padding:28px 24px 90px;animation:fadeUp .2s ease}
+.page{display:none;padding:20px 16px 100px;animation:fadeUp .2s ease}
 .page.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
@@ -68,7 +68,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 .mob-btn.active:focus{color:var(–g) !important}
 
 /* CARDS & LAYOUT */
-.card{background:var(–bg2);border:1px solid var(–border);border-radius:var(–rad2);padding:16px 18px;margin-bottom:12px}
+.card{background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px 18px;margin-bottom:12px}
 .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .ch h3{font-size:13px;font-weight:600}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -86,7 +86,7 @@ select option{background:#1a1a1a}
 
 /* STATS */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.sc{background:var(–bg2);border:1px solid var(–border);border-radius:var(–rad2);padding:16px;position:relative;overflow:hidden}
+.sc{background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;position:relative;overflow:hidden}
 .sc::after{content:’’;position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(–ac,var(–g)),transparent);opacity:.5}
 .sc.b::after{–ac:var(–b)}.sc.o::after{–ac:var(–o)}.sc.p::after{–ac:var(–p)}
 .sc-val{font-size:20px;font-weight:700;margin-bottom:2px;letter-spacing:-.3px}
