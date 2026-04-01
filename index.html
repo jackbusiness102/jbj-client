@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 :root{
   --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#222;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
@@ -91,14 +92,14 @@ body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:15p
 .macro-box{flex:1;min-width:65px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);padding:10px;text-align:center}
 .macro-val{font-size:17px;font-weight:700;font-family:var(--mono)}
 .macro-lbl{font-size:10px;color:var(--txt2)}
-.msg-wrap{display:flex;flex-direction:column;flex:1;min-height:0;margin:0 16px 16px;background:#1c1c1e;border:1px solid rgba(255,255,255,0.15);border-radius:18px;overflow:hidden}
-#page-messages{height:calc(100dvh - var(--nav-h));padding:14px 0 0;display:flex;flex-direction:column;overflow:hidden}
-.msg-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.1);background:#242426;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;flex-shrink:0}
-.msg-av{width:34px;height:34px;border-radius:50%;background:var(--gd);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.msg-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:14px 14px 8px;-webkit-overflow-scrolling:touch;background:#1c1c1e}
-.msg-input-row{display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,0.1);background:#242426;flex-shrink:0}
-.msg-inp{flex:1;background:#333336;border:1px solid rgba(255,255,255,0.2);border-radius:22px;color:var(--txt);font-family:var(--font);font-size:15px;padding:10px 16px;outline:none;-webkit-appearance:none;-webkit-text-fill-color:var(--txt);color-scheme:dark}
-.msg-inp:focus{border-color:var(--g)}
+#page-messages{height:calc(100vh - 65px);height:calc(100dvh - 65px);padding:14px 0 0;display:flex!important;flex-direction:column;overflow:hidden}
+.msg-wrap{display:flex;flex-direction:column;flex:1;min-height:0;margin:0 14px 14px;background:#1e1e20;border:1.5px solid rgba(57,217,138,0.25);border-radius:16px;overflow:hidden}
+.msg-head{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,0.1);background:#27272a;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.msg-av{width:34px;height:34px;border-radius:50%;background:rgba(57,217,138,0.15);color:#39d98a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.msg-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:12px 12px 6px;-webkit-overflow-scrolling:touch;background:#1e1e20}
+.msg-input-row{display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,0.1);background:#27272a;flex-shrink:0}
+.msg-inp{flex:1;background:#38383c;border:1px solid rgba(255,255,255,0.25);border-radius:22px;color:#e8e8e8;font-family:-apple-system,sans-serif;font-size:15px;padding:10px 16px;outline:none;-webkit-appearance:none;-webkit-text-fill-color:#e8e8e8;color-scheme:dark}
+.msg-inp:focus{border-color:#39d98a;background:#3d3d41}
 .msg-send{background:var(--g);color:#000;border:none;border-radius:22px;padding:10px 18px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;-webkit-appearance:none;white-space:nowrap}
 .ms-banner{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid var(--g);border-radius:var(--rad2);padding:14px 20px;z-index:300;text-align:center;min-width:260px;max-width:90vw;box-shadow:0 8px 40px rgba(57,217,138,.3);animation:popIn .4s cubic-bezier(.22,1,.36,1)}
 @keyframes popIn{from{opacity:0;transform:translateX(-50%) scale(.85)}to{opacity:1;transform:translateX(-50%) scale(1)}}
@@ -995,15 +996,13 @@ function toast(msg){const t=document.getElementById('toast');clearTimeout(tt);do
   window._startAuthCanvas=_showAuth;
 })();
 
-// Prevent pinch-zoom and double-tap zoom on iOS (ignores viewport user-scalable=no since iOS 10)
-document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
-document.addEventListener('gesturechange', e=>e.preventDefault(), {passive:false});
-document.addEventListener('gestureend', e=>e.preventDefault(), {passive:false});
-document.addEventListener('touchmove', e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+// Prevent all zoom gestures on iOS
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 let _lastTap=0;
-document.addEventListener('touchend', e=>{
+document.addEventListener('touchend',e=>{
   const now=Date.now();
-  if(now-_lastTap<300&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='BUTTON')e.preventDefault();
+  if(now-_lastTap<300&&!['INPUT','TEXTAREA','BUTTON','SELECT'].includes(e.target.tagName))e.preventDefault();
   _lastTap=now;
 },{passive:false});
 
