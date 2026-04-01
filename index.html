@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="color-scheme" content="dark">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>JackedByJack</title>
@@ -91,7 +91,8 @@ body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:15p
 .macro-box{flex:1;min-width:65px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);padding:10px;text-align:center}
 .macro-val{font-size:17px;font-weight:700;font-family:var(--mono)}
 .macro-lbl{font-size:10px;color:var(--txt2)}
-.msg-wrap{display:flex;flex-direction:column;height:calc(100vh - 180px)}
+.msg-wrap{display:flex;flex-direction:column;flex:1;min-height:0}
+#page-messages{height:calc(100dvh - var(--nav-h));padding-bottom:env(safe-area-inset-bottom,0px);display:flex;flex-direction:column;overflow:hidden}
 .msg-head{padding:12px 0;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .msg-av{width:30px;height:30px;border-radius:50%;background:var(--gd);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
 .msg-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px 0;-webkit-overflow-scrolling:touch}
@@ -258,7 +259,6 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
       </div>
     </aside>
 
-```
 <div class="content-area" id="content-area">
   <!-- HOME -->
   <div class="page active" id="page-home">
@@ -367,7 +367,6 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     </div>
   </div>
 </div>
-```
 
   </div>
 </div>
@@ -469,7 +468,7 @@ async function boot(u){
   if(logExRows.length===0)logExRows=[{name:'Back squat',sets:'',reps:'',weight:''}];
   renderLogExRows();
   loadHomeData();loadSessionData();loadMeals();loadWeightHistory();loadProgressDetail();loadHistory();loadPRs();loadAchievements();
-  subscribeMessages();subscribeCoachUpdates();updateNavBadges();
+  subscribeMessages();subscribeCoachUpdates();updateNavBadges();startBadgePolling();
 }
 
 function navPage(page,el){
@@ -991,6 +990,16 @@ function toast(msg){const t=document.getElementById('toast');clearTimeout(tt);do
   // hook into the existing DOMContentLoaded flow
   window._startAuthCanvas=_showAuth;
 })();
+
+// Poll badges every 30s and on tab focus as fallback for realtime
+let badgePollInterval=null;
+function startBadgePolling(){
+  if(badgePollInterval)clearInterval(badgePollInterval);
+  badgePollInterval=setInterval(()=>{if(user)updateNavBadges();},30000);
+}
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&user)updateNavBadges();
+});
 
 document.addEventListener('DOMContentLoaded',()=>{
   const splash=document.getElementById('splash');
