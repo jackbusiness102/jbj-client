@@ -91,13 +91,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:15p
 .macro-box{flex:1;min-width:65px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);padding:10px;text-align:center}
 .macro-val{font-size:17px;font-weight:700;font-family:var(--mono)}
 .macro-lbl{font-size:10px;color:var(--txt2)}
-.msg-wrap{display:flex;flex-direction:column;flex:1;min-height:0;margin:0 16px 16px;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:18px;overflow:hidden}
+.msg-wrap{display:flex;flex-direction:column;flex:1;min-height:0;margin:0 16px 16px;background:#1c1c1e;border:1px solid rgba(255,255,255,0.15);border-radius:18px;overflow:hidden}
 #page-messages{height:calc(100dvh - var(--nav-h));padding:14px 0 0;display:flex;flex-direction:column;overflow:hidden}
-.msg-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);background:#141414;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;flex-shrink:0}
+.msg-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.1);background:#242426;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;flex-shrink:0}
 .msg-av{width:34px;height:34px;border-radius:50%;background:var(--gd);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.msg-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:14px 14px 8px;-webkit-overflow-scrolling:touch}
-.msg-input-row{display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,0.08);background:#111111;flex-shrink:0}
-.msg-inp{flex:1;background:#1c1c1e;border:1px solid var(--border2);border-radius:22px;color:var(--txt);font-family:var(--font);font-size:15px;padding:10px 16px;outline:none;-webkit-appearance:none;-webkit-text-fill-color:var(--txt);color-scheme:dark}
+.msg-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:14px 14px 8px;-webkit-overflow-scrolling:touch;background:#1c1c1e}
+.msg-input-row{display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,0.1);background:#242426;flex-shrink:0}
+.msg-inp{flex:1;background:#333336;border:1px solid rgba(255,255,255,0.2);border-radius:22px;color:var(--txt);font-family:var(--font);font-size:15px;padding:10px 16px;outline:none;-webkit-appearance:none;-webkit-text-fill-color:var(--txt);color-scheme:dark}
 .msg-inp:focus{border-color:var(--g)}
 .msg-send{background:var(--g);color:#000;border:none;border-radius:22px;padding:10px 18px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;-webkit-appearance:none;white-space:nowrap}
 .ms-banner{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid var(--g);border-radius:var(--rad2);padding:14px 20px;z-index:300;text-align:center;min-width:260px;max-width:90vw;box-shadow:0 8px 40px rgba(57,217,138,.3);animation:popIn .4s cubic-bezier(.22,1,.36,1)}
@@ -999,6 +999,7 @@ function toast(msg){const t=document.getElementById('toast');clearTimeout(tt);do
 document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
 document.addEventListener('gesturechange', e=>e.preventDefault(), {passive:false});
 document.addEventListener('gestureend', e=>e.preventDefault(), {passive:false});
+document.addEventListener('touchmove', e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 let _lastTap=0;
 document.addEventListener('touchend', e=>{
   const now=Date.now();
