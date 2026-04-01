@@ -402,7 +402,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const sb=supabase.createClient(SB_URL,SB_KEY);
 const EX=['Ab crunch','Abductors','Adductors','Back extension','Back squat','Barbell row','Battle ropes','Bench press','Box jump','Burpee','Cable lateral raises','Cable row','Deadlift','Dumbbell curl','Dumbbell lateral raise','Face pull','Front squat','Good morning','Hack squat','Hip press','Hip thrust','Incline abductors','Incline bench press','Incline chest press machine','KB swing','Lat pulldown machine','Leg extension','Leg press','Leg press narrow stance','Lunge','Lying hamstring curl','Lying shoulder press machine','OH rope extension','Pec deck','Plank','Preacher curl machine','Preacher curl on bench','Pull-up','Push-up','Romanian deadlift','Rope pushdown','Seated row','Single arm cable extension','Single arm OH cable extension','Smith RDL','Smith row','Squat','Standing calf raises','Standing hamstring curl','Step-up','TG shoulder press machine','Tricep dip','Unilateral lat pulldown'];
 const MS_ICONS={new_weight_low:'⚖️',new_pr:'🏋️',streak:'🔥',goal_reached:'🎯',first_session:'🌟'};
-let user=null,clientRec=null,coachId=null,logRating=0,logExRows=[],msgSub=null,sessionDone={};
+let user=null,clientRec=null,coachId=null,logRating=0,logExRows=[],msgSub=null,coachSub=null,sessionDone={};
 
 async function signIn(){
   const email=document.getElementById('login-email').value.trim();
@@ -469,7 +469,7 @@ async function boot(u){
   if(logExRows.length===0)logExRows=[{name:'Back squat',sets:'',reps:'',weight:''}];
   renderLogExRows();
   loadHomeData();loadSessionData();loadMeals();loadWeightHistory();loadProgressDetail();loadHistory();loadPRs();loadAchievements();
-  subscribeMessages();updateNavBadges();
+  subscribeMessages();subscribeCoachUpdates();updateNavBadges();
 }
 
 function navPage(page,el){
@@ -832,6 +832,31 @@ function subscribeMessages(){
       if(!document.getElementById('ni-messages')?.classList.contains('on'))updateNavBadges();
     }
   }).subscribe();
+}
+
+function subscribeCoachUpdates(){
+  if(coachSub)sb.removeChannel(coachSub);
+  coachSub=sb.channel('coach-'+Math.random())
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'sessions',filter:`client_id=eq.${user.id}`},p=>{
+      if(!document.getElementById('ni-session')?.classList.contains('on')){
+        toast('New workout assigned by your coach!');
+        updateNavBadges();
+      } else {
+        loadSessionData();loadHomeData();
+      }
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'meal_plans',filter:`client_id=eq.${user.id}`},p=>{
+      if(!document.getElementById('ni-meals')?.classList.contains('on')){
+        toast('New meal plan from your coach!');
+        updateNavBadges();
+      } else {
+        loadMeals();
+      }
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'milestones',filter:`client_id=eq.${user.id}`},p=>{
+      updateNavBadges();
+    })
+    .subscribe();
 }
 
 function openM(n){document.getElementById('mbg').classList.add('open');document.getElementById('modal-'+n).classList.add('open');}
