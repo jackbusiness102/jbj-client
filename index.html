@@ -51,6 +51,8 @@ body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:15p
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 10px;color:#555;font-size:10px;font-weight:600;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;min-width:56px}
 .nav-item svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
 .nav-item.on{color:#39d98a}
+.nav-item-icon{position:relative;display:inline-flex}
+.nav-badge{position:absolute;top:-4px;right:-6px;background:#39d98a;color:#000;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;line-height:1;padding:0 3px;pointer-events:none;box-shadow:0 0 0 2px #111111}
 .card{background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:12px}
 .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .card-head h3{font-size:14px;font-weight:600}
@@ -372,11 +374,11 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
 <div class="bot-nav" id="bot-nav">
   <div class="bot-nav-inner">
-    <div class="nav-item on" id="ni-home" onclick="navMob('home')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>Home</div>
-    <div class="nav-item" id="ni-session" onclick="navMob('session')"><svg viewBox="0 0 20 20"><path d="M3 10h2M15 10h2M5 10l2-3 3 6 3-4 2 1"/></svg>Workout</div>
-    <div class="nav-item" id="ni-meals" onclick="navMob('meals')"><svg viewBox="0 0 20 20"><path d="M10 3c-3 0-6 2.5-6 6 0 2.5 1.5 4.5 3 5.5V17h6v-2.5c1.5-1 3-3 3-5.5 0-3.5-3-6-6-6z"/></svg>Meals</div>
-    <div class="nav-item" id="ni-progress" onclick="navMob('progress')"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/><line x1="3" y1="17" x2="17" y2="17"/></svg>Progress</div>
-    <div class="nav-item" id="ni-messages" onclick="navMob('messages')"><svg viewBox="0 0 20 20"><path d="M3 4h14v10H3z"/><path d="M3 4l7 6 7-6"/></svg>Chat</div>
+    <div class="nav-item on" id="ni-home" onclick="navMob('home')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg><span class="nav-badge" id="badge-home"></span></span>Home</div>
+    <div class="nav-item" id="ni-session" onclick="navMob('session')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><path d="M3 10h2M15 10h2M5 10l2-3 3 6 3-4 2 1"/></svg><span class="nav-badge" id="badge-session"></span></span>Workout</div>
+    <div class="nav-item" id="ni-meals" onclick="navMob('meals')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><path d="M10 3c-3 0-6 2.5-6 6 0 2.5 1.5 4.5 3 5.5V17h6v-2.5c1.5-1 3-3 3-5.5 0-3.5-3-6-6-6z"/></svg><span class="nav-badge" id="badge-meals"></span></span>Meals</div>
+    <div class="nav-item" id="ni-progress" onclick="navMob('progress')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/><line x1="3" y1="17" x2="17" y2="17"/></svg></span>Progress</div>
+    <div class="nav-item" id="ni-messages" onclick="navMob('messages')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><path d="M3 4h14v10H3z"/><path d="M3 4l7 6 7-6"/></svg><span class="nav-badge" id="badge-messages"></span></span>Chat</div>
   </div>
 </div>
 
@@ -467,7 +469,7 @@ async function boot(u){
   if(logExRows.length===0)logExRows=[{name:'Back squat',sets:'',reps:'',weight:''}];
   renderLogExRows();
   loadHomeData();loadSessionData();loadMeals();loadWeightHistory();loadProgressDetail();loadHistory();loadPRs();loadAchievements();
-  subscribeMessages();checkMsgDot();
+  subscribeMessages();updateNavBadges();
 }
 
 function navPage(page,el){
@@ -484,6 +486,9 @@ function navMob(page){
   const el=document.getElementById('ni-'+page);
   if(el){el.classList.add('on');el.style.color='#39d98a';}
   navPage(page,null);
+  if(page==='messages')setBadge('messages',0);
+  if(page==='session'){localStorage.setItem('jbj_seen_session',new Date().toISOString());setBadge('session',0);}
+  if(page==='meals'){localStorage.setItem('jbj_seen_meal',new Date().toISOString());setBadge('meals',0);}
 }
 
 async function loadHomeData(){
@@ -735,6 +740,7 @@ async function loadAchievements(){
       <div><div style="font-size:13px;font-weight:600">${m.message}</div><div style="font-size:11px;color:var(--txt3)">${new Date(m.created_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})}</div></div>
     </div>`).join(''):'<div class="empty"><div class="ei">🏆</div><p>No achievements yet.<br>Keep training!</p></div>';
   await sb.from('milestones').update({seen_client:true}).eq('client_id',user.id).eq('seen_client',false);
+  setBadge('home',0);
 }
 
 async function triggerMilestone(type,message){
@@ -780,15 +786,51 @@ async function sendMsg(){
   loadMessages();
 }
 
-async function checkMsgDot(){
-  if(!coachId)return;
-  const{count}=await sb.from('messages').select('*',{count:'exact',head:true}).eq('sender_id',coachId).eq('receiver_id',user.id).eq('read',false);
+function setBadge(tab,count){
+  const el=document.getElementById('badge-'+tab);
+  if(!el)return;
+  el.textContent=count>9?'9+':String(count);
+  el.style.display=count>0?'flex':'none';
+}
+
+async function updateNavBadges(){
+  if(!user)return;
+  const checks=[];
+  // Unread messages from coach
+  if(coachId){
+    checks.push(
+      sb.from('messages').select('*',{count:'exact',head:true}).eq('sender_id',coachId).eq('receiver_id',user.id).eq('read',false)
+        .then(({count})=>setBadge('messages',count||0))
+    );
+  }
+  // Unseen achievements
+  checks.push(
+    sb.from('milestones').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('seen_client',false)
+      .then(({count})=>setBadge('home',count||0))
+  );
+  // New sessions assigned since last view
+  const lastSes=localStorage.getItem('jbj_seen_session')||'1970-01-01T00:00:00Z';
+  checks.push(
+    sb.from('sessions').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('completed',false).gt('created_at',lastSes)
+      .then(({count})=>setBadge('session',count||0))
+  );
+  // New meal plans since last view
+  const lastMeal=localStorage.getItem('jbj_seen_meal')||'1970-01-01T00:00:00Z';
+  checks.push(
+    sb.from('meal_plans').select('*',{count:'exact',head:true}).eq('client_id',user.id).gt('created_at',lastMeal)
+      .then(({count})=>setBadge('meals',count||0))
+  );
+  await Promise.all(checks);
 }
 
 function subscribeMessages(){
   if(msgSub)sb.removeChannel(msgSub);
   msgSub=sb.channel('c-'+Math.random()).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},p=>{
-    if(p.new.receiver_id===user.id){toast('New message from your coach!');loadMessages();}
+    if(p.new.receiver_id===user.id){
+      toast('New message from your coach!');
+      loadMessages();
+      if(!document.getElementById('ni-messages')?.classList.contains('on'))updateNavBadges();
+    }
   }).subscribe();
 }
 
