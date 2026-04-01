@@ -991,6 +991,17 @@ function toast(msg){const t=document.getElementById('toast');clearTimeout(tt);do
   window._startAuthCanvas=_showAuth;
 })();
 
+// Prevent pinch-zoom and double-tap zoom on iOS (ignores viewport user-scalable=no since iOS 10)
+document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
+document.addEventListener('gesturechange', e=>e.preventDefault(), {passive:false});
+document.addEventListener('gestureend', e=>e.preventDefault(), {passive:false});
+let _lastTap=0;
+document.addEventListener('touchend', e=>{
+  const now=Date.now();
+  if(now-_lastTap<300&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='BUTTON')e.preventDefault();
+  _lastTap=now;
+},{passive:false});
+
 // Poll badges every 30s and on tab focus as fallback for realtime
 let badgePollInterval=null;
 function startBadgePolling(){
