@@ -356,17 +356,17 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
   </div>
 
   <!-- MESSAGES -->
-  <div class="page" id="page-messages">
-    <div style="padding:0 16px 12px"><h1 style="font-size:22px;font-weight:700">Messages</h1></div>
-    <div class="msg-wrap">
-      <div class="msg-head">
+  <div class="page" id="page-messages" style="padding:14px 0 0">
+    <div style="padding:0 16px 10px"><h1 style="font-size:22px;font-weight:700">Messages</h1></div>
+    <div class="msg-wrap" style="height:calc(100vh - 210px);display:flex;flex-direction:column;margin:0 14px;background:#1e1e20;border:1.5px solid rgba(57,217,138,0.25);border-radius:16px;overflow:hidden">
+      <div class="msg-head" style="padding:13px 16px;border-bottom:1px solid rgba(255,255,255,0.1);background:#27272a;display:flex;align-items:center;gap:10px;flex-shrink:0">
         <div class="msg-av">JB</div>
-        <div><div style="font-size:14px;font-weight:600">Jack</div><div style="font-size:11px;color:var(--txt2)">Your coach</div></div>
+        <div><div style="font-size:14px;font-weight:600">Jack</div><div style="font-size:11px;color:#888">Your coach</div></div>
         <div style="margin-left:auto;width:8px;height:8px;border-radius:50%;background:#39d98a;box-shadow:0 0 6px rgba(57,217,138,.6)"></div>
       </div>
-      <div class="msg-list" id="msg-list"><div class="loading"><div class="spinner"></div></div></div>
-      <div class="msg-input-row">
-        <input class="msg-inp" id="msg-input" placeholder="Message your coach..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <div class="msg-list" id="msg-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:12px;-webkit-overflow-scrolling:touch;background:#1e1e20"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="msg-input-row" style="display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,0.1);background:#27272a;flex-shrink:0">
+        <input class="msg-inp" id="msg-input" placeholder="Message your coach..." onkeydown="if(event.key==='Enter')sendMsg()" style="flex:1;background:#38383c;border:1px solid rgba(255,255,255,0.25);border-radius:22px;color:#e8e8e8;font-size:15px;padding:10px 16px;outline:none;-webkit-appearance:none;-webkit-text-fill-color:#e8e8e8;color-scheme:dark;font-family:-apple-system,sans-serif">
         <button class="msg-send" onclick="sendMsg()">Send</button>
       </div>
     </div>
