@@ -180,7 +180,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
 <div class="auth-screen" id="auth-screen" style="display:none">
   <div style="position:fixed;inset:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;padding:20px;z-index:100">
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 25% 40%,rgba(57,217,138,0.12),transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(57,217,138,0.06),transparent 50%);pointer-events:none"></div>
+    <canvas id="auth-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas>
     <div style="background:rgba(17,17,17,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:24px 22px;width:100%;max-width:300px;position:relative;z-index:1">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">
         <div style="width:28px;height:28px;background:#39d98a;color:#000;font-weight:800;font-size:9px;border-radius:7px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(57,217,138,.4);flex-shrink:0">JBJ</div>
@@ -798,6 +798,133 @@ function closeM(){document.getElementById('mbg').classList.remove('open');docume
 let tt;
 function toast(msg){const t=document.getElementById('toast');clearTimeout(tt);document.getElementById('toast-msg').textContent=msg;t.classList.add('show');tt=setTimeout(()=>t.classList.remove('show'),2800);}
 
+// --- Particle network animation for auth screen ---
+(function(){
+  let raf,particles=[],mouse={x:-9999,y:-9999};
+  const DOT_COUNT=55,CONNECT_DIST=120,DOT_RADIUS=2.5,SPEED=0.4;
+  const GREEN='rgba(57,217,138,',BG='#0a0a0a';
+
+  function initCanvas(){
+    const canvas=document.getElementById('auth-canvas');
+    if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    resize(canvas);
+
+    function resize(c){
+      c.width=c.offsetWidth*devicePixelRatio;
+      c.height=c.offsetHeight*devicePixelRatio;
+      ctx.scale(devicePixelRatio,devicePixelRatio);
+    }
+
+    const resizeObs=new ResizeObserver(()=>{
+      ctx.resetTransform();
+      resize(canvas);
+    });
+    resizeObs.observe(canvas);
+
+    // spawn particles
+    particles=[];
+    for(let i=0;i<DOT_COUNT;i++){
+      particles.push({
+        x:Math.random()*canvas.offsetWidth,
+        y:Math.random()*canvas.offsetHeight,
+        vx:(Math.random()-0.5)*SPEED*2,
+        vy:(Math.random()-0.5)*SPEED*2,
+        r:DOT_RADIUS*(0.6+Math.random()*0.8)
+      });
+    }
+
+    function draw(){
+      const w=canvas.offsetWidth,h=canvas.offsetHeight;
+      ctx.clearRect(0,0,w,h);
+      ctx.fillStyle=BG;
+      ctx.fillRect(0,0,w,h);
+
+      // update & wrap
+      for(const p of particles){
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<-10)p.x=w+10; else if(p.x>w+10)p.x=-10;
+        if(p.y<-10)p.y=h+10; else if(p.y>h+10)p.y=-10;
+      }
+
+      // draw lines
+      for(let i=0;i<particles.length;i++){
+        const a=particles[i];
+        // line to mouse
+        const mdx=mouse.x-a.x,mdy=mouse.y-a.y;
+        const md=Math.sqrt(mdx*mdx+mdy*mdy);
+        if(md<CONNECT_DIST*1.5){
+          const alpha=(1-md/(CONNECT_DIST*1.5))*0.5;
+          ctx.beginPath();
+          ctx.moveTo(a.x,a.y);
+          ctx.lineTo(mouse.x,mouse.y);
+          ctx.strokeStyle=GREEN+alpha+')';
+          ctx.lineWidth=0.6;
+          ctx.stroke();
+        }
+        // line to nearby particles
+        for(let j=i+1;j<particles.length;j++){
+          const b=particles[j];
+          const dx=b.x-a.x,dy=b.y-a.y;
+          const d=Math.sqrt(dx*dx+dy*dy);
+          if(d<CONNECT_DIST){
+            const alpha=(1-d/CONNECT_DIST)*0.45;
+            ctx.beginPath();
+            ctx.moveTo(a.x,a.y);
+            ctx.lineTo(b.x,b.y);
+            ctx.strokeStyle=GREEN+alpha+')';
+            ctx.lineWidth=0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // draw dots
+      for(const p of particles){
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=GREEN+'0.85)';
+        ctx.fill();
+        // glow
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r*2.5,0,Math.PI*2);
+        ctx.fillStyle=GREEN+'0.08)';
+        ctx.fill();
+      }
+
+      raf=requestAnimationFrame(draw);
+    }
+
+    raf=requestAnimationFrame(draw);
+    return resizeObs;
+  }
+
+  // mouse/touch tracking (canvas has pointer-events:none so track on window)
+  window.addEventListener('mousemove',e=>{
+    const canvas=document.getElementById('auth-canvas');
+    if(!canvas)return;
+    const r=canvas.getBoundingClientRect();
+    mouse.x=e.clientX-r.left; mouse.y=e.clientY-r.top;
+  });
+  window.addEventListener('touchmove',e=>{
+    const canvas=document.getElementById('auth-canvas');
+    if(!canvas)return;
+    const r=canvas.getBoundingClientRect();
+    const t=e.touches[0];
+    mouse.x=t.clientX-r.left; mouse.y=t.clientY-r.top;
+  },{passive:true});
+  window.addEventListener('touchend',()=>{mouse.x=-9999;mouse.y=-9999;});
+
+  // start when auth screen becomes visible, stop when hidden
+  const _showAuth=()=>{
+    cancelAnimationFrame(raf);
+    initCanvas();
+  };
+
+  // hook into the existing DOMContentLoaded flow
+  window._startAuthCanvas=_showAuth;
+})();
+
 document.addEventListener('DOMContentLoaded',()=>{
   const splash=document.getElementById('splash');
   const inner=document.getElementById('splash-inner');
@@ -812,6 +939,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         boot(session.user);
       } else {
         document.getElementById('auth-screen').style.display='block';
+        window._startAuthCanvas&&window._startAuthCanvas();
       }
     },400);
   },2000);
