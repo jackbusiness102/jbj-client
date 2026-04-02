@@ -40,13 +40,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:15p
 .inp:focus{border-color:var(--g)}
 .inp::placeholder{color:var(--txt3);-webkit-text-fill-color:var(--txt3)}
 .btn-login{width:100%;padding:13px;background:var(--g);color:#000;font-family:var(--font);font-size:15px;font-weight:700;border:none;border-radius:var(--rad);cursor:pointer;margin-top:4px;-webkit-appearance:none}
-.page{display:none;padding:16px 16px 90px;animation:fadeUp .2s ease}
+.page{display:none;padding:16px 20px 90px;animation:fadeUp .2s ease}
 .page.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes splashPulse{0%,100%{box-shadow:0 0 20px rgba(57,217,138,.3)}50%{box-shadow:0 0 50px rgba(57,217,138,.7)}}
 @keyframes splashDot{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-5px)}}
 @keyframes splashFadeIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 4px;position:sticky;top:0;background:var(--bg);z-index:10;border-bottom:1px solid var(--border);-webkit-transform:translateZ(0);transform:translateZ(0)}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-right)) 4px max(16px,env(safe-area-inset-left));position:sticky;top:0;background:var(--bg);z-index:10;border-bottom:1px solid var(--border)}
 .bot-nav{position:fixed;bottom:0;left:0;right:0;background:#111111;border-top:1px solid rgba(255,255,255,0.1);padding:10px 0;padding-bottom:calc(10px + env(safe-area-inset-bottom));z-index:999;display:none;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .bot-nav-inner{display:flex;justify-content:space-around;align-items:center}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 10px;color:#555;font-size:10px;font-weight:600;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;min-width:56px}
