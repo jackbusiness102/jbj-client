@@ -220,6 +220,20 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
   </div>
 </div>
 
+<!-- WELCOME Q&A -->
+
+<div id="qa-screen" style="display:none;position:fixed;inset:0;background:#0a0a0a;z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div style="max-width:480px;margin:0 auto;padding:24px 20px 40px">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="width:40px;height:40px;background:#39d98a;color:#000;font-weight:800;font-size:12px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px">JBJ</div>
+      <h1 style="font-size:20px;font-weight:700;color:#e8e8e8;margin-bottom:6px">Welcome Q&amp;A</h1>
+      <p style="font-size:13px;color:#888">Help your coach understand you better</p>
+    </div>
+    <div id="qa-fields"></div>
+    <button onclick="submitQA()" style="width:100%;padding:14px;background:#39d98a;color:#000;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer;font-family:-apple-system,sans-serif;-webkit-appearance:none;margin-top:8px">Submit ↗</button>
+  </div>
+</div>
+
 <!-- MAIN APP -->
 
 <div id="main-app" style="display:none">
@@ -435,7 +449,42 @@ async function saveDisplayName(){
   const{data:{user:u}}=await sb.auth.getUser();
   await sb.from('profiles').update({full_name:name}).eq('id',u.id);
   document.getElementById('onboarding-screen').style.display='none';
-  await boot(u);
+  showQA(u);
+}
+
+const QA_QUESTIONS=[
+  'What are your primary fitness goals?',
+  'Do you have any previous experience with personal training or fitness programs?',
+  'Are you currently following any specific diet or nutritional plan?',
+  'Do you have any medical conditions or injuries that I should be aware of?',
+  'What is your current level of physical activity?',
+  'Do you have any fitness preferences or dislikes?',
+  'What does a typical day of eating look like for you?',
+  'How much time can you commit to training each week?',
+  'What motivates you to stay committed to your fitness goals?',
+  'Do you have any specific fitness milestones or deadlines you want to achieve?'
+];
+
+let _qaUser=null;
+function showQA(u){
+  _qaUser=u;
+  const wrap=document.getElementById('qa-fields');
+  wrap.innerHTML=QA_QUESTIONS.map((q,i)=>`
+    <div style="margin-bottom:18px">
+      <label style="display:block;font-size:14px;color:#e8e8e8;margin-bottom:8px;line-height:1.4">${q}</label>
+      <input id="qa-${i}" type="text" style="width:100%;padding:11px 14px;background:#1c1c1e;border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e8e8e8;font-size:14px;outline:none;-webkit-appearance:none;-webkit-text-fill-color:#e8e8e8;color-scheme:dark;font-family:-apple-system,sans-serif" placeholder="Your answer...">
+    </div>`).join('');
+  document.getElementById('qa-screen').style.display='block';
+}
+
+async function submitQA(){
+  const answers={};
+  QA_QUESTIONS.forEach((q,i)=>{answers[q]=document.getElementById('qa-'+i).value.trim();});
+  if(_qaUser){
+    await sb.from('profiles').update({qa_answers:answers}).eq('id',_qaUser.id);
+  }
+  document.getElementById('qa-screen').style.display='none';
+  await boot(_qaUser);
 }
 
 async function boot(u){
@@ -445,6 +494,12 @@ async function boot(u){
   if(!name||name.trim()===''||name===u.email||name.includes('@')){
     document.getElementById('auth-screen').style.display='none';
     document.getElementById('onboarding-screen').style.display='flex';
+    return;
+  }
+  // Show Q&A if not yet completed
+  if(!profile?.qa_answers){
+    document.getElementById('auth-screen').style.display='none';
+    showQA(u);
     return;
   }
   const{data:cr}=await sb.from('clients').select('*').eq('client_id',u.id).single();
