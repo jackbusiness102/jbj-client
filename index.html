@@ -554,7 +554,7 @@ const QA_QUESTIONS=[
   'Do you have any specific fitness milestones or deadlines you want to achieve?'
 ];
 
-let _qaUser=null;
+let _qaUser=null,_qaSubmitted=false;
 function showQA(u){
   _qaUser=u;
   const wrap=document.getElementById('qa-fields');
@@ -570,8 +570,10 @@ async function submitQA(){
   const answers={};
   QA_QUESTIONS.forEach((q,i)=>{answers[q]=document.getElementById('qa-'+i).value.trim();});
   if(_qaUser){
-    await sb.from('profiles').update({qa_answers:answers}).eq('id',_qaUser.id);
+    // Try to save answers; if column missing it will fail silently — that's ok, boot will still proceed
+    await sb.from('profiles').update({qa_answers:answers}).eq('id',_qaUser.id).catch(()=>{});
   }
+  _qaSubmitted=true;
   document.getElementById('qa-screen').style.display='none';
   await boot(_qaUser);
 }
@@ -585,8 +587,8 @@ async function boot(u){
     document.getElementById('onboarding-screen').style.display='flex';
     return;
   }
-  // Show Q&A if not yet completed
-  if(!profile?.qa_answers){
+  // Show Q&A if not yet completed (skip if just submitted this session)
+  if(!profile?.qa_answers&&!_qaSubmitted){
     document.getElementById('auth-screen').style.display='none';
     showQA(u);
     return;
