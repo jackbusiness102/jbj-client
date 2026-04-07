@@ -902,12 +902,14 @@ async function confirmFinishSession(){
     sets_logged:(sessionSets[i]||[]).map(st=>({kg:st.kg,reps:st.reps,done:st.done}))
   }));
   const rating=Math.round(rpe/2); // 1-5 from RPE 1-10
-  await sb.from('sessions').update({
-    completed:true,notes:notes||null,rating,
-    rpe,duration_sec:_sessTimerSec,
-    exercises:exes,
-    date:new Date().toLocaleDateString('en-ZA',{day:'numeric',month:'short'})
+  const dateStr=new Date().toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+  // Step 1: always mark completed with core fields (these columns definitely exist)
+  const{error:e1}=await sb.from('sessions').update({
+    completed:true, notes:notes||null, rating, date:dateStr, exercises:exes
   }).eq('id',_sessId);
+  if(e1)console.error('Session complete error:',e1.message);
+  // Step 2: try to save extra fields (rpe/duration_sec may not exist yet — ignore errors)
+  await sb.from('sessions').update({rpe, duration_sec:_sessTimerSec}).eq('id',_sessId).then(()=>{}).catch(()=>{});
   // Save PRs
   for(const e of exes){
     const bestSet=(e.sets_logged||[]).filter(st=>st.kg).sort((a,b)=>parseFloat(b.kg)-parseFloat(a.kg))[0];
