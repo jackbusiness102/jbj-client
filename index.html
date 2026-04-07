@@ -274,7 +274,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
 <!-- WELCOME Q&A -->
 
-<div id="qa-screen" style="display:none;position:fixed;inset:0;background:#0a0a0a;z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div id="qa-screen" style="display:none;position:fixed;inset:0;background:#0a0a0a;z-index:1000;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="max-width:480px;margin:0 auto;padding:24px 20px 40px">
     <div style="text-align:center;margin-bottom:28px">
       <div style="width:40px;height:40px;background:#39d98a;color:#000;font-weight:800;font-size:12px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px">JBJ</div>
@@ -567,15 +567,34 @@ function showQA(u){
 }
 
 async function submitQA(){
+  const btn=document.querySelector('#qa-screen button');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
   const answers={};
-  QA_QUESTIONS.forEach((q,i)=>{answers[q]=document.getElementById('qa-'+i).value.trim();});
+  QA_QUESTIONS.forEach((q,i)=>{
+    const el=document.getElementById('qa-'+i);
+    if(el)answers[q]=el.value.trim();
+  });
   if(_qaUser){
-    // Try to save answers; if column missing it will fail silently — that's ok, boot will still proceed
-    await sb.from('profiles').update({qa_answers:answers}).eq('id',_qaUser.id).catch(()=>{});
+    // Save answers — ignore errors if column doesn't exist yet
+    const{error}=await sb.from('profiles').update({qa_answers:answers}).eq('id',_qaUser.id);
+    if(error)console.warn('QA save error (column may be missing):', error.message);
   }
   _qaSubmitted=true;
   document.getElementById('qa-screen').style.display='none';
-  await boot(_qaUser);
+  if(_qaUser){
+    try{await boot(_qaUser);}
+    catch(e){
+      console.error('boot error after QA:',e);
+      // Force show main app as fallback
+      document.getElementById('main-app').style.display='block';
+      if(window.innerWidth<=650){
+        document.getElementById('bot-nav').style.display='block';
+        document.getElementById('top-bar').style.display='flex';
+      } else {
+        document.getElementById('sidebar').style.display='flex';
+      }
+    }
+  }
 }
 
 async function boot(u){
