@@ -708,7 +708,7 @@ async function loadSessionData(){
   }
   document.getElementById('session-sub').textContent=s.type+' · '+s.date;
   // Reset sets if new session loaded
-  if(_sessId!==s.id){sessionSets={};_openCards={};}
+  if(_sessId!==s.id){sessionSets={};Object.keys(_openCards).forEach(k=>delete _openCards[k]);}
   if(!_sessTimerInterval)startSessTimer();
   renderSessionViewer(s);
 }
@@ -785,7 +785,7 @@ function renderSessionViewer(s){
   });
 }
 
-const _openCards={};
+let _openCards={};
 function toggleExCard(e,i){
   // Only toggle if clicking the head, not the body
   const card=document.getElementById('ex-card2-'+i);
@@ -910,7 +910,7 @@ async function confirmFinishSession(){
       triggerMilestone('new_pr',`New PR on ${e.name}: ${kg}kg 🏋️`);
     }
   }
-  sessionSets={};sessionDone={};_activeSession=null;_sessId=null;_openCards={};
+  sessionSets={};sessionDone={};_activeSession=null;_sessId=null;Object.keys(_openCards).forEach(k=>delete _openCards[k]);
   closeM();
   const{count}=await sb.from('sessions').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('completed',true);
   if(count===1)triggerMilestone('first_session','First session done! The journey starts 🌟');
