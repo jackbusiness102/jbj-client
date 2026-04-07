@@ -896,11 +896,19 @@ async function confirmFinishSession(){
   const rpe=parseInt((root.getElementById?root.getElementById('rpe-slider'):root.querySelector('#rpe-slider'))?.value)||5;
   const notes=((root.getElementById?root.getElementById('finish-notes'):root.querySelector('#finish-notes'))?.value||'').trim();
   closeFinishScreen();
-  // Build per-set data for each exercise
-  const exes=(_activeSession?.exercises||[]).map((e,i)=>({
-    ...e,
-    sets_logged:(sessionSets[i]||[]).map(st=>({kg:st.kg,reps:st.reps,done:st.done}))
-  }));
+  // Build updated exercises with actual logged values in the format coach app expects
+  const exes=(_activeSession?.exercises||[]).map((e,i)=>{
+    const sets=(sessionSets[i]||[]).filter(st=>st.kg||st.reps);
+    const logs=sets.map(st=>({kg:parseFloat(st.kg)||0,reps:parseInt(st.reps)||0}));
+    const bestSet=sets.filter(st=>st.kg).sort((a,b)=>parseFloat(b.kg)-parseFloat(a.kg))[0];
+    return {
+      ...e,
+      logs,
+      sets_logged:sets.map(st=>({kg:st.kg,reps:st.reps,done:st.done})),
+      actualWeight:bestSet?bestSet.kg+'kg':undefined,
+      actualReps:bestSet?parseInt(bestSet.reps)||undefined:undefined,
+    };
+  });
   const rating=Math.round(rpe/2); // 1-5 from RPE 1-10
   const dateStr=new Date().toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
   // Step 1: always mark completed with core fields (these columns definitely exist)
