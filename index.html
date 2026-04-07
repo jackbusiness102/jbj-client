@@ -1127,12 +1127,100 @@ async function logWeight(){
 }
 
 async function loadWeightHistory(){
-  const{data}=await sb.from('weight_logs').select('*').eq('client_id',user.id).order('logged_at',{ascending:false}).limit(15);
-  document.getElementById('weight-history').innerHTML=data?.length?data.map(w=>`
-    <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px">
-      <span style="font-family:var(--mono);font-weight:600">${w.weight} kg</span>
-      <span style="color:var(--txt3);font-size:11px">${new Date(w.logged_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})}</span>
-    </div>`).join(''):'<div class="empty"><p>No weigh-ins yet</p></div>';
+  const{data}=await sb.from('weight_logs').select('*').eq('client_id',user.id).order('logged_at',{ascending:true}).limit(20);
+  const el=document.getElementById('weight-history');
+  if(!data?.length){el.innerHTML='<div class="empty"><p>No weigh-ins yet</p></div>';return;}
+
+  // --- SVG line chart ---
+  const pts=data.map(w=>({w:parseFloat(w.weight),t:new Date(w.logged_at),raw:w}));
+  const W=340,H=140,PL=44,PR=12,PT=12,PB=28;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  const minW=Math.min(...pts.map(p=>p.w)),maxW=Math.max(...pts.map(p=>p.w));
+  const range=maxW-minW||1;
+  const padded_min=minW-range*0.15,padded_max=maxW+range*0.15;
+  const xOf=i=>PL+i/(pts.length-1||1)*cW;
+  const yOf=w=>PT+cH-(w-padded_min)/(padded_max-padded_min)*cH;
+
+  // Y grid lines + labels
+  const steps=4;
+  const stepVal=(padded_max-padded_min)/steps;
+  let gridLines='',yLabels='';
+  for(let i=0;i<=steps;i++){
+    const v=padded_min+stepVal*i;
+    const y=yOf(v);
+    gridLines+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+    yLabels+=`<text x="${PL-5}" y="${y+4}" fill="#555" font-size="10" text-anchor="end">${Math.round(v)}</text>`;
+  }
+
+  // X labels (every ~4 points)
+  let xLabels='';
+  pts.forEach((p,i)=>{
+    if(i===0||i===pts.length-1||i%Math.max(1,Math.floor(pts.length/4))===0){
+      const x=xOf(i);
+      xLabels+=`<text x="${x}" y="${H-4}" fill="#555" font-size="9" text-anchor="middle">${p.t.toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}</text>`;
+    }
+  });
+
+  // Fill area
+  let fillPath=`M${xOf(0)},${yOf(pts[0].w)}`;
+  pts.forEach((p,i)=>{if(i>0)fillPath+=` L${xOf(i)},${yOf(p.w)}`;});
+  fillPath+=` L${xOf(pts.length-1)},${PT+cH} L${xOf(0)},${PT+cH} Z`;
+
+  // Line path
+  let linePath=`M${xOf(0)},${yOf(pts[0].w)}`;
+  pts.forEach((p,i)=>{if(i>0)linePath+=` L${xOf(i)},${yOf(p.w)}`;});
+
+  // Dots
+  const dots=pts.map((p,i)=>{
+    const x=xOf(i),y=yOf(p.w);
+    const trend=i>0?p.w-pts[i-1].w:0;
+    const col=trend<0?'#39d98a':trend>0?'#e05c5c':'#5b8dee';
+    return `<circle cx="${x}" cy="${y}" r="4" fill="${col}" stroke="#0a0a0a" stroke-width="2"/>`;
+  }).join('');
+
+  const trendArrow=pts.length>1?(pts[pts.length-1].w<pts[0].w?'↓ Trending down':'↑ Trending up'):'';
+  const trendCol=pts.length>1?(pts[pts.length-1].w<pts[0].w?'var(--g)':'var(--r)'):'var(--txt3)';
+
+  const chart=`<div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600">Weight over time</div>
+      ${trendArrow?`<div style="font-size:12px;font-weight:600;color:${trendCol}">${trendArrow}</div>`:''}
+    </div>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">
+      <defs>
+        <linearGradient id="wgrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#39d98a" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#39d98a" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+      ${gridLines}${yLabels}${xLabels}
+      <path d="${fillPath}" fill="url(#wgrad)"/>
+      <path d="${linePath}" fill="none" stroke="#39d98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      ${dots}
+    </svg>
+    <div style="display:flex;gap:12px;margin-top:10px;font-size:11px;color:var(--txt3)">
+      <span><span style="color:#39d98a">●</span> Loss</span>
+      <span><span style="color:#e05c5c">●</span> Gain</span>
+      <span><span style="color:#5b8dee">●</span> Same</span>
+    </div>
+  </div>`;
+
+  // History list (newest first)
+  const sorted=[...pts].reverse();
+  const list=sorted.map((p,i)=>{
+    const prev=sorted[i+1];
+    const delta=prev?p.w-prev.w:null;
+    const deltaStr=delta!==null?`<span style="font-size:11px;font-weight:600;color:${delta<0?'var(--g)':delta>0?'var(--r)':'var(--txt3)'}">${delta>0?'+':''}${delta.toFixed(1)} kg</span>`:'';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:var(--mono);font-size:14px;font-weight:600">${p.w} kg</span>
+        ${deltaStr}
+      </div>
+      <span style="color:var(--txt3);font-size:11px">${p.t.toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=chart+`<div style="font-size:13px;font-weight:600;margin-bottom:8px">Weigh-in history</div>`+list;
 }
 
 async function loadAchievements(){
