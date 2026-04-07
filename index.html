@@ -470,30 +470,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 
 <div class="mbg" id="mbg" onclick="closeM()"></div>
 
-<!-- FINISH WORKOUT MODAL -->
-<div class="modal modal-flex" id="modal-finish-workout">
-  <div class="modal-handle" style="flex-shrink:0"></div>
-  <div style="overflow-y:auto;flex:1;min-height:0">
-    <div style="text-align:center;margin-bottom:12px">
-      <div style="font-size:28px;margin-bottom:4px">💪</div>
-      <div style="font-size:18px;font-weight:700;letter-spacing:-.5px">Workout Complete!</div>
-      <div style="font-size:12px;color:var(--txt2);margin-top:3px" id="finish-stats"></div>
-    </div>
-    <div style="margin-bottom:12px">
-      <div style="font-size:12px;color:var(--txt2);font-weight:600;margin-bottom:6px">How hard was this workout?</div>
-      <input type="range" min="1" max="10" value="5" class="rpe-slider" id="rpe-slider" oninput="updateRPE(this.value)">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt3)"><span>Very easy</span><span id="rpe-label" style="color:var(--g);font-weight:700">5 / 10</span><span>Very hard</span></div>
-    </div>
-    <div>
-      <div style="font-size:12px;color:var(--txt2);font-weight:600;margin-bottom:6px">Note for your coach <span style="font-weight:400;color:var(--txt3)">(optional)</span></div>
-      <textarea class="ta" id="finish-notes" placeholder="How did it go? Any aches? Anything to share..." style="margin-bottom:0;min-height:52px;max-height:80px;resize:none"></textarea>
-    </div>
-  </div>
-  <div style="display:flex;gap:8px;padding-top:12px;flex-shrink:0">
-    <button style="flex:1;padding:13px;border-radius:var(--rad);font-size:14px;font-weight:700;cursor:pointer;border:none;-webkit-appearance:none;background:var(--bg3);color:var(--txt2);font-family:var(--font)" onclick="closeM()">Cancel</button>
-    <button style="flex:1;padding:13px;border-radius:var(--rad);font-size:14px;font-weight:700;cursor:pointer;border:none;-webkit-appearance:none;background:var(--g);color:#000;font-family:var(--font)" onclick="confirmFinishSession()">Finish ↗</button>
-  </div>
-</div>
+<!-- finish workout screen is created dynamically -->
 
 <div class="modal" id="modal-add-pr">
   <div class="modal-handle"></div>
@@ -868,28 +845,57 @@ function addSessionSet(exIdx){
 }
 
 function updateRPE(v){
-  const lbl=document.getElementById('rpe-label');
+  const root=_finishScreen||document;
+  const lbl=root.getElementById?root.getElementById('rpe-label'):root.querySelector('#rpe-label');
   if(lbl)lbl.textContent=v+' / 10';
-  const slider=document.getElementById('rpe-slider');
+  const slider=root.getElementById?root.getElementById('rpe-slider'):root.querySelector('#rpe-slider');
   if(slider){const pct=(v-1)/9*100;slider.style.background=`linear-gradient(90deg,var(--g) ${pct}%,var(--bg4) ${pct}%)`;}
 }
 
+let _finishScreen=null;
 function openFinishModal(){
-  const exes=_activeSession?.exercises||[];
   const totalSets=Object.values(sessionSets).reduce((a,s)=>a+s.length,0);
   const doneSets=Object.values(sessionSets).reduce((a,s)=>a+s.filter(st=>st.done).length,0);
   const m=String(Math.floor(_sessTimerSec/60)).padStart(2,'0');
   const sec=String(_sessTimerSec%60).padStart(2,'0');
-  document.getElementById('finish-stats').textContent=`${doneSets}/${totalSets} sets · ${m}:${sec}`;
-  updateRPE(5);
-  openM('finish-workout');
+  if(_finishScreen)_finishScreen.remove();
+  _finishScreen=document.createElement('div');
+  _finishScreen.style.cssText='position:fixed;inset:0;background:#0a0a0a;z-index:2000;display:flex;flex-direction:column;overflow:hidden';
+  _finishScreen.innerHTML=`
+    <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:40px 20px 20px;max-width:480px;margin:0 auto;width:100%">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:52px;margin-bottom:10px">💪</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px">Workout Complete!</div>
+        <div style="font-size:13px;color:var(--txt2)">${doneSets}/${totalSets} sets done · ${m}:${sec}</div>
+      </div>
+      <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px">How hard was this workout?</div>
+        <input type="range" min="1" max="10" value="5" class="rpe-slider" id="rpe-slider" oninput="updateRPE(this.value)" style="width:100%">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt3);margin-top:4px"><span>Very easy</span><span id="rpe-label" style="color:var(--g);font-weight:700">5 / 10</span><span>Very hard</span></div>
+      </div>
+      <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Note for your coach <span style="font-weight:400;color:var(--txt3)">(optional)</span></div>
+        <textarea id="finish-notes" placeholder="How did it go? Any aches? Anything to share..." style="width:100%;padding:12px;background:#1c1c1e;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e8e8e8;font-family:-apple-system,sans-serif;font-size:14px;outline:none;resize:none;min-height:80px;-webkit-text-fill-color:#e8e8e8;color-scheme:dark"></textarea>
+      </div>
+    </div>
+    <div style="flex-shrink:0;padding:12px 20px calc(16px + env(safe-area-inset-bottom));display:flex;gap:10px;background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.08)">
+      <button onclick="closeFinishScreen()" style="flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;border:none;-webkit-appearance:none;background:#1c1c1e;color:#888;font-family:-apple-system,sans-serif">Cancel</button>
+      <button onclick="confirmFinishSession()" style="flex:2;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;border:none;-webkit-appearance:none;background:#39d98a;color:#000;font-family:-apple-system,sans-serif">Finish Workout ↗</button>
+    </div>`;
+  document.body.appendChild(_finishScreen);
+  // init RPE slider gradient
+  const sl=_finishScreen.querySelector('#rpe-slider');
+  if(sl)sl.style.background='linear-gradient(90deg,var(--g) 44%,var(--bg4) 44%)';
 }
+function closeFinishScreen(){if(_finishScreen){_finishScreen.remove();_finishScreen=null;}}
 
 async function confirmFinishSession(){
   if(!_sessId)return;
   clearInterval(_sessTimerInterval);_sessTimerInterval=null;
-  const rpe=parseInt(document.getElementById('rpe-slider').value)||5;
-  const notes=document.getElementById('finish-notes').value.trim();
+  const root=_finishScreen||document;
+  const rpe=parseInt((root.getElementById?root.getElementById('rpe-slider'):root.querySelector('#rpe-slider'))?.value)||5;
+  const notes=((root.getElementById?root.getElementById('finish-notes'):root.querySelector('#finish-notes'))?.value||'').trim();
+  closeFinishScreen();
   // Build per-set data for each exercise
   const exes=(_activeSession?.exercises||[]).map((e,i)=>({
     ...e,
@@ -914,7 +920,6 @@ async function confirmFinishSession(){
     }
   }
   sessionSets={};sessionDone={};_activeSession=null;_sessId=null;Object.keys(_openCards).forEach(k=>delete _openCards[k]);
-  closeM();
   const{count}=await sb.from('sessions').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('completed',true);
   if(count===1)triggerMilestone('first_session','First session done! The journey starts 🌟');
   if(count>0&&count%5===0)triggerMilestone('streak',`${count} sessions completed! On a roll 🔥`);
