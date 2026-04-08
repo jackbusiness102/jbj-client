@@ -359,6 +359,14 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     <div class="sess-prog-bar"><div class="sess-prog-fill" id="sess-prog-fill" style="width:0%"></div></div>
     <div id="session-content"><div class="loading"><div class="spinner"></div></div></div>
     <div class="card" style="margin-top:4px"><div class="card-head"><h3>Recent sessions</h3></div><div id="sess-recent-list"><div class="loading"><div class="spinner"></div></div></div></div>
+    <div class="card" style="margin-top:4px">
+      <div class="card-head"><h3>Weekly volume</h3><span id="vol-week-label" style="font-size:11px;color:var(--txt3)"></span></div>
+      <div id="vol-weekly"><div class="loading"><div class="spinner"></div></div></div>
+      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+        <div style="font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:8px">Sets per workout</div>
+        <div id="vol-per-workout" style="overflow-x:auto"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
   </div>
 
   <!-- LOG WORKOUT -->
@@ -861,6 +869,83 @@ async function loadSessionData(){
         ${r.exercises?.length?`<div style="font-size:11px;color:var(--txt3);margin-top:2px">${r.exercises.length} exercises</div>`:''}
       </div>`).join(''):'<div class="empty" style="padding:14px 0"><p>No sessions yet</p></div>';
   }
+  loadVolumeTracker();
+}
+
+const MUSCLE_MAP=[
+  ['chest',['bench press','chest fly','cable fly','push up','pec deck','dumbbell press','incline press','decline press','incline dumbbell','decline dumbbell','chest press']],
+  ['back',['deadlift','pull up','chin up','lat pulldown','seated row','bent over row','cable row','barbell row','dumbbell row','t-bar row','face pull','back extension','hyperextension','rack pull','single arm row']],
+  ['shoulders',['shoulder press','overhead press','lateral raise','front raise','arnold press','rear delt','upright row','military press','db shoulder','cable lateral','cable front']],
+  ['biceps',['bicep curl','biceps curl','barbell curl','hammer curl','preacher curl','cable curl','concentration curl','incline curl','zottman','ez bar curl','db curl']],
+  ['triceps',['tricep','skull crusher','close grip','pushdown','triceps pushdown','overhead tricep','dips','jm press','cable tricep']],
+  ['quads',['squat','leg press','leg extension','lunge','bulgarian','hack squat','step up','goblet squat','front squat','box squat','sissy squat','split squat']],
+  ['hamstrings',['romanian deadlift','rdl','leg curl','hamstring curl','good morning','stiff leg','sumo deadlift','nordic curl']],
+  ['glutes',['hip thrust','glute bridge','cable kickback','abductor','glute','donkey kick','clamshell']],
+  ['calves',['calf raise','standing calf','seated calf','donkey calf','tibialis']],
+  ['core',['plank','crunch','sit up','ab ','cable crunch','russian twist','leg raise','hanging raise','pallof','wood chop','dead bug','bird dog']],
+];
+const MUSCLE_COLORS={chest:'#e05c5c',back:'#5c9de0',shoulders:'#e0a85c',biceps:'#9b5ce0',triceps:'#c45ce0',quads:'#5ce08a',hamstrings:'#5ce0d0',glutes:'#e05cb5',calves:'#a0e05c',core:'#e0d45c',other:'#888'};
+function getMuscleGroup(name){
+  const n=(name||'').toLowerCase();
+  for(const[group,keys]of MUSCLE_MAP){if(keys.some(k=>n.includes(k)))return group;}
+  return 'other';
+}
+
+async function loadVolumeTracker(){
+  const weekEl=document.getElementById('vol-weekly');
+  const perEl=document.getElementById('vol-per-workout');
+  const labelEl=document.getElementById('vol-week-label');
+  if(!weekEl||!perEl)return;
+  // Date range: last 7 days
+  const now=new Date();
+  const weekAgo=new Date(now);weekAgo.setDate(weekAgo.getDate()-6);weekAgo.setHours(0,0,0,0);
+  const fmt=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  if(labelEl)labelEl.textContent=fmt(weekAgo)+' – '+fmt(now);
+  const{data:sessions}=await sb.from('sessions').select('exercises,date,type,created_at').eq('client_id',user.id).eq('completed',true).gte('created_at',weekAgo.toISOString()).order('created_at',{ascending:true});
+  const rows=sessions||[];
+  // Aggregate weekly totals and per-session data
+  const weeklyTotals={};
+  const perSession=rows.map(s=>{
+    const sessMap={};
+    (s.exercises||[]).forEach(e=>{
+      const g=getMuscleGroup(e.name);
+      const sets=e.logs?.length||parseInt(e.sets)||0;
+      if(!sets)return;
+      sessMap[g]=(sessMap[g]||0)+sets;
+      weeklyTotals[g]=(weeklyTotals[g]||0)+sets;
+    });
+    return{label:s.date||new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),map:sessMap};
+  });
+  const groups=Object.keys(weeklyTotals).sort((a,b)=>weeklyTotals[b]-weeklyTotals[a]);
+  if(!groups.length){
+    weekEl.innerHTML='<div class="empty" style="padding:10px 0"><p>No sessions this week</p></div>';
+    perEl.innerHTML='';
+    return;
+  }
+  const maxSets=Math.max(...Object.values(weeklyTotals));
+  // Weekly totals bar chart
+  weekEl.innerHTML=groups.map(g=>{
+    const sets=weeklyTotals[g];
+    const pct=Math.round(sets/maxSets*100);
+    const col=MUSCLE_COLORS[g]||MUSCLE_COLORS.other;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+      <div style="width:80px;font-size:12px;font-weight:600;color:var(--txt2);text-transform:capitalize;flex-shrink:0">${g}</div>
+      <div style="flex:1;height:8px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${col};border-radius:4px;transition:width .4s"></div></div>
+      <div style="width:32px;font-size:12px;font-weight:700;color:${col};text-align:right">${sets}</div>
+    </div>`;
+  }).join('');
+  // Per-workout table
+  if(perSession.length===0){perEl.innerHTML='';return;}
+  const headCells=perSession.map(s=>`<th style="font-size:10px;color:var(--txt3);font-weight:600;white-space:nowrap;padding:4px 8px;text-align:center">${s.label}</th>`).join('');
+  const bodyRows=groups.map(g=>{
+    const col=MUSCLE_COLORS[g]||MUSCLE_COLORS.other;
+    const cells=perSession.map(s=>{
+      const v=s.map[g]||0;
+      return `<td style="text-align:center;padding:5px 8px;font-size:12px;font-weight:${v?'600':'400'};color:${v?col:'var(--txt3)'}">${v||'—'}</td>`;
+    }).join('');
+    return `<tr><td style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:capitalize;padding:5px 8px;white-space:nowrap">${g}</td>${cells}</tr>`;
+  }).join('');
+  perEl.innerHTML=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="font-size:10px;color:var(--txt3);font-weight:600;padding:4px 8px;text-align:left">Muscle</th>${headCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
 }
 
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
