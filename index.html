@@ -192,10 +192,10 @@ select option{background:#1c1c1e}
 .tdot{width:6px;height:6px;border-radius:50%;background:var(--g);flex-shrink:0}
 @media(min-width:651px){
 .bot-nav{display:none !important}
-body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
-.app-wrap{display:flex;flex:1}
-.content-area{margin-left:210px}
-.sidebar{width:210px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0}
+body{padding-bottom:0}
+.app-wrap{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50}
+.content-area{margin-left:220px;flex:1;overflow-y:auto;min-height:100vh}
 .sb-logo{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);margin-bottom:6px}
 .sb-mark{width:28px;height:28px;background:var(--g);color:#000;font-weight:800;font-size:10px;border-radius:6px;display:flex;align-items:center;justify-content:center}
 .sb-title{font-size:13px;font-weight:700}.sb-title span{color:var(--g)}
@@ -211,9 +211,10 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
 .cav-d{width:28px;height:28px;border-radius:50%;background:var(--gd);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
 .logout-d{background:none;border:none;color:var(--txt3);cursor:pointer;margin-left:auto;padding:4px;font-size:13px}
 .logout-d:hover{color:var(--r)}
-.content-area{margin-left:0;flex:1;overflow-y:auto;max-width:100%}
 .top-bar{display:none}
-.page{padding:28px 28px 28px}
+.page{padding:28px 32px 40px}
+.msg-wrap{height:calc(100vh - 80px)}
+.toast{bottom:20px}
 }
 </style>
 </head>
@@ -306,20 +307,21 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
       <div class="sb-logo"><div class="sb-mark">JBJ</div><div class="sb-title"><span>Jacked</span>ByJack</div></div>
       <nav class="sb-nav">
         <div class="sb-sec">Training</div>
-        <a class="ni active" onclick="navPage('home',this)"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>Home</a>
-        <a class="ni" onclick="navPage('session',this)"><svg viewBox="0 0 20 20"><path d="M3 10h2M15 10h2M5 10l2-3 3 6 3-4 2 1"/></svg>Today's Session</a>
-        <a class="ni" onclick="navPage('log',this)"><svg viewBox="0 0 20 20"><line x1="10" y1="3" x2="10" y2="17"/><line x1="3" y1="10" x2="17" y2="10"/></svg>Log Workout</a>
-        <a class="ni" onclick="navPage('history',this)"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><polyline points="10,6 10,10 13,12"/></svg>History</a>
-        <a class="ni" onclick="navPage('prs',this)"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/><line x1="3" y1="17" x2="17" y2="17"/></svg>My PRs</a>
+        <a class="ni active" data-page="home" onclick="navMob('home')"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>Home</a>
+        <a class="ni" data-page="session" onclick="navMob('session')"><svg viewBox="0 0 20 20"><path d="M3 10h2M15 10h2M5 10l2-3 3 6 3-4 2 1"/></svg>Today's Session</a>
+        <a class="ni" data-page="log" onclick="navMob('log')"><svg viewBox="0 0 20 20"><line x1="10" y1="3" x2="10" y2="17"/><line x1="3" y1="10" x2="17" y2="10"/></svg>Log Workout</a>
+        <a class="ni" data-page="history" onclick="navMob('history')"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><polyline points="10,6 10,10 13,12"/></svg>History</a>
+        <a class="ni" data-page="prs" onclick="navMob('prs')"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/><line x1="3" y1="17" x2="17" y2="17"/></svg>My PRs</a>
         <div class="sb-sec">Nutrition</div>
-        <a class="ni" onclick="navPage('meals',this)"><svg viewBox="0 0 20 20"><path d="M10 3c-3 0-6 2.5-6 6 0 2.5 1.5 4.5 3 5.5V17h6v-2.5c1.5-1 3-3 3-5.5 0-3.5-3-6-6-6z"/></svg>Meal Plan</a>
+        <a class="ni" data-page="meals" onclick="navMob('meals')"><svg viewBox="0 0 20 20"><path d="M10 3c-3 0-6 2.5-6 6 0 2.5 1.5 4.5 3 5.5V17h6v-2.5c1.5-1 3-3 3-5.5 0-3.5-3-6-6-6z"/></svg>Meal Plan</a>
         <div class="sb-sec">Progress</div>
-        <a class="ni" onclick="navPage('progress',this)"><svg viewBox="0 0 20 20"><path d="M10 3v14M6 7l4-4 4 4" fill="none" stroke="currentColor" stroke-linecap="round"/></svg>Body Progress</a>
-        <a class="ni" onclick="navPage('achievements',this)"><svg viewBox="0 0 20 20"><polygon points="10,2 12.4,7.5 18.5,8.2 14,12.5 15.3,18.5 10,15.6 4.7,18.5 6,12.5 1.5,8.2 7.6,7.5"/></svg>Achievements</a>
-        <a class="ni" onclick="navPage('calendar',this);loadCalendar()"><svg viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="14" rx="2"/><line x1="2" y1="8" x2="18" y2="8"/><line x1="6" y1="2" x2="6" y2="6"/><line x1="14" y1="2" x2="14" y2="6"/></svg>Calendar</a>
+        <a class="ni" data-page="progress" onclick="navMob('progress')"><svg viewBox="0 0 20 20"><path d="M10 3v14M6 7l4-4 4 4" fill="none" stroke="currentColor" stroke-linecap="round"/></svg>Body Progress</a>
+        <a class="ni" data-page="exerprogress" onclick="navMob('exerprogress')"><svg viewBox="0 0 20 20"><path d="M3 10h2.5M14.5 10H17M5.5 10l1.5-2.5 3 5 2.5-3.5 1 1"/></svg>Exercise Progress</a>
+        <a class="ni" data-page="achievements" onclick="navMob('achievements')"><svg viewBox="0 0 20 20"><polygon points="10,2 12.4,7.5 18.5,8.2 14,12.5 15.3,18.5 10,15.6 4.7,18.5 6,12.5 1.5,8.2 7.6,7.5"/></svg>Achievements</a>
+        <a class="ni" data-page="calendar" onclick="navMob('calendar')"><svg viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="14" rx="2"/><line x1="2" y1="8" x2="18" y2="8"/><line x1="6" y1="2" x2="6" y2="6"/><line x1="14" y1="2" x2="14" y2="6"/></svg>Calendar</a>
         <div class="sb-sec">Coach</div>
-        <a class="ni" onclick="navPage('messages',this)"><svg viewBox="0 0 20 20"><path d="M3 4h14v10H3z"/><path d="M3 4l7 6 7-6"/></svg>Messages</a>
-        <a class="ni" onclick="navPage('checkin',this)"><svg viewBox="0 0 20 20"><rect x="4" y="2" width="12" height="16" rx="2"/><polyline points="7,10 9,12 13,8"/><line x1="7" y1="6" x2="13" y2="6"/></svg>Check-ins</a>
+        <a class="ni" data-page="messages" onclick="navMob('messages')"><svg viewBox="0 0 20 20"><path d="M3 4h14v10H3z"/><path d="M3 4l7 6 7-6"/></svg>Messages</a>
+        <a class="ni" data-page="checkin" onclick="navMob('checkin')"><svg viewBox="0 0 20 20"><rect x="4" y="2" width="12" height="16" rx="2"/><polyline points="7,10 9,12 13,8"/><line x1="7" y1="6" x2="13" y2="6"/></svg>Check-ins</a>
       </nav>
       <div class="sb-foot">
         <div class="cpill">
@@ -727,8 +729,12 @@ async function boot(u){
 function navPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
+  const pageEl=document.getElementById('page-'+page);
+  if(pageEl)pageEl.classList.add('active');
   if(el)el.classList.add('active');
+  // Activate sidebar item by data-page (works when called from navMob with no el)
+  const ni=document.querySelector('.ni[data-page="'+page+'"]');
+  if(ni)ni.classList.add('active');
   if(page==='messages')loadMessages();
   if(page==='achievements')loadAchievements();
   if(page==='checkin'){loadCheckIns();setBadge('more',0);}
