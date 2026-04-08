@@ -734,10 +734,12 @@ async function loadHomeData(){
   document.getElementById('h-pct').textContent=pct+'%';
   const{count}=await sb.from('sessions').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('completed',true);
   document.getElementById('h-sessions').textContent=count||0;
-  // Check pending check-ins
-  const{count:ciCount}=await sb.from('check_ins').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('status','pending');
-  const ciCard=document.getElementById('h-checkin-card');
-  if(ciCard)ciCard.style.display=ciCount>0?'block':'none';
+  // Check pending check-ins (ignore error if table doesn't exist yet)
+  try{
+    const{count:ciCount}=await sb.from('check_ins').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('status','pending');
+    const ciCard=document.getElementById('h-checkin-card');
+    if(ciCard)ciCard.style.display=ciCount>0?'block':'none';
+  }catch(e){}
   // Today's workout
   const{data:pending}=await sb.from('sessions').select('*').eq('client_id',user.id).eq('completed',false).order('created_at',{ascending:false}).limit(1);
   const s=pending?.[0];
@@ -751,8 +753,9 @@ async function loadHomeData(){
     document.getElementById('h-workout').innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No session assigned yet</p></div>';
   }
   // Mini weight trend (last 3 weigh-ins)
-  const{data:wlogs}=await sb.from('weight_logs').select('*').eq('client_id',user.id).order('logged_at',{ascending:false}).limit(3);
   const trendEl=document.getElementById('h-weight-trend');
+  try{
+  const{data:wlogs}=await sb.from('weight_logs').select('*').eq('client_id',user.id).order('logged_at',{ascending:false}).limit(3);
   if(wlogs?.length){
     const rows=wlogs.reverse().map((w,i,arr)=>{
       const prev=arr[i-1];
@@ -771,6 +774,7 @@ async function loadHomeData(){
   } else {
     trendEl.innerHTML='<div class="empty" style="padding:10px 0"><p>No weigh-ins yet</p></div>';
   }
+  }catch(e){trendEl.innerHTML='<div class="empty" style="padding:10px 0"><p>No weigh-ins yet</p></div>';}
 }
 
 async function loadSessionData(){
