@@ -752,28 +752,62 @@ async function loadHomeData(){
   } else {
     document.getElementById('h-workout').innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No session assigned yet</p></div>';
   }
-  // Mini weight trend (last 3 weigh-ins)
+  // Mini weight trend graph
   const trendEl=document.getElementById('h-weight-trend');
   try{
-  const{data:wlogs}=await sb.from('weight_logs').select('*').eq('client_id',user.id).order('logged_at',{ascending:false}).limit(3);
-  if(wlogs?.length){
-    const rows=wlogs.reverse().map((w,i,arr)=>{
-      const prev=arr[i-1];
-      const delta=prev?parseFloat(w.weight)-parseFloat(prev.weight):null;
-      const col=delta===null?'var(--txt2)':delta<0?'var(--g)':delta>0?'var(--r)':'var(--txt3)';
-      const arrow=delta===null?'':delta<0?' ↓':delta>0?' ↑':' →';
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
-        <span style="font-family:var(--mono);font-size:14px;font-weight:600">${w.weight} kg</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          ${delta!==null?`<span style="font-size:11px;font-weight:600;color:${col}">${delta>0?'+':''}${delta.toFixed(1)}${arrow}</span>`:''}
-          <span style="font-size:11px;color:var(--txt3)">${new Date(w.logged_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}</span>
+    const{data:wlogs}=await sb.from('weight_logs').select('*').eq('client_id',user.id).order('logged_at',{ascending:true}).limit(10);
+    if(wlogs?.length>=2){
+      const pts=wlogs.map(w=>({w:parseFloat(w.weight),t:new Date(w.logged_at)}));
+      const W=300,H=100,PL=36,PR=8,PT=8,PB=22;
+      const cW=W-PL-PR,cH=H-PT-PB;
+      const minW=Math.min(...pts.map(p=>p.w)),maxW=Math.max(...pts.map(p=>p.w));
+      const rng=maxW-minW||1;
+      const pm=minW-rng*.2,px=maxW+rng*.2;
+      const xO=i=>PL+i/(pts.length-1)*cW;
+      const yO=w=>PT+cH-(w-pm)/(px-pm)*cH;
+      // grid
+      let grid='',ylbls='';
+      [0,.5,1].forEach(f=>{
+        const v=pm+f*(px-pm),y=yO(v);
+        grid+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+        ylbls+=`<text x="${PL-4}" y="${y+4}" fill="#555" font-size="9" text-anchor="end">${Math.round(v)}</text>`;
+      });
+      // x labels first/last
+      const xlbls=`<text x="${xO(0)}" y="${H-4}" fill="#555" font-size="9" text-anchor="middle">${pts[0].t.toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}</text>
+        <text x="${xO(pts.length-1)}" y="${H-4}" fill="#555" font-size="9" text-anchor="middle">${pts[pts.length-1].t.toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}</text>`;
+      // fill + line
+      let fp=`M${xO(0)},${yO(pts[0].w)}`,lp=`M${xO(0)},${yO(pts[0].w)}`;
+      pts.forEach((p,i)=>{if(i>0){fp+=` L${xO(i)},${yO(p.w)}`;lp+=` L${xO(i)},${yO(p.w)}`;}});
+      fp+=` L${xO(pts.length-1)},${PT+cH} L${xO(0)},${PT+cH} Z`;
+      const dots=pts.map((p,i)=>{
+        const trend=i>0?p.w-pts[i-1].w:0;
+        return `<circle cx="${xO(i)}" cy="${yO(p.w)}" r="3.5" fill="${trend<0?'#39d98a':trend>0?'#e05c5c':'#5b8dee'}" stroke="#111" stroke-width="1.5"/>`;
+      }).join('');
+      const last=pts[pts.length-1],first=pts[0];
+      const overall=last.w-first.w;
+      const trendTxt=overall<0?`↓ ${Math.abs(overall).toFixed(1)} kg lost`:overall>0?`↑ ${overall.toFixed(1)} kg gained`:'→ No change';
+      const trendCol=overall<0?'#39d98a':overall>0?'#e05c5c':'#888';
+      trendEl.innerHTML=`
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;color:var(--txt3)">${pts.length} weigh-ins</span>
+          <span style="font-size:12px;font-weight:700;color:${trendCol}">${trendTxt}</span>
         </div>
-      </div>`;
-    }).join('');
-    trendEl.innerHTML=rows+`<button class="btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="navMob('progress')">View full progress →</button>`;
-  } else {
-    trendEl.innerHTML='<div class="empty" style="padding:10px 0"><p>No weigh-ins yet</p></div>';
-  }
+        <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">
+          <defs><linearGradient id="hwtg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#39d98a" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#39d98a" stop-opacity="0.02"/>
+          </linearGradient></defs>
+          ${grid}${ylbls}${xlbls}
+          <path d="${fp}" fill="url(#hwtg)"/>
+          <path d="${lp}" fill="none" stroke="#39d98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          ${dots}
+        </svg>
+        <button class="btn-sm" style="width:100%;justify-content:center;margin-top:10px" onclick="navMob('progress')">View full progress →</button>`;
+    } else if(wlogs?.length===1){
+      trendEl.innerHTML=`<div style="text-align:center;padding:12px 0"><div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--g)">${wlogs[0].weight} kg</div><div style="font-size:11px;color:var(--txt3);margin-top:4px">Log more weigh-ins to see a graph</div></div><button class="btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="navMob('progress')">Log weigh-in →</button>`;
+    } else {
+      trendEl.innerHTML='<div class="empty" style="padding:10px 0"><p>No weigh-ins yet.<br><button class="btn-sm btn-g" style="margin-top:8px" onclick="navMob(\'progress\')">Log first weigh-in →</button></p></div>';
+    }
   }catch(e){trendEl.innerHTML='<div class="empty" style="padding:10px 0"><p>No weigh-ins yet</p></div>';}
 }
 
