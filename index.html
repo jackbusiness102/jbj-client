@@ -689,7 +689,7 @@ async function boot(u){
   document.getElementById('log-date').textContent=now.toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'});
   if(logExRows.length===0)logExRows=[{name:'Back squat',sets:'',reps:'',weight:''}];
   renderLogExRows();
-  loadHomeData();loadSessionData();loadMeals();loadWeightHistory();loadProgressDetail();loadHistory();loadPRs();loadAchievements();
+  loadHomeData();loadSessionData();loadMeals();loadWeightHistory();loadProgressDetail();loadHistory();loadPRs();loadAchievements();loadCalendar();
   subscribeMessages();subscribeCoachUpdates();updateNavBadges();startBadgePolling();
 }
 
@@ -700,18 +700,23 @@ function navPage(page,el){
   if(el)el.classList.add('active');
   if(page==='messages')loadMessages();
   if(page==='achievements')loadAchievements();
-  if(page==='checkin'){loadCheckIns();setBadge('checkin',0);}
+  if(page==='checkin'){loadCheckIns();setBadge('more',0);}
+  if(page==='calendar')loadCalendar();
 }
 
 function navMob(page){
+  // Sub-pages under More keep the More tab highlighted
+  const moreSubPages=['progress','checkin','history','prs','achievements','calendar'];
+  const navId=moreSubPages.includes(page)?'more':page;
   document.querySelectorAll('.nav-item').forEach(b=>{b.classList.remove('on');b.style.color='';});
-  const el=document.getElementById('ni-'+page);
+  const el=document.getElementById('ni-'+navId);
   if(el){el.classList.add('on');el.style.color='#39d98a';}
   navPage(page,null);
   if(page==='messages')setBadge('messages',0);
   if(page==='session'){localStorage.setItem('jbj_seen_session',new Date().toISOString());setBadge('session',0);}
   if(page==='meals'){localStorage.setItem('jbj_seen_meal',new Date().toISOString());setBadge('meals',0);}
-  if(page==='checkin'){loadCheckIns();setBadge('checkin',0);}
+  if(page==='checkin'){loadCheckIns();setBadge('more',0);}
+  if(page==='calendar')loadCalendar();
 }
 
 async function loadHomeData(){
@@ -719,7 +724,7 @@ async function loadHomeData(){
     ['h-weight','h-target','h-sessions'].forEach(id=>document.getElementById(id).textContent='—');
     document.getElementById('h-pct').textContent='—%';
     document.getElementById('h-workout').innerHTML='<div class="empty"><p>No data yet</p></div>';
-    document.getElementById('h-recent').innerHTML='<div class="empty"><p>No sessions yet</p></div>';
+    document.getElementById('h-weight-trend').innerHTML='<div class="empty"><p>No weigh-ins yet</p></div>';
     return;
   }
   const sw=clientRec.start_weight||0,cw=clientRec.current_weight||sw,tw=clientRec.target_weight||0;
@@ -729,6 +734,11 @@ async function loadHomeData(){
   document.getElementById('h-pct').textContent=pct+'%';
   const{count}=await sb.from('sessions').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('completed',true);
   document.getElementById('h-sessions').textContent=count||0;
+  // Check pending check-ins
+  const{count:ciCount}=await sb.from('check_ins').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('status','pending');
+  const ciCard=document.getElementById('h-checkin-card');
+  if(ciCard)ciCard.style.display=ciCount>0?'block':'none';
+  // Today's workout
   const{data:pending}=await sb.from('sessions').select('*').eq('client_id',user.id).eq('completed',false).order('created_at',{ascending:false}).limit(1);
   const s=pending?.[0];
   if(s?.exercises?.length){
@@ -740,13 +750,27 @@ async function loadHomeData(){
   } else {
     document.getElementById('h-workout').innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No session assigned yet</p></div>';
   }
-  const{data:recent}=await sb.from('sessions').select('*').eq('client_id',user.id).eq('completed',true).order('created_at',{ascending:false}).limit(3);
-  document.getElementById('h-recent').innerHTML=recent?.length?recent.map(s=>`
-    <div style="padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:13px;font-weight:600">${s.type}</span><span style="font-size:11px;color:var(--txt3)">${s.date}</span></div>
-      ${s.rating?`<span style="color:var(--o);font-size:12px">${'★'.repeat(s.rating)}</span>`:''}
-      ${s.notes?`<div style="font-size:12px;color:var(--txt2)">${s.notes}</div>`:''}
-    </div>`).join(''):'<div class="empty" style="padding:16px 0"><p>No completed sessions yet</p></div>';
+  // Mini weight trend (last 3 weigh-ins)
+  const{data:wlogs}=await sb.from('weight_logs').select('*').eq('client_id',user.id).order('logged_at',{ascending:false}).limit(3);
+  const trendEl=document.getElementById('h-weight-trend');
+  if(wlogs?.length){
+    const rows=wlogs.reverse().map((w,i,arr)=>{
+      const prev=arr[i-1];
+      const delta=prev?parseFloat(w.weight)-parseFloat(prev.weight):null;
+      const col=delta===null?'var(--txt2)':delta<0?'var(--g)':delta>0?'var(--r)':'var(--txt3)';
+      const arrow=delta===null?'':delta<0?' ↓':delta>0?' ↑':' →';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+        <span style="font-family:var(--mono);font-size:14px;font-weight:600">${w.weight} kg</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${delta!==null?`<span style="font-size:11px;font-weight:600;color:${col}">${delta>0?'+':''}${delta.toFixed(1)}${arrow}</span>`:''}
+          <span style="font-size:11px;color:var(--txt3)">${new Date(w.logged_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}</span>
+        </div>
+      </div>`;
+    }).join('');
+    trendEl.innerHTML=rows+`<button class="btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="navMob('progress')">View full progress →</button>`;
+  } else {
+    trendEl.innerHTML='<div class="empty" style="padding:10px 0"><p>No weigh-ins yet</p></div>';
+  }
 }
 
 async function loadSessionData(){
@@ -757,13 +781,24 @@ async function loadSessionData(){
     document.getElementById('session-content').innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No workout assigned yet.<br>Your coach will set one up!</p></div>';
     clearInterval(_sessTimerInterval);_sessTimerInterval=null;
     const tv=document.getElementById('sess-timer-val');if(tv)tv.textContent='00:00';
-    return;
+  } else {
+    document.getElementById('session-sub').textContent=s.type+' · '+s.date;
+    // Reset sets if new session loaded
+    if(_sessId!==s.id){sessionSets={};Object.keys(_openCards).forEach(k=>delete _openCards[k]);}
+    if(!_sessTimerInterval)startSessTimer();
+    renderSessionViewer(s);
   }
-  document.getElementById('session-sub').textContent=s.type+' · '+s.date;
-  // Reset sets if new session loaded
-  if(_sessId!==s.id){sessionSets={};Object.keys(_openCards).forEach(k=>delete _openCards[k]);}
-  if(!_sessTimerInterval)startSessTimer();
-  renderSessionViewer(s);
+  // Load recent sessions
+  const{data:recent}=await sb.from('sessions').select('*').eq('client_id',user.id).eq('completed',true).order('created_at',{ascending:false}).limit(5);
+  const recentEl=document.getElementById('sess-recent-list');
+  if(recentEl){
+    recentEl.innerHTML=recent?.length?recent.map(r=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:13px;font-weight:600">${r.type}</span><span style="font-size:11px;color:var(--txt3)">${r.date}</span></div>
+        ${r.rating?`<span style="color:var(--o);font-size:12px">${'★'.repeat(r.rating)}</span>`:''}
+        ${r.exercises?.length?`<div style="font-size:11px;color:var(--txt3);margin-top:2px">${r.exercises.length} exercises</div>`:''}
+      </div>`).join(''):'<div class="empty" style="padding:14px 0"><p>No sessions yet</p></div>';
+  }
 }
 
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -1307,6 +1342,41 @@ async function loadAchievements(){
   setBadge('home',0);
 }
 
+let _calYear=new Date().getFullYear(),_calMonth=new Date().getMonth();
+function calNav(dir){_calMonth+=dir;if(_calMonth>11){_calMonth=0;_calYear++;}else if(_calMonth<0){_calMonth=11;_calYear--;}loadCalendar();}
+async function loadCalendar(){
+  const titleEl=document.getElementById('cal-title');
+  const gridEl=document.getElementById('cal-grid');
+  if(!titleEl||!gridEl)return;
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  titleEl.textContent=monthNames[_calMonth]+' '+_calYear;
+  const first=new Date(_calYear,_calMonth,1);
+  const last=new Date(_calYear,_calMonth+1,0);
+  const startDay=first.getDay(); // 0=Sun
+  const daysInMonth=last.getDate();
+  // Fetch completed sessions for this month
+  const from=new Date(_calYear,_calMonth,1).toISOString();
+  const to=new Date(_calYear,_calMonth+1,1).toISOString();
+  let workoutDays=new Set();
+  if(user){
+    const{data}=await sb.from('sessions').select('created_at').eq('client_id',user.id).eq('completed',true).gte('created_at',from).lt('created_at',to);
+    (data||[]).forEach(s=>{workoutDays.add(new Date(s.created_at).getDate());});
+  }
+  let cells='';
+  // Empty cells before first day
+  for(let i=0;i<startDay;i++)cells+=`<div></div>`;
+  const today=new Date();
+  for(let d=1;d<=daysInMonth;d++){
+    const isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===d;
+    const hasWorkout=workoutDays.has(d);
+    cells+=`<div style="padding:4px 0;position:relative">
+      <div style="width:30px;height:30px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:13px;${isToday?'background:var(--bg4);border:1px solid var(--g);font-weight:700;color:var(--g)':''}">${d}</div>
+      ${hasWorkout?`<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--g)"></div>`:''}
+    </div>`;
+  }
+  gridEl.innerHTML=cells;
+}
+
 async function triggerMilestone(type,message){
   if(!coachId)return;
   await sb.from('milestones').insert({client_id:user.id,coach_id:coachId,type,message,seen_client:false,seen_coach:false});
@@ -1384,10 +1454,15 @@ async function updateNavBadges(){
     sb.from('meal_plans').select('*',{count:'exact',head:true}).eq('client_id',user.id).gt('created_at',lastMeal)
       .then(({count})=>setBadge('meals',count||0))
   );
-  // Pending check-ins
+  // Pending check-ins — badge goes on the More tab
   checks.push(
     sb.from('check_ins').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('status','pending')
-      .then(({count})=>setBadge('checkin',count||0))
+      .then(({count})=>{
+        setBadge('more',count||0);
+        // Also update the inline badge on the More page
+        const mb=document.getElementById('more-checkin-badge');
+        if(mb){mb.textContent=count||0;mb.style.display=count>0?'flex':'none';}
+      })
   );
   await Promise.all(checks);
 }
@@ -1565,8 +1640,8 @@ async function submitCheckIn(){
   await sb.from('check_ins').update({responses,status:'submitted',submitted_at:new Date().toISOString()}).eq('id',_activeCheckIn.id);
   closeCiScreen();
   toast('Check-in submitted!');
-  setBadge('checkin',0);
-  loadCheckIns();
+  setBadge('more',0);
+  loadCheckIns();updateNavBadges();
 }
 
 function subscribeCoachUpdates(){
@@ -1592,11 +1667,11 @@ function subscribeCoachUpdates(){
       updateNavBadges();
     })
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'check_ins',filter:`client_id=eq.${user.id}`},p=>{
-      if(!document.getElementById('ni-checkin')?.classList.contains('on')){
+      if(!document.getElementById('ni-more')?.classList.contains('on')){
         toast('Your coach sent you a check-in form!');
         updateNavBadges();
       } else {
-        loadCheckIns();
+        loadCheckIns();updateNavBadges();
       }
     })
     .subscribe();
