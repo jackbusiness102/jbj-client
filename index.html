@@ -489,9 +489,14 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
         <div style="flex:1;font-size:14px;font-weight:500">Achievements</div>
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
       </div>
-      <div onclick="navMob('calendar')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent">
+      <div onclick="navMob('calendar')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;-webkit-tap-highlight-color:transparent">
         <div style="width:34px;height:34px;border-radius:10px;background:rgba(91,141,238,0.12);color:var(--b);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="16" height="14" rx="2"/><line x1="2" y1="8" x2="18" y2="8"/><line x1="6" y1="2" x2="6" y2="6"/><line x1="14" y1="2" x2="14" y2="6"/></svg></div>
         <div style="flex:1;font-size:14px;font-weight:500">Calendar</div>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
+      </div>
+      <div onclick="navMob('exerprogress')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(57,217,138,0.12);color:var(--g);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h2M15 10h2M5 10l2-3 3 6 3-4 2 1"/></svg></div>
+        <div style="flex:1;font-size:14px;font-weight:500">Exercise Progress</div>
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
       </div>
     </div>
@@ -523,6 +528,24 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     <div style="display:flex;gap:12px;font-size:12px;color:var(--txt3);padding:0 4px">
       <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--g);margin-right:4px;vertical-align:middle"></span>Workout done</span>
     </div>
+  </div>
+
+  <!-- EXERCISE PROGRESS -->
+  <div class="page" id="page-exerprogress">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <button onclick="navMob('more')" style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0">←</button>
+      <div class="ph" style="margin-bottom:0;flex:1"><h1>Exercise Progress</h1><p class="ph-sub">Weight lifted over time</p></div>
+    </div>
+    <div id="exerprog-list"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- EXERCISE CHART (detail view) -->
+  <div class="page" id="page-exerchart">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <button onclick="navMob('exerprogress')" style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0">←</button>
+      <div class="ph" style="margin-bottom:0;flex:1"><h1 id="exerchart-title">Exercise</h1><p class="ph-sub" id="exerchart-sub"></p></div>
+    </div>
+    <div id="exerchart-content"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
 
@@ -706,7 +729,7 @@ function navPage(page,el){
 
 function navMob(page){
   // Sub-pages under More keep the More tab highlighted
-  const moreSubPages=['progress','checkin','history','prs','achievements','calendar'];
+  const moreSubPages=['progress','checkin','history','prs','achievements','calendar','exerprogress','exerchart'];
   const navId=moreSubPages.includes(page)?'more':page;
   document.querySelectorAll('.nav-item').forEach(b=>{b.classList.remove('on');b.style.color='';});
   const el=document.getElementById('ni-'+navId);
@@ -717,6 +740,7 @@ function navMob(page){
   if(page==='meals'){localStorage.setItem('jbj_seen_meal',new Date().toISOString());setBadge('meals',0);}
   if(page==='checkin'){loadCheckIns();setBadge('more',0);}
   if(page==='calendar')loadCalendar();
+  if(page==='exerprogress')loadExerProgress();
 }
 
 async function loadHomeData(){
@@ -1413,6 +1437,152 @@ async function loadCalendar(){
     </div>`;
   }
   gridEl.innerHTML=cells;
+}
+
+// Build exercise history from completed sessions
+let _exerHistory=null; // cached {name: [{date,kg,reps,sessionDate}]}
+async function buildExerHistory(){
+  if(_exerHistory)return _exerHistory;
+  const{data}=await sb.from('sessions').select('exercises,created_at,date').eq('client_id',user.id).eq('completed',true).order('created_at',{ascending:true});
+  const hist={};
+  (data||[]).forEach(s=>{
+    const label=s.date||new Date(s.created_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'});
+    (s.exercises||[]).forEach(e=>{
+      if(!e.name)return;
+      // Get best weight for this exercise in this session
+      let kg=0;
+      if(e.logs?.length)kg=Math.max(...e.logs.map(l=>parseFloat(l.kg)||0));
+      if(!kg&&e.actualWeight)kg=parseFloat(e.actualWeight)||0;
+      if(!kg&&e.weight)kg=parseFloat(e.weight)||0;
+      if(!kg)return;
+      if(!hist[e.name])hist[e.name]=[];
+      hist[e.name].push({date:label,kg,reps:e.actualReps||e.reps||null,ts:new Date(s.created_at).getTime()});
+    });
+  });
+  _exerHistory=hist;
+  return hist;
+}
+
+async function loadExerProgress(){
+  _exerHistory=null; // refresh each time
+  const hist=await buildExerHistory();
+  const el=document.getElementById('exerprog-list');
+  const names=Object.keys(hist).sort();
+  if(!names.length){
+    el.innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No exercise data yet.<br>Complete sessions to track progress.</p></div>';
+    return;
+  }
+  el.innerHTML=names.map(name=>{
+    const pts=hist[name];
+    const first=pts[0].kg,last=pts[pts.length-1].kg;
+    const delta=last-first;
+    const col=delta>0?'var(--g)':delta<0?'var(--r)':'var(--txt3)';
+    const arrow=delta>0?'↑':delta<0?'↓':'→';
+    // Mini sparkline SVG (40x24)
+    const W=56,H=28;
+    if(pts.length>=2){
+      const mn=Math.min(...pts.map(p=>p.kg)),mx=Math.max(...pts.map(p=>p.kg));
+      const rng=mx-mn||1;
+      const xO=i=>2+i/(pts.length-1)*(W-4);
+      const yO=k=>H-4-(k-mn)/rng*(H-8);
+      let lp=`M${xO(0)},${yO(pts[0].kg)}`;
+      pts.forEach((p,i)=>{if(i>0)lp+=` L${xO(i)},${yO(p.kg)}`;});
+      var spark=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="flex-shrink:0"><path d="${lp}" fill="none" stroke="${delta>=0?'#39d98a':'#e05c5c'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${xO(pts.length-1)}" cy="${yO(last)}" r="2.5" fill="${delta>=0?'#39d98a':'#e05c5c'}"/></svg>`;
+    } else {
+      var spark=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="flex-shrink:0"><circle cx="${W/2}" cy="${H/2}" r="3" fill="#39d98a"/></svg>`;
+    }
+    return `<div onclick="showExerChart('${name.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:10px;cursor:pointer;-webkit-tap-highlight-color:transparent">
+      ${spark}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+        <div style="font-size:12px;color:var(--txt3)">${first} kg → <span style="color:var(--g);font-weight:600">${last} kg</span> · ${pts.length} session${pts.length!==1?'s':''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:14px;font-weight:700;color:${col}">${delta>0?'+':''}${delta.toFixed(1)}</div>
+        <div style="font-size:10px;color:var(--txt3)">kg ${arrow}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function showExerChart(name){
+  navPage('exerchart',null);
+  document.getElementById('exerchart-title').textContent=name;
+  const hist=await buildExerHistory();
+  const pts=(hist[name]||[]);
+  const sub=document.getElementById('exerchart-sub');
+  const el=document.getElementById('exerchart-content');
+  if(!pts.length){el.innerHTML='<div class="empty"><p>No data</p></div>';return;}
+  sub.textContent=`${pts.length} session${pts.length!==1?'s':''} logged`;
+  const first=pts[0].kg,last=pts[pts.length-1].kg,best=Math.max(...pts.map(p=>p.kg));
+  const delta=last-first;
+  const trendCol=delta>=0?'var(--g)':'var(--r)';
+  // Full chart (reuse same pattern as weight chart)
+  const W=320,H=150,PL=42,PR=10,PT=12,PB=28;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  const mn=Math.min(...pts.map(p=>p.kg)),mx=Math.max(...pts.map(p=>p.kg));
+  const rng=mx-mn||1;
+  const pm=mn-rng*.15,px2=mx+rng*.15;
+  const xO=i=>PL+i/(pts.length-1||1)*cW;
+  const yO=k=>PT+cH-(k-pm)/(px2-pm)*cH;
+  let grid='',ylbls='';
+  [0,.25,.5,.75,1].forEach(f=>{
+    const v=pm+f*(px2-pm),y=yO(v);
+    grid+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+    ylbls+=`<text x="${PL-4}" y="${y+4}" fill="#555" font-size="9" text-anchor="end">${v.toFixed(1)}</text>`;
+  });
+  let xlbls='';
+  pts.forEach((p,i)=>{
+    if(i===0||i===pts.length-1||pts.length<=6||(i%Math.floor(pts.length/4)===0)){
+      xlbls+=`<text x="${xO(i)}" y="${H-4}" fill="#555" font-size="8" text-anchor="middle">${p.date}</text>`;
+    }
+  });
+  let fp=`M${xO(0)},${yO(pts[0].kg)}`,lp=`M${xO(0)},${yO(pts[0].kg)}`;
+  pts.forEach((p,i)=>{if(i>0){fp+=` L${xO(i)},${yO(p.kg)}`;lp+=` L${xO(i)},${yO(p.kg)}`;}});
+  fp+=` L${xO(pts.length-1)},${PT+cH} L${xO(0)},${PT+cH} Z`;
+  const dots=pts.map((p,i)=>`<circle cx="${xO(i)}" cy="${yO(p.kg)}" r="4" fill="${delta>=0?'#39d98a':'#e05c5c'}" stroke="#111" stroke-width="2"/>`).join('');
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:4px">Start</div>
+        <div style="font-size:18px;font-weight:700;font-family:var(--mono)">${first}</div>
+        <div style="font-size:10px;color:var(--txt3)">kg</div>
+      </div>
+      <div style="background:#111;border:1px solid rgba(57,217,138,0.2);border-radius:12px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:4px">Now</div>
+        <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--g)">${last}</div>
+        <div style="font-size:10px;color:var(--txt3)">kg</div>
+      </div>
+      <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:4px">Best</div>
+        <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--o)">${best}</div>
+        <div style="font-size:10px;color:var(--txt3)">kg</div>
+      </div>
+    </div>
+    <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:600">Weight over time</span>
+        <span style="font-size:12px;font-weight:700;color:${trendCol}">${delta>=0?'↑ +':'↓ '}${delta.toFixed(1)} kg</span>
+      </div>
+      <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">
+        <defs><linearGradient id="epgrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${delta>=0?'#39d98a':'#e05c5c'}" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="${delta>=0?'#39d98a':'#e05c5c'}" stop-opacity="0.02"/>
+        </linearGradient></defs>
+        ${grid}${ylbls}${xlbls}
+        <path d="${fp}" fill="url(#epgrad)"/>
+        <path d="${lp}" fill="none" stroke="${delta>=0?'#39d98a':'#e05c5c'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        ${dots}
+      </svg>
+    </div>
+    <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden">
+      <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;font-weight:600">Session history</div>
+      ${[...pts].reverse().map(p=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.04)">
+          <div><div style="font-size:14px;font-weight:600;font-family:var(--mono);color:var(--g)">${p.kg} kg</div>${p.reps?`<div style="font-size:11px;color:var(--txt3)">${p.reps} reps</div>`:''}</div>
+          <span style="font-size:12px;color:var(--txt3)">${p.date}</span>
+        </div>`).join('')}
+    </div>`;
 }
 
 async function triggerMilestone(type,message){
