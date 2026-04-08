@@ -316,6 +316,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
         <div class="sb-sec">Progress</div>
         <a class="ni" onclick="navPage('progress',this)"><svg viewBox="0 0 20 20"><path d="M10 3v14M6 7l4-4 4 4" fill="none" stroke="currentColor" stroke-linecap="round"/></svg>Body Progress</a>
         <a class="ni" onclick="navPage('achievements',this)"><svg viewBox="0 0 20 20"><polygon points="10,2 12.4,7.5 18.5,8.2 14,12.5 15.3,18.5 10,15.6 4.7,18.5 6,12.5 1.5,8.2 7.6,7.5"/></svg>Achievements</a>
+        <a class="ni" onclick="navPage('calendar',this);loadCalendar()"><svg viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="14" rx="2"/><line x1="2" y1="8" x2="18" y2="8"/><line x1="6" y1="2" x2="6" y2="6"/><line x1="14" y1="2" x2="14" y2="6"/></svg>Calendar</a>
         <div class="sb-sec">Coach</div>
         <a class="ni" onclick="navPage('messages',this)"><svg viewBox="0 0 20 20"><path d="M3 4h14v10H3z"/><path d="M3 4l7 6 7-6"/></svg>Messages</a>
         <a class="ni" onclick="navPage('checkin',this)"><svg viewBox="0 0 20 20"><rect x="4" y="2" width="12" height="16" rx="2"/><polyline points="7,10 9,12 13,8"/><line x1="7" y1="6" x2="13" y2="6"/></svg>Check-ins</a>
@@ -333,6 +334,12 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
   <!-- HOME -->
   <div class="page active" id="page-home">
     <p id="home-date" style="font-size:12px;color:var(--txt3);margin-bottom:14px"></p>
+    <div id="h-checkin-card" style="display:none;background:#111;border:2px solid var(--g);border-radius:14px;padding:14px 16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-size:13px;font-weight:700;color:var(--g);margin-bottom:2px">Check-in due</div><div style="font-size:12px;color:var(--txt2)">Your coach sent you a check-in form</div></div>
+        <button class="btn-sm btn-g" onclick="navMob('checkin')">Fill out →</button>
+      </div>
+    </div>
     <div class="stats">
       <div class="stat"><div class="stat-icon g"><svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="4"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div><div class="stat-val" id="h-weight">—</div><div class="stat-lbl">Current weight</div></div>
       <div class="stat b"><div class="stat-icon b"><svg viewBox="0 0 20 20"><path d="M10 3v14M6 7l4-4 4 4" fill="none" stroke="currentColor" stroke-linecap="round"/></svg></div><div class="stat-val" id="h-target">—</div><div class="stat-lbl">Target weight</div></div>
@@ -340,7 +347,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
       <div class="stat p"><div class="stat-icon p"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/></svg></div><div class="stat-val" id="h-pct">—%</div><div class="stat-lbl">Goal progress</div></div>
     </div>
     <div class="card"><div class="card-head"><h3>Today's workout</h3></div><div id="h-workout"><div class="loading"><div class="spinner"></div></div></div></div>
-    <div class="card"><div class="card-head"><h3>Recent sessions</h3></div><div id="h-recent"><div class="loading"><div class="spinner"></div></div></div></div>
+    <div class="card"><div class="card-head"><h3>Weight trend</h3></div><div id="h-weight-trend"><div class="loading"><div class="spinner"></div></div></div></div>
   </div>
 
   <!-- TODAY'S SESSION -->
@@ -351,6 +358,7 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     </div>
     <div class="sess-prog-bar"><div class="sess-prog-fill" id="sess-prog-fill" style="width:0%"></div></div>
     <div id="session-content"><div class="loading"><div class="spinner"></div></div></div>
+    <div class="card" style="margin-top:4px"><div class="card-head"><h3>Recent sessions</h3></div><div id="sess-recent-list"><div class="loading"><div class="spinner"></div></div></div></div>
   </div>
 
   <!-- LOG WORKOUT -->
@@ -450,6 +458,72 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     <div class="ph" style="margin-bottom:16px"><h1>Check-ins</h1></div>
     <div id="checkin-list"><div class="loading"><div class="spinner"></div></div></div>
   </div>
+
+  <!-- MORE -->
+  <div class="page" id="page-more">
+    <div class="ph"><h1>More</h1><p class="ph-sub">All features</p></div>
+    <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;overflow:hidden">
+      <div onclick="navMob('progress')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(57,217,138,0.12);color:var(--g);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="4"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div>
+        <div style="flex:1;font-size:14px;font-weight:500">Body Progress</div>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
+      </div>
+      <div onclick="navMob('checkin')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(91,141,238,0.12);color:var(--b);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="12" height="16" rx="2"/><polyline points="7,10 9,12 13,8"/><line x1="7" y1="6" x2="13" y2="6"/></svg></div>
+        <div style="flex:1;font-size:14px;font-weight:500">Check-ins</div>
+        <span id="more-checkin-badge" style="display:none;background:var(--g);color:#000;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;align-items:center;justify-content:center;padding:0 4px;margin-right:6px"></span>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
+      </div>
+      <div onclick="navMob('history')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(245,166,35,0.12);color:var(--o);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><polyline points="10,6 10,10 13,12"/></svg></div>
+        <div style="flex:1;font-size:14px;font-weight:500">Workout History</div>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
+      </div>
+      <div onclick="navMob('prs')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(245,166,35,0.12);color:var(--o);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="10,2 12.4,7.5 18.5,8.2 14,12.5 15.3,18.5 10,15.6 4.7,18.5 6,12.5 1.5,8.2 7.6,7.5"/></svg></div>
+        <div style="flex:1;font-size:14px;font-weight:500">My PRs</div>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
+      </div>
+      <div onclick="navMob('achievements')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(167,139,250,0.12);color:var(--p);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="10,2 12.4,7.5 18.5,8.2 14,12.5 15.3,18.5 10,15.6 4.7,18.5 6,12.5 1.5,8.2 7.6,7.5"/></svg></div>
+        <div style="flex:1;font-size:14px;font-weight:500">Achievements</div>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
+      </div>
+      <div onclick="navMob('calendar')" style="display:flex;align-items:center;gap:14px;padding:15px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(91,141,238,0.12);color:var(--b);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="16" height="14" rx="2"/><line x1="2" y1="8" x2="18" y2="8"/><line x1="6" y1="2" x2="6" y2="6"/><line x1="14" y1="2" x2="14" y2="6"/></svg></div>
+        <div style="flex:1;font-size:14px;font-weight:500">Calendar</div>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,4 14,10 7,16"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="page" id="page-calendar">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <button onclick="navMob('more')" style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0">←</button>
+      <div class="ph" style="margin-bottom:0;flex:1"><h1>Calendar</h1></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <button onclick="calNav(-1)" style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent">‹</button>
+        <div id="cal-title" style="font-size:15px;font-weight:700"></div>
+        <button onclick="calNav(1)" style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent">›</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0">S</div>
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0">M</div>
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0">T</div>
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0">W</div>
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0">T</div>
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0">F</div>
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);padding:4px 0">S</div>
+      </div>
+      <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center"></div>
+    </div>
+    <div style="display:flex;gap:12px;font-size:12px;color:var(--txt3);padding:0 4px">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--g);margin-right:4px;vertical-align:middle"></span>Workout done</span>
+    </div>
+  </div>
 </div>
 
   </div>
@@ -460,9 +534,8 @@ body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
     <div class="nav-item on" id="ni-home" onclick="navMob('home')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg><span class="nav-badge" id="badge-home"></span></span>Home</div>
     <div class="nav-item" id="ni-session" onclick="navMob('session')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><path d="M3 10h2M15 10h2M5 10l2-3 3 6 3-4 2 1"/></svg><span class="nav-badge" id="badge-session"></span></span>Workout</div>
     <div class="nav-item" id="ni-meals" onclick="navMob('meals')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><path d="M10 3c-3 0-6 2.5-6 6 0 2.5 1.5 4.5 3 5.5V17h6v-2.5c1.5-1 3-3 3-5.5 0-3.5-3-6-6-6z"/></svg><span class="nav-badge" id="badge-meals"></span></span>Meals</div>
-    <div class="nav-item" id="ni-progress" onclick="navMob('progress')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/><line x1="3" y1="17" x2="17" y2="17"/></svg></span>Progress</div>
     <div class="nav-item" id="ni-messages" onclick="navMob('messages')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><path d="M3 4h14v10H3z"/><path d="M3 4l7 6 7-6"/></svg><span class="nav-badge" id="badge-messages"></span></span>Chat</div>
-    <div class="nav-item" id="ni-checkin" onclick="navMob('checkin')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><rect x="4" y="2" width="12" height="16" rx="2"/><polyline points="7,10 9,12 13,8"/><line x1="7" y1="6" x2="13" y2="6"/></svg><span class="nav-badge" id="badge-checkin"></span></span>Check-in</div>
+    <div class="nav-item" id="ni-more" onclick="navMob('more')"><span class="nav-item-icon"><svg viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/><circle cx="15" cy="10" r="1.5" fill="currentColor"/></svg><span class="nav-badge" id="badge-more"></span></span>More</div>
   </div>
 </div>
 
