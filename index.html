@@ -351,7 +351,7 @@ body{padding-bottom:0}
   <!-- TODAY'S SESSION -->
   <div class="page" id="page-session">
     <div class="sess-hdr">
-      <div><div style="font-size:20px;font-weight:700;letter-spacing:-.5px">Today's Session</div><div style="font-size:12px;color:var(--txt2);margin-top:1px" id="session-sub"></div></div>
+      <div><div style="font-size:20px;font-weight:700;letter-spacing:-.5px" id="session-title">Today's Session</div><div style="font-size:12px;color:var(--txt2);margin-top:1px" id="session-sub"></div></div>
       <div class="sess-timer" id="sess-timer-el"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><polyline points="10,6 10,10 13,12"/></svg><span id="sess-timer-val">00:00</span></div>
     </div>
     <div class="sess-prog-bar"><div class="sess-prog-fill" id="sess-prog-fill" style="width:0%"></div></div>
@@ -774,17 +774,35 @@ async function loadHomeData(){
     const ciCard=document.getElementById('h-checkin-card');
     if(ciCard)ciCard.style.display=ciCount>0?'block':'none';
   }catch(e){}
-  // Today's workout
+  // Today's workout card — only show as active if session is due today or overdue
   const{data:pending}=await sb.from('sessions').select('*').eq('client_id',user.id).eq('completed',false).order('created_at',{ascending:false}).limit(1);
   const s=pending?.[0];
+  const hwEl=document.getElementById('h-workout');
+  const hwHead=document.querySelector('#page-home .card-head h3');
   if(s?.exercises?.length){
-    document.getElementById('h-workout').innerHTML=`
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">${s.type}</div>
-      <div style="font-size:12px;color:var(--txt2);margin-bottom:10px">${s.exercises.length} exercises assigned</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">${s.exercises.slice(0,3).map(e=>`<span style="background:var(--bg3);padding:3px 8px;border-radius:6px;font-size:12px">${e.name}</span>`).join('')}${s.exercises.length>3?`<span style="font-size:12px;color:var(--txt3)">+${s.exercises.length-3} more</span>`:''}</div>
-      <button class="btn-sm btn-g" style="width:100%;justify-content:center" onclick="navMob('session')">Start session →</button>`;
+    const sessDate=parseSessionDate(s.date);
+    const today=new Date();today.setHours(0,0,0,0);
+    const isFuture=sessDate&&sessDate.getTime()>today.getTime();
+    if(hwHead)hwHead.textContent=isFuture?'Upcoming workout':'Today\'s workout';
+    if(isFuture){
+      const daysUntil=Math.round((sessDate.getTime()-today.getTime())/86400000);
+      const dayName=sessDate.toLocaleDateString('en-ZA',{weekday:'long'});
+      hwEl.innerHTML=`
+        <div style="font-size:12px;color:var(--txt3);font-weight:600;margin-bottom:6px">${dayName}, ${s.date} · in ${daysUntil} day${daysUntil!==1?'s':''}</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">${s.type}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">${s.exercises.slice(0,3).map(e=>`<span style="background:var(--bg3);padding:3px 8px;border-radius:6px;font-size:12px">${e.name}</span>`).join('')}${s.exercises.length>3?`<span style="font-size:12px;color:var(--txt3)">+${s.exercises.length-3} more</span>`:''}</div>
+        <button class="btn-sm" style="width:100%;justify-content:center" onclick="navMob('session')">Preview session →</button>`;
+    } else {
+      if(hwHead)hwHead.textContent="Today's workout";
+      hwEl.innerHTML=`
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">${s.type}</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:10px">${s.exercises.length} exercises assigned</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">${s.exercises.slice(0,3).map(e=>`<span style="background:var(--bg3);padding:3px 8px;border-radius:6px;font-size:12px">${e.name}</span>`).join('')}${s.exercises.length>3?`<span style="font-size:12px;color:var(--txt3)">+${s.exercises.length-3} more</span>`:''}</div>
+        <button class="btn-sm btn-g" style="width:100%;justify-content:center" onclick="navMob('session')">Start session →</button>`;
+    }
   } else {
-    document.getElementById('h-workout').innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No session assigned yet</p></div>';
+    if(hwHead)hwHead.textContent="Today's workout";
+    hwEl.innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No session assigned yet</p></div>';
   }
   // Mini weight trend graph
   const trendEl=document.getElementById('h-weight-trend');
@@ -845,19 +863,53 @@ async function loadHomeData(){
   }catch(e){trendEl.innerHTML='<div class="empty" style="padding:10px 0"><p>No weigh-ins yet</p></div>';}
 }
 
+function parseSessionDate(dateStr){
+  if(!dateStr)return null;
+  // Try ISO format (YYYY-MM-DD or full ISO)
+  const iso=new Date(dateStr);
+  if(!isNaN(iso.getTime())&&dateStr.includes('-')){iso.setHours(0,0,0,0);return iso;}
+  // Try "14 Apr" or "14 Apr 2026" format
+  const MONTHS={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const m=dateStr.match(/(\d+)\s+([A-Za-z]+)(?:\s+(\d{4}))?/);
+  if(m){
+    const yr=m[3]?parseInt(m[3]):new Date().getFullYear();
+    const mo=MONTHS[m[2]];
+    if(mo!==undefined){const d=new Date(yr,mo,parseInt(m[1]));d.setHours(0,0,0,0);return d;}
+  }
+  return null;
+}
+
 async function loadSessionData(){
   const{data}=await sb.from('sessions').select('*').eq('client_id',user.id).eq('completed',false).order('created_at',{ascending:false}).limit(1);
   const s=data?.[0];
   if(!s?.exercises?.length){
+    document.getElementById('session-title').textContent="Today's Session";
     document.getElementById('session-sub').textContent='No session assigned';
     document.getElementById('session-content').innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No workout assigned yet.<br>Your coach will set one up!</p></div>';
     clearInterval(_sessTimerInterval);_sessTimerInterval=null;
     const tv=document.getElementById('sess-timer-val');if(tv)tv.textContent='00:00';
   } else {
-    document.getElementById('session-sub').textContent=s.type+' · '+s.date;
-    // Reset sets if new session loaded
-    if(_sessId!==s.id){sessionSets={};Object.keys(_openCards).forEach(k=>delete _openCards[k]);}
-    if(!_sessTimerInterval)startSessTimer();
+    // Parse the session date to determine if it's today, past, or future
+    const sessDate=parseSessionDate(s.date);
+    const today=new Date();today.setHours(0,0,0,0);
+    const isFuture=sessDate&&sessDate.getTime()>today.getTime();
+    const titleEl=document.getElementById('session-title');
+    const timerEl=document.getElementById('sess-timer-el');
+    if(isFuture){
+      const daysUntil=Math.round((sessDate.getTime()-today.getTime())/86400000);
+      const dayName=sessDate.toLocaleDateString('en-ZA',{weekday:'long'});
+      titleEl.textContent='Upcoming Session';
+      document.getElementById('session-sub').textContent=`${s.type} · ${dayName}, ${s.date} (in ${daysUntil} day${daysUntil!==1?'s':''})`;
+      if(timerEl)timerEl.style.display='none';
+      clearInterval(_sessTimerInterval);_sessTimerInterval=null;
+      const tv=document.getElementById('sess-timer-val');if(tv)tv.textContent='00:00';
+    } else {
+      titleEl.textContent="Today's Session";
+      document.getElementById('session-sub').textContent=s.type+' · '+s.date;
+      if(timerEl)timerEl.style.display='';
+      if(_sessId!==s.id){sessionSets={};Object.keys(_openCards).forEach(k=>delete _openCards[k]);}
+      if(!_sessTimerInterval)startSessTimer();
+    }
     renderSessionViewer(s);
   }
   // Load recent sessions
