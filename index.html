@@ -1527,7 +1527,7 @@ async function loadCalendar(){
 }
 
 // Build exercise history from completed sessions
-let _exerHistory=null; // cached {name: [{date,kg,reps,sessionDate}]}
+let _exerHistory=null;
 async function buildExerHistory(){
   if(_exerHistory)return _exerHistory;
   const{data}=await sb.from('sessions').select('exercises,created_at,date').eq('client_id',user.id).eq('completed',true).order('created_at',{ascending:true});
@@ -1536,14 +1536,20 @@ async function buildExerHistory(){
     const label=s.date||new Date(s.created_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'});
     (s.exercises||[]).forEach(e=>{
       if(!e.name)return;
-      // Get best weight for this exercise in this session
-      let kg=0;
-      if(e.logs?.length)kg=Math.max(...e.logs.map(l=>parseFloat(l.kg)||0));
+      let kg=0,reps=0;
+      if(e.logs?.length){
+        // Use reps from the heaviest set
+        const best=[...e.logs].filter(l=>parseFloat(l.kg)>0).sort((a,b)=>parseFloat(b.kg)-parseFloat(a.kg))[0];
+        if(best){kg=parseFloat(best.kg)||0;reps=parseInt(best.reps)||0;}
+        if(!reps){const avg=Math.round(e.logs.reduce((s,l)=>s+(parseInt(l.reps)||0),0)/e.logs.length);reps=avg||0;}
+      }
       if(!kg&&e.actualWeight)kg=parseFloat(e.actualWeight)||0;
+      if(!reps&&e.actualReps)reps=parseInt(e.actualReps)||0;
       if(!kg&&e.weight)kg=parseFloat(e.weight)||0;
       if(!kg)return;
+      const targetReps=parseInt(e.reps)||null;
       if(!hist[e.name])hist[e.name]=[];
-      hist[e.name].push({date:label,kg,reps:e.actualReps||e.reps||null,ts:new Date(s.created_at).getTime()});
+      hist[e.name].push({date:label,kg,reps,targetReps,ts:new Date(s.created_at).getTime()});
     });
   });
   _exerHistory=hist;
@@ -1604,71 +1610,122 @@ async function showExerChart(name){
   const first=pts[0].kg,last=pts[pts.length-1].kg,best=Math.max(...pts.map(p=>p.kg));
   const delta=last-first;
   const trendCol=delta>=0?'var(--g)':'var(--r)';
-  // Full chart (reuse same pattern as weight chart)
-  const W=320,H=150,PL=42,PR=10,PT=12,PB=28;
+  // Count weight increases (progressive overload events)
+  let jumps=0;
+  pts.forEach((p,i)=>{if(i>0&&p.kg>pts[i-1].kg)jumps++;});
+  // Common target reps (most frequent non-null value)
+  const targetReps=pts.find(p=>p.targetReps)?.targetReps||null;
+  // Chart
+  const W=320,H=160,PL=42,PR=10,PT=18,PB=28;
   const cW=W-PL-PR,cH=H-PT-PB;
   const mn=Math.min(...pts.map(p=>p.kg)),mx=Math.max(...pts.map(p=>p.kg));
   const rng=mx-mn||1;
-  const pm=mn-rng*.15,px2=mx+rng*.15;
+  const pm=mn-rng*.2,px2=mx+rng*.2;
   const xO=i=>PL+i/(pts.length-1||1)*cW;
   const yO=k=>PT+cH-(k-pm)/(px2-pm)*cH;
   let grid='',ylbls='';
   [0,.25,.5,.75,1].forEach(f=>{
     const v=pm+f*(px2-pm),y=yO(v);
-    grid+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+    grid+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
     ylbls+=`<text x="${PL-4}" y="${y+4}" fill="#555" font-size="9" text-anchor="end">${v.toFixed(1)}</text>`;
   });
   let xlbls='';
   pts.forEach((p,i)=>{
-    if(i===0||i===pts.length-1||pts.length<=6||(i%Math.floor(pts.length/4)===0)){
+    if(i===0||i===pts.length-1||pts.length<=5||(i%Math.ceil(pts.length/5)===0)){
       xlbls+=`<text x="${xO(i)}" y="${H-4}" fill="#555" font-size="8" text-anchor="middle">${p.date}</text>`;
     }
   });
   let fp=`M${xO(0)},${yO(pts[0].kg)}`,lp=`M${xO(0)},${yO(pts[0].kg)}`;
   pts.forEach((p,i)=>{if(i>0){fp+=` L${xO(i)},${yO(p.kg)}`;lp+=` L${xO(i)},${yO(p.kg)}`;}});
   fp+=` L${xO(pts.length-1)},${PT+cH} L${xO(0)},${PT+cH} Z`;
-  const dots=pts.map((p,i)=>`<circle cx="${xO(i)}" cy="${yO(p.kg)}" r="4" fill="${delta>=0?'#39d98a':'#e05c5c'}" stroke="#111" stroke-width="2"/>`).join('');
+  // Dots: green glow on weight-increase points
+  const dots=pts.map((p,i)=>{
+    const isJump=i>0&&p.kg>pts[i-1].kg;
+    if(isJump)return `<circle cx="${xO(i)}" cy="${yO(p.kg)}" r="6" fill="rgba(57,217,138,0.2)"/><circle cx="${xO(i)}" cy="${yO(p.kg)}" r="4.5" fill="#39d98a" stroke="#111" stroke-width="2"/>`;
+    return `<circle cx="${xO(i)}" cy="${yO(p.kg)}" r="3.5" fill="${delta>=0?'#39d98a':'#e05c5c'}" stroke="#111" stroke-width="1.5"/>`;
+  }).join('');
+  // Rep labels above/below each dot
+  const repLabels=pts.map((p,i)=>{
+    if(!p.reps)return '';
+    const cx=xO(i),cy=yO(p.kg);
+    const above=cy>PT+cH*0.55; // label above if dot is in lower half
+    const hitTarget=targetReps&&p.reps>=targetReps;
+    const col=hitTarget?'#39d98a':'#888';
+    return `<text x="${cx}" y="${above?cy-9:cy+14}" fill="${col}" font-size="8" text-anchor="middle" font-family="monospace">×${p.reps}</text>`;
+  }).join('');
+  // Weight-jump arrows
+  const jumpArrows=pts.map((p,i)=>{
+    if(i===0||p.kg<=pts[i-1].kg)return '';
+    const cx=xO(i),cy=yO(p.kg);
+    const diff=(p.kg-pts[i-1].kg).toFixed(1);
+    return `<text x="${cx}" y="${cy-12}" fill="#39d98a" font-size="8" text-anchor="middle" font-weight="bold">+${diff}</text>`;
+  }).join('');
   el.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
-      <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;text-align:center">
-        <div style="font-size:11px;color:var(--txt3);margin-bottom:4px">Start</div>
-        <div style="font-size:18px;font-weight:700;font-family:var(--mono)">${first}</div>
-        <div style="font-size:10px;color:var(--txt3)">kg</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:14px">
+      <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--txt3);margin-bottom:3px">Start</div>
+        <div style="font-size:16px;font-weight:700;font-family:var(--mono)">${first}</div>
+        <div style="font-size:9px;color:var(--txt3)">kg</div>
       </div>
-      <div style="background:#111;border:1px solid rgba(57,217,138,0.2);border-radius:12px;padding:12px;text-align:center">
-        <div style="font-size:11px;color:var(--txt3);margin-bottom:4px">Now</div>
-        <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--g)">${last}</div>
-        <div style="font-size:10px;color:var(--txt3)">kg</div>
+      <div style="background:#111;border:1px solid rgba(57,217,138,0.2);border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--txt3);margin-bottom:3px">Now</div>
+        <div style="font-size:16px;font-weight:700;font-family:var(--mono);color:var(--g)">${last}</div>
+        <div style="font-size:9px;color:var(--txt3)">kg</div>
       </div>
-      <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;text-align:center">
-        <div style="font-size:11px;color:var(--txt3);margin-bottom:4px">Best</div>
-        <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--o)">${best}</div>
-        <div style="font-size:10px;color:var(--txt3)">kg</div>
+      <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--txt3);margin-bottom:3px">Best</div>
+        <div style="font-size:16px;font-weight:700;font-family:var(--mono);color:var(--o)">${best}</div>
+        <div style="font-size:9px;color:var(--txt3)">kg</div>
+      </div>
+      <div style="background:#111;border:1px solid rgba(57,217,138,0.12);border-radius:12px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--txt3);margin-bottom:3px">Jumps</div>
+        <div style="font-size:16px;font-weight:700;font-family:var(--mono);color:var(--g)">${jumps}</div>
+        <div style="font-size:9px;color:var(--txt3)">↑ overload</div>
       </div>
     </div>
     <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span style="font-size:13px;font-weight:600">Weight over time</span>
-        <span style="font-size:12px;font-weight:700;color:${trendCol}">${delta>=0?'↑ +':'↓ '}${delta.toFixed(1)} kg</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:600">Weight &amp; reps over time</span>
+        <span style="font-size:12px;font-weight:700;color:${trendCol}">${delta>=0?'↑ +':'↓ '}${Math.abs(delta).toFixed(1)} kg</span>
       </div>
+      ${targetReps?`<div style="font-size:11px;color:var(--txt3);margin-bottom:8px"><span style="color:var(--g)">●</span> ×${targetReps} rep target — <span style="color:var(--g)">green</span> labels = target hit → weight jumped next session</div>`:''}
       <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">
         <defs><linearGradient id="epgrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${delta>=0?'#39d98a':'#e05c5c'}" stop-opacity="0.25"/>
+          <stop offset="0%" stop-color="${delta>=0?'#39d98a':'#e05c5c'}" stop-opacity="0.2"/>
           <stop offset="100%" stop-color="${delta>=0?'#39d98a':'#e05c5c'}" stop-opacity="0.02"/>
         </linearGradient></defs>
         ${grid}${ylbls}${xlbls}
         <path d="${fp}" fill="url(#epgrad)"/>
         <path d="${lp}" fill="none" stroke="${delta>=0?'#39d98a':'#e05c5c'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        ${dots}
+        ${dots}${repLabels}${jumpArrows}
       </svg>
     </div>
     <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden">
-      <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;font-weight:600">Session history</div>
-      ${[...pts].reverse().map(p=>`
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.04)">
-          <div><div style="font-size:14px;font-weight:600;font-family:var(--mono);color:var(--g)">${p.kg} kg</div>${p.reps?`<div style="font-size:11px;color:var(--txt3)">${p.reps} reps</div>`:''}</div>
-          <span style="font-size:12px;color:var(--txt3)">${p.date}</span>
-        </div>`).join('')}
+      <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <span style="font-size:13px;font-weight:600">Session history</span>
+        <span style="font-size:11px;color:var(--txt3);margin-left:8px">● = weight increase</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="font-size:10px;color:var(--txt3);font-weight:600;padding:7px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)">Date</th>
+          <th style="font-size:10px;color:var(--txt3);font-weight:600;padding:7px 8px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05)">Weight</th>
+          <th style="font-size:10px;color:var(--txt3);font-weight:600;padding:7px 8px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05)">Reps</th>
+          <th style="font-size:10px;color:var(--txt3);font-weight:600;padding:7px 16px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.05)">Change</th>
+        </tr></thead>
+        <tbody>${[...pts].reverse().map((p,i,arr)=>{
+          const prev=arr[i+1];
+          const isJump=prev&&p.kg>prev.kg;
+          const isDrop=prev&&p.kg<prev.kg;
+          const hitTarget=targetReps&&p.reps>=targetReps;
+          const changeTxt=isJump?`<span style="color:var(--g);font-weight:700">↑ +${(p.kg-prev.kg).toFixed(1)}</span>`:isDrop?`<span style="color:var(--r)">↓ ${(p.kg-prev.kg).toFixed(1)}</span>`:prev?'<span style="color:var(--txt3)">—</span>':'<span style="color:var(--txt3)">first</span>';
+          return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);${isJump?'background:rgba(57,217,138,0.04)':''}">
+            <td style="padding:10px 16px;font-size:12px;color:var(--txt2)">${p.date}${isJump?' <span style="color:var(--g)">●</span>':''}</td>
+            <td style="padding:10px 8px;font-size:13px;font-weight:700;font-family:var(--mono);color:${isJump?'var(--g)':'var(--txt)'};text-align:center">${p.kg} kg</td>
+            <td style="padding:10px 8px;font-size:12px;font-family:var(--mono);color:${hitTarget?'var(--g)':'var(--txt3)'};text-align:center;font-weight:${hitTarget?'700':'400'}">${p.reps?`×${p.reps}${hitTarget?' ✓':''}`:'-'}</td>
+            <td style="padding:10px 16px;font-size:12px;text-align:right">${changeTxt}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
     </div>`;
 }
 
