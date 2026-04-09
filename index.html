@@ -745,7 +745,7 @@ function navMob(page){
   const el=document.getElementById('ni-'+navId);
   if(el){el.classList.add('on');el.style.color='#39d98a';}
   navPage(page,null);
-  if(page==='messages')setBadge('messages',0);
+  if(page==='messages'){localStorage.setItem('jbj_seen_messages',new Date().toISOString());setBadge('messages',0);}
   if(page==='session'){localStorage.setItem('jbj_seen_session',new Date().toISOString());setBadge('session',0);}
   if(page==='meals'){localStorage.setItem('jbj_seen_meal',new Date().toISOString());setBadge('meals',0);}
   if(page==='checkin'){loadCheckIns();setBadge('more',0);}
@@ -1834,10 +1834,11 @@ function setBadge(tab,count){
 async function updateNavBadges(){
   if(!user)return;
   const checks=[];
-  // Unread messages from coach
+  // New messages from coach since last time user opened chat
   if(coachId){
+    const lastMsg=localStorage.getItem('jbj_seen_messages')||'1970-01-01T00:00:00Z';
     checks.push(
-      sb.from('messages').select('*',{count:'exact',head:true}).eq('sender_id',coachId).eq('receiver_id',user.id).eq('read',false)
+      sb.from('messages').select('*',{count:'exact',head:true}).eq('sender_id',coachId).eq('receiver_id',user.id).gt('created_at',lastMsg)
         .then(({count})=>setBadge('messages',count||0))
     );
   }
