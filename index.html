@@ -2060,6 +2060,13 @@ function subscribeCoachUpdates(){
         loadSessionData();loadHomeData();
       }
     })
+    // Refresh when a session is completed on another device
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'sessions',filter:`client_id=eq.${user.id}`},p=>{
+      if(p.new?.completed&&!p.old?.completed){
+        _exerHistory=null;
+        loadSessionData();loadHomeData();loadHistory();
+      }
+    })
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'meal_plans',filter:`client_id=eq.${user.id}`},p=>{
       if(!document.getElementById('ni-meals')?.classList.contains('on')){
         toast('New meal plan from your coach!');
@@ -2231,8 +2238,27 @@ function startBadgePolling(){
   if(badgePollInterval)clearInterval(badgePollInterval);
   badgePollInterval=setInterval(()=>{if(user)updateNavBadges();},30000);
 }
+let _lastRefresh=0;
 document.addEventListener('visibilitychange',()=>{
-  if(!document.hidden&&user)updateNavBadges();
+  if(!document.hidden&&user){
+    updateNavBadges();
+    // Refresh data if tab was hidden for more than 60s (e.g. switched from phone)
+    const now=Date.now();
+    if(now-_lastRefresh>60000){
+      _lastRefresh=now;
+      _exerHistory=null;
+      loadSessionData();
+      loadHomeData();
+      // Refresh whichever page is currently visible
+      const active=document.querySelector('.page.active');
+      if(active){
+        const id=active.id;
+        if(id==='page-history')loadHistory();
+        if(id==='page-progress')loadProgressDetail();
+        if(id==='page-exerprogress')loadExerProgress();
+      }
+    }
+  }
 });
 
 document.addEventListener('DOMContentLoaded',()=>{
