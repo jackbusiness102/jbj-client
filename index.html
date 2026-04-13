@@ -618,6 +618,7 @@ async function signOut(){
 async function saveDisplayName(){
   const name=document.getElementById('display-name').value.trim();
   if(!name){toast('Enter a name first');return;}
+  _localName=name;
   const btn=document.querySelector('#onboarding-screen button');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   try{
@@ -648,7 +649,7 @@ const QA_QUESTIONS=[
   'Do you have any specific fitness milestones or deadlines you want to achieve?'
 ];
 
-let _qaUser=null,_qaSubmitted=false;
+let _qaUser=null,_qaSubmitted=false,_localName=null;
 function showQA(u){
   _qaUser=u;
   const wrap=document.getElementById('qa-fields');
@@ -694,7 +695,7 @@ async function submitQA(){
 async function boot(u){
   user=u;
   const{data:profile}=await sb.from('profiles').select('*').eq('id',u.id).single();
-  const name=profile?.full_name||'';
+  const name=profile?.full_name||_localName||'';
   if(!name||name.trim()===''||name===u.email||name.includes('@')){
     document.getElementById('auth-screen').style.display='none';
     document.getElementById('onboarding-screen').style.display='flex';
