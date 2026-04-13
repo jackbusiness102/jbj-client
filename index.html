@@ -618,10 +618,21 @@ async function signOut(){
 async function saveDisplayName(){
   const name=document.getElementById('display-name').value.trim();
   if(!name){toast('Enter a name first');return;}
-  const{data:{user:u}}=await sb.auth.getUser();
-  await sb.from('profiles').update({full_name:name}).eq('id',u.id);
-  document.getElementById('onboarding-screen').style.display='none';
-  showQA(u);
+  const btn=document.querySelector('#onboarding-screen button');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  try{
+    // Use existing session user, fall back to getUser
+    const u=user||(await sb.auth.getUser()).data?.user;
+    if(!u){toast('Session expired — please log in again');if(btn){btn.disabled=false;btn.textContent="Let's go ↗";}return;}
+    // Upsert so it works whether the profile row exists or not
+    await sb.from('profiles').upsert({id:u.id,full_name:name},{onConflict:'id'});
+    document.getElementById('onboarding-screen').style.display='none';
+    showQA(u);
+  }catch(e){
+    console.error('saveDisplayName error:',e);
+    toast('Something went wrong, try again');
+    if(btn){btn.disabled=false;btn.textContent="Let's go ↗";}
+  }
 }
 
 const QA_QUESTIONS=[
