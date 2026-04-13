@@ -621,19 +621,19 @@ async function saveDisplayName(){
   _localName=name;
   const btn=document.querySelector('#onboarding-screen button');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
-  try{
-    // Use existing session user, fall back to getUser
-    const u=user||(await sb.auth.getUser()).data?.user;
-    if(!u){toast('Session expired — please log in again');if(btn){btn.disabled=false;btn.textContent="Let's go ↗";}return;}
-    // Upsert so it works whether the profile row exists or not
-    await sb.from('profiles').upsert({id:u.id,full_name:name},{onConflict:'id'});
-    document.getElementById('onboarding-screen').style.display='none';
-    showQA(u);
-  }catch(e){
-    console.error('saveDisplayName error:',e);
-    toast('Something went wrong, try again');
-    if(btn){btn.disabled=false;btn.textContent="Let's go ↗";}
+  const u=user||(await sb.auth.getUser()).data?.user;
+  if(!u){toast('Session expired — please log in again');if(btn){btn.disabled=false;btn.textContent="Let's go ↗";}return;}
+  // Persist name locally so it survives refresh even if DB write fails
+  localStorage.setItem('jbj_name_'+u.id,name);
+  // Try upsert, then update as fallback — ignore errors either way
+  const{error:e1}=await sb.from('profiles').upsert({id:u.id,full_name:name},{onConflict:'id'});
+  if(e1){
+    console.warn('upsert failed, trying update:',e1.message);
+    const{error:e2}=await sb.from('profiles').update({full_name:name}).eq('id',u.id);
+    if(e2)console.warn('update also failed:',e2.message);
   }
+  document.getElementById('onboarding-screen').style.display='none';
+  showQA(u);
 }
 
 const QA_QUESTIONS=[
@@ -673,6 +673,8 @@ async function submitQA(){
     // Save answers — ignore errors if column doesn't exist yet
     const{error}=await sb.from('profiles').update({qa_answers:answers}).eq('id',_qaUser.id);
     if(error)console.warn('QA save error (column may be missing):', error.message);
+    // Mark Q&A done locally so refresh doesn't re-show it
+    localStorage.setItem('jbj_qa_done_'+_qaUser.id,'1');
   }
   _qaSubmitted=true;
   document.getElementById('qa-screen').style.display='none';
@@ -695,14 +697,15 @@ async function submitQA(){
 async function boot(u){
   user=u;
   const{data:profile}=await sb.from('profiles').select('*').eq('id',u.id).single();
-  const name=profile?.full_name||_localName||'';
+  const name=profile?.full_name||_localName||localStorage.getItem('jbj_name_'+u.id)||'';
   if(!name||name.trim()===''||name===u.email||name.includes('@')){
     document.getElementById('auth-screen').style.display='none';
     document.getElementById('onboarding-screen').style.display='flex';
     return;
   }
-  // Show Q&A if not yet completed (skip if just submitted this session)
-  if(!profile?.qa_answers&&!_qaSubmitted){
+  // Show Q&A if not yet completed (skip if just submitted this session or marked done locally)
+  const qaDoneLocally=!!localStorage.getItem('jbj_qa_done_'+u.id);
+  if(!profile?.qa_answers&&!_qaSubmitted&&!qaDoneLocally){
     document.getElementById('auth-screen').style.display='none';
     showQA(u);
     return;
