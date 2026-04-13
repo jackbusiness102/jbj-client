@@ -977,30 +977,30 @@ async function loadSessionData(){
 }
 
 const MUSCLE_MAP=[
-  ['chest',['bench press','chest fly','cable fly','push up','pec deck','dumbbell press','incline press','decline press','incline dumbbell','decline dumbbell','chest press']],
-  ['back',['deadlift','pull up','chin up','lat pulldown','seated row','bent over row','cable row','barbell row','dumbbell row','t-bar row','face pull','back extension','hyperextension','rack pull','single arm row',' row','smith row','pendlay row','chest supported row','machine row']],
+  ['chest',['bench press','chest fly','cable fly','push up','push-up','pec deck','dumbbell press','incline press','decline press','incline dumbbell','decline dumbbell','chest press']],
+  ['back',['deadlift','pull up','pull-up','chin up','lat pulldown','seated row','bent over row','cable row','barbell row','dumbbell row','t-bar row','face pull','back extension','hyperextension','rack pull','single arm row',' row','smith row','pendlay row','chest supported row','machine row','unilateral lat']],
   ['shoulders',['shoulder press','overhead press','lateral raise','front raise','arnold press','rear delt','upright row','military press','db shoulder','cable lateral','cable front']],
-  ['biceps',['bicep curl','biceps curl','barbell curl','hammer curl','preacher curl','cable curl','concentration curl','incline curl','zottman','ez bar curl','db curl']],
-  ['triceps',['tricep','skull crusher','close grip','pushdown','triceps pushdown','overhead tricep','dips','jm press','cable tricep']],
-  ['quads',['squat','leg press','leg extension','lunge','bulgarian','hack squat','step up','goblet squat','front squat','box squat','sissy squat','split squat']],
+  ['biceps',['bicep curl','biceps curl','barbell curl','hammer curl','preacher curl','cable curl','concentration curl','incline curl','zottman','ez bar curl','db curl','ez bar cable']],
+  ['triceps',['tricep','skull crusher','close grip','pushdown','triceps pushdown','overhead tricep','dips','jm press','cable tricep','rope extension','cable extension','rope pushdown']],
+  ['quads',['squat','leg press','leg extension','lunge','bulgarian','hack squat','step up','step-up','goblet squat','front squat','box squat','sissy squat','split squat','hip press','box jump']],
   ['hamstrings',['romanian deadlift','rdl','leg curl','hamstring curl','good morning','stiff leg','sumo deadlift','nordic curl']],
-  ['glutes',['hip thrust','glute bridge','cable kickback','abductor','glute','donkey kick','clamshell']],
+  ['glutes',['hip thrust','glute bridge','cable kickback','abductor','adductor','glute','donkey kick','clamshell','kickback','kb swing','kettlebell swing']],
   ['calves',['calf raise','standing calf','seated calf','donkey calf','tibialis']],
   ['core',['plank','crunch','sit up','ab ','cable crunch','russian twist','leg raise','hanging raise','pallof','wood chop','dead bug','bird dog']],
 ];
 const MUSCLE_COLORS={chest:'#e05c5c',back:'#5c9de0',shoulders:'#e0a85c',biceps:'#9b5ce0',triceps:'#c45ce0',quads:'#5ce08a',hamstrings:'#5ce0d0',glutes:'#e05cb5',calves:'#a0e05c',core:'#e0d45c',other:'#888'};
 const EXERCISE_ALTS={
-  chest:['Bench Press','Incline Bench Press','Decline Bench Press','Dumbbell Bench Press','Incline Dumbbell Press','Cable Fly','Chest Fly','Pec Deck','Push Up','Dips'],
-  back:['Lat Pulldown','Pull Up','Chin Up','Seated Row','Bent Over Row','Single Arm Row','Cable Row','T-Bar Row','Face Pull','Deadlift','Rack Pull'],
-  shoulders:['Overhead Press','Dumbbell Shoulder Press','Lateral Raise','Cable Lateral Raise','Front Raise','Arnold Press','Rear Delt Fly','Upright Row'],
-  biceps:['Barbell Curl','Dumbbell Curl','Hammer Curl','Preacher Curl','Cable Curl','Incline Dumbbell Curl','Concentration Curl','EZ Bar Curl'],
-  triceps:['Tricep Pushdown','Skull Crusher','Close Grip Bench Press','Overhead Tricep Extension','Dips','Cable Tricep Extension','JM Press'],
-  quads:['Squat','Leg Press','Leg Extension','Lunge','Bulgarian Split Squat','Hack Squat','Goblet Squat','Front Squat','Step Up'],
-  hamstrings:['Romanian Deadlift','Leg Curl','Lying Leg Curl','Good Morning','Nordic Curl','Stiff Leg Deadlift','Sumo Deadlift','Smith RDL'],
-  glutes:['Hip Thrust','Glute Bridge','Cable Kickback','Sumo Squat','Donkey Kick','Abductor Machine'],
-  calves:['Standing Calf Raise','Seated Calf Raise','Donkey Calf Raise','Leg Press Calf Raise'],
-  core:['Plank','Crunch','Cable Crunch','Hanging Leg Raise','Russian Twist','Ab Wheel','Dead Bug','Pallof Press'],
-  other:['Farmer Walk','Battle Ropes','Box Jump','Burpee','Kettlebell Swing','Sled Push','Sled Pull'],
+  chest:['Bench Press','Incline Bench Press','Decline Bench Press','Dumbbell Bench Press','Incline Dumbbell Press','Incline Chest Press Machine','Cable Fly','Chest Fly','Pec Deck','Push-up','Dips'],
+  back:['Lat Pulldown Machine','Lat Pulldown','Unilateral Lat Pulldown','Pull-up','Chin Up','Seated Row','Barbell Row','Bent Over Row','Single Arm Row','Cable Row','T-Bar Row','Smith Row','Smith Row (Wide Grip)','Face Pull','Back Extension','Deadlift','Rack Pull'],
+  shoulders:['TG Shoulder Press Machine','TG Shoulder Press (Heavy)','Lying Shoulder Press Machine','Overhead Press','Dumbbell Shoulder Press','Dumbbell Lateral Raise','Cable Lateral Raises','Lateral Raise','Front Raise','Arnold Press','Rear Delt Fly','Upright Row','Face Pull'],
+  biceps:['Dumbbell Curl','Barbell Curl','Hammer Curl','Preacher Curl Machine','Preacher Curl on Bench','EZ Bar Cable Curl','EZ Bar Curl','Incline DB Curl','Incline Dumbbell Curl','Cable Curl','Concentration Curl'],
+  triceps:['Rope Pushdown','Tricep Pushdown','OH Rope Extension','OH Single Arm Tricep Extension','Single Arm Tricep Pushdown','Single Arm Cable Extension','Single Arm OH Cable Extension','Skull Crusher','Close Grip Bench Press','Overhead Tricep Extension','Tricep Dip','Dips','Cable Tricep Extension'],
+  quads:['Back Squat','Squat','Front Squat','Hack Squat','Leg Press','Leg Press Narrow Stance','Leg Extension','Single Leg Leg Extension','Hip Press','Hip Press (Narrow Stance)','Lunge','Bulgarian Split Squat','Goblet Squat','Step-Up','Box Jump'],
+  hamstrings:['Romanian Deadlift','Barbell RDL','Smith RDL','Lying Hamstring Curl','Standing Hamstring Curl','Good Morning','Nordic Curl','Stiff Leg Deadlift','Sumo Deadlift'],
+  glutes:['Hip Thrust','Glute Bridge','Glute Kickback','Cable Kickback','Abductors','Incline Abductors','Adductors','KB Swing','Sumo Squat','Donkey Kick'],
+  calves:['Standing Calf Raises','Seated Calf Raise','Donkey Calf Raise','Leg Press Calf Raise'],
+  core:['Plank','Ab Crunch','Crunch','Cable Crunch','Hanging Leg Raise','Russian Twist','Ab Wheel','Dead Bug','Pallof Press'],
+  other:['Battle Ropes','Burpee','Farmer Walk','KB Swing','Kettlebell Swing','Box Jump','Sled Push','Sled Pull'],
 };
 function getMuscleGroup(name){
   const n=(name||'').toLowerCase();
