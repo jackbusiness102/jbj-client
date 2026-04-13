@@ -345,6 +345,7 @@ body{padding-bottom:0}
       <div class="stat p"><div class="stat-icon p"><svg viewBox="0 0 20 20"><polyline points="3,14 7,9 11,11 15,5 17,7"/></svg></div><div class="stat-val" id="h-pct">—%</div><div class="stat-lbl">Goal progress</div></div>
     </div>
     <div class="card"><div class="card-head"><h3>Today's workout</h3></div><div id="h-workout"><div class="loading"><div class="spinner"></div></div></div></div>
+    <div class="card" id="h-upcoming-card" style="display:none"><div class="card-head"><h3>Upcoming sessions</h3></div><div id="h-upcoming"></div></div>
     <div class="card"><div class="card-head"><h3>Weight trend</h3></div><div id="h-weight-trend"><div class="loading"><div class="spinner"></div></div></div></div>
   </div>
 
@@ -790,14 +791,21 @@ async function loadHomeData(){
     const ciCard=document.getElementById('h-checkin-card');
     if(ciCard)ciCard.style.display=ciCount>0?'block':'none';
   }catch(e){}
-  // Today's workout card — only show as active if session is due today or overdue
-  const{data:pending}=await sb.from('sessions').select('*').eq('client_id',user.id).or('completed.eq.false,completed.is.null').order('created_at',{ascending:false}).limit(1);
-  const s=pending?.[0];
+  // Workout cards — fetch all incomplete sessions and split into current vs upcoming
+  const{data:allPending}=await sb.from('sessions').select('*').eq('client_id',user.id).or('completed.eq.false,completed.is.null').order('created_at',{ascending:true}).limit(10);
+  const today=new Date();today.setHours(0,0,0,0);
+  // Sort by parsed date ascending so nearest is first
+  const sorted=(allPending||[]).filter(x=>x.exercises?.length).sort((a,b)=>{
+    const da=parseSessionDate(a.date),db=parseSessionDate(b.date);
+    if(da&&db)return da-db;
+    return 0;
+  });
+  const s=sorted[0];
+  const upcomingSessions=sorted.slice(1).filter(x=>{const d=parseSessionDate(x.date);return d&&d.getTime()>today.getTime();});
   const hwEl=document.getElementById('h-workout');
   const hwHead=document.querySelector('#page-home .card-head h3');
-  if(s?.exercises?.length){
+  if(s){
     const sessDate=parseSessionDate(s.date);
-    const today=new Date();today.setHours(0,0,0,0);
     const isFuture=sessDate&&sessDate.getTime()>today.getTime();
     if(hwHead)hwHead.textContent=isFuture?'Upcoming workout':'Today\'s workout';
     if(isFuture){
@@ -807,7 +815,7 @@ async function loadHomeData(){
         <div style="font-size:12px;color:var(--txt3);font-weight:600;margin-bottom:6px">${dayName}, ${s.date} · in ${daysUntil} day${daysUntil!==1?'s':''}</div>
         <div style="font-size:14px;font-weight:600;margin-bottom:4px">${s.type}</div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">${s.exercises.slice(0,3).map(e=>`<span style="background:var(--bg3);padding:3px 8px;border-radius:6px;font-size:12px">${e.name}</span>`).join('')}${s.exercises.length>3?`<span style="font-size:12px;color:var(--txt3)">+${s.exercises.length-3} more</span>`:''}</div>
-        <button class="btn-sm" style="width:100%;justify-content:center" onclick="navMob('session')">Preview session →</button>`;
+        <button class="btn-sm" style="width:100%;justify-content:center" onclick="navMob('session')">View session →</button>`;
     } else {
       if(hwHead)hwHead.textContent="Today's workout";
       hwEl.innerHTML=`
@@ -819,6 +827,29 @@ async function loadHomeData(){
   } else {
     if(hwHead)hwHead.textContent="Today's workout";
     hwEl.innerHTML='<div class="empty"><div class="ei">🏋️</div><p>No session assigned yet</p></div>';
+  }
+  // Upcoming sessions card
+  const upCard=document.getElementById('h-upcoming-card');
+  const upEl=document.getElementById('h-upcoming');
+  if(upcomingSessions.length>0&&upCard&&upEl){
+    upCard.style.display='block';
+    upEl.innerHTML=upcomingSessions.map(us=>{
+      const ud=parseSessionDate(us.date);
+      const daysUntil=ud?Math.round((ud.getTime()-today.getTime())/86400000):null;
+      const dayName=ud?ud.toLocaleDateString('en-ZA',{weekday:'long'}):'';
+      return `<div style="padding:12px 0;border-bottom:1px solid var(--border);last-child:border:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div>
+            <div style="font-size:13px;font-weight:700">${us.type}</div>
+            <div style="font-size:11px;color:var(--txt3);margin-top:2px">${dayName}${us.date?', '+us.date:''}${daysUntil!==null?' · in '+daysUntil+' day'+(daysUntil!==1?'s':''):''}</div>
+          </div>
+          <span style="font-size:11px;color:var(--txt3)">${us.exercises.length} exercises</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">${us.exercises.slice(0,3).map(e=>`<span style="background:var(--bg3);padding:2px 7px;border-radius:5px;font-size:11px">${e.name}</span>`).join('')}${us.exercises.length>3?`<span style="font-size:11px;color:var(--txt3)">+${us.exercises.length-3} more</span>`:''}</div>
+      </div>`;
+    }).join('');
+  } else if(upCard){
+    upCard.style.display='none';
   }
   // Mini weight trend graph
   const trendEl=document.getElementById('h-weight-trend');
