@@ -791,7 +791,7 @@ async function loadHomeData(){
     if(ciCard)ciCard.style.display=ciCount>0?'block':'none';
   }catch(e){}
   // Today's workout card — only show as active if session is due today or overdue
-  const{data:pending}=await sb.from('sessions').select('*').eq('client_id',user.id).eq('completed',false).order('created_at',{ascending:false}).limit(1);
+  const{data:pending}=await sb.from('sessions').select('*').eq('client_id',user.id).or('completed.eq.false,completed.is.null').order('created_at',{ascending:false}).limit(1);
   const s=pending?.[0];
   const hwEl=document.getElementById('h-workout');
   const hwHead=document.querySelector('#page-home .card-head h3');
@@ -896,7 +896,7 @@ function parseSessionDate(dateStr){
 }
 
 async function loadSessionData(){
-  const{data}=await sb.from('sessions').select('*').eq('client_id',user.id).eq('completed',false).order('created_at',{ascending:false}).limit(1);
+  const{data}=await sb.from('sessions').select('*').eq('client_id',user.id).or('completed.eq.false,completed.is.null').order('created_at',{ascending:false}).limit(1);
   const s=data?.[0];
   if(!s?.exercises?.length){
     document.getElementById('session-title').textContent="Today's Session";
@@ -1995,7 +1995,7 @@ async function updateNavBadges(){
   // New sessions assigned since last view
   const lastSes=localStorage.getItem('jbj_seen_session')||'1970-01-01T00:00:00Z';
   checks.push(
-    sb.from('sessions').select('*',{count:'exact',head:true}).eq('client_id',user.id).eq('completed',false).gt('created_at',lastSes)
+    sb.from('sessions').select('*',{count:'exact',head:true}).eq('client_id',user.id).or('completed.eq.false,completed.is.null').gt('created_at',lastSes)
       .then(({count})=>setBadge('session',count||0))
   );
   // New meal plans since last view
