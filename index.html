@@ -594,7 +594,7 @@ const EX=['Ab crunch','Abductors','Adductors','Back extension','Back squat','Bar
 const MS_ICONS={new_weight_low:'⚖️',new_pr:'🏋️',streak:'🔥',goal_reached:'🎯',first_session:'🌟'};
 let user=null,clientRec=null,coachId=null,logRating=0,logExRows=[],msgSub=null,coachSub=null,sessionDone={};
 let sessionSets={},_activeSession=null,_sessTimerSec=0,_sessTimerInterval=null,_sessId=null;
-let _exerNotes={},_swapIdx=null,_swapOverlay=null;
+let _exerNotes={},_exerciseBests={},_swapIdx=null,_swapOverlay=null;
 
 async function signIn(){
   const email=document.getElementById('login-email').value.trim();
@@ -959,7 +959,7 @@ async function loadSessionData(){
     }
     // Load personal exercise notes before rendering
     const exNames=(s.exercises||[]).map(e=>e.name).filter(Boolean);
-    await loadExerNotes(exNames);
+    await Promise.all([loadExerNotes(exNames),loadExerciseBests(exNames)]);
     renderSessionViewer(s);
   }
   // Load recent sessions
@@ -1110,6 +1110,7 @@ function renderSessionViewer(s){
               <span class="ex-tag">Reps: ${e.reps||'—'}</span>
               ${e.rest?`<span class="ex-tag">Rest: ${e.rest}</span>`:''}
               ${allDone?`<span class="ex-tag" style="background:rgba(57,217,138,0.1);border-color:rgba(57,217,138,0.3);color:var(--g)">✓ Done</span>`:''}
+              ${(()=>{const b=_exerciseBests[e.name];if(!b)return '';const{best}=b;return `<span class="ex-tag" style="background:rgba(245,166,35,0.12);border-color:rgba(245,166,35,0.3);color:#f5a623">🏆 ${best.kg}kg${best.reps?' × '+best.reps:''}${best.reps?' reps':''}</span>`;})()}
             </div>
           </div>
           <button onclick="event.stopPropagation();openSwapOverlay(${i})" title="Swap exercise" style="width:30px;height:30px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--txt3);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;-webkit-appearance:none">
@@ -1120,6 +1121,7 @@ function renderSessionViewer(s){
         <div class="ex-card2-body" onclick="event.stopPropagation()">
           ${e.video_url?`<a href="${e.video_url}" target="_blank" class="ex-video-btn"><svg viewBox="0 0 20 20"><polygon points="6,4 16,10 6,16"/></svg>Watch exercise video</a>`:''}
           ${e.notes?`<div style="font-size:12px;color:var(--txt2);background:var(--bg3);padding:8px 10px;border-radius:8px;margin-bottom:10px">${e.notes}</div>`:''}
+          ${(()=>{const b=_exerciseBests[e.name];if(!b)return '';const{best,last}=b;const isSame=best.date===last.date;let html='<div style="background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;gap:16px">';html+=`<div style="flex:1"><div style="font-size:10px;font-weight:700;color:#f5a623;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">All-time best</div><div style="font-size:16px;font-weight:700;color:#fff">${best.kg}kg${best.reps?' × '+best.reps+' reps':''}</div><div style="font-size:10px;color:var(--txt3);margin-top:1px">${best.date}</div></div>`;if(!isSame){html+=`<div style="flex:1;border-left:1px solid rgba(255,255,255,0.08);padding-left:16px"><div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Last session</div><div style="font-size:16px;font-weight:700;color:var(--txt2)">${last.kg}kg${last.reps?' × '+last.reps+' reps':''}</div><div style="font-size:10px;color:var(--txt3);margin-top:1px">${last.date}</div></div>`;}html+='</div>';return html;})()}
           <div class="ex-set-head"><span>#</span><span>kg</span><span>reps</span><span></span></div>
           ${sets.map((st,j)=>`<div class="ex-set-row2">
             <span class="ex-set-num">${String(j+1).padStart(2,'0')}</span>
@@ -1186,6 +1188,18 @@ async function saveExerNote(idx,notesText){
   }catch(e){/* table may not exist, localStorage saved */}
 }
 
+async function loadExerciseBests(names){
+  if(!names.length)return;
+  const hist=await buildExerHistory();
+  names.forEach(name=>{
+    const entries=hist[name];
+    if(!entries?.length){_exerciseBests[name]=null;return;}
+    const best=[...entries].sort((a,b)=>b.kg-a.kg)[0];
+    const last=entries[entries.length-1];
+    _exerciseBests[name]={best,last};
+  });
+}
+
 // ── Swap Exercise ────────────────────────────────────────────────────────────
 function openSwapOverlay(idx){
   _swapIdx=idx;
@@ -1245,7 +1259,7 @@ function confirmSwap(){
   _activeSession.exercises[_swapIdx]._swapped=true;
   if(sessionSets[_swapIdx])sessionSets[_swapIdx].forEach(s=>{s.done=false;});
   // Load notes for the new exercise name
-  loadExerNotes([newName]).then(()=>renderSessionViewer(_activeSession));
+  Promise.all([loadExerNotes([newName]),loadExerciseBests([newName])]).then(()=>renderSessionViewer(_activeSession));
   closeSwapOverlay();
   toast('Swapped to '+newName);
 }
