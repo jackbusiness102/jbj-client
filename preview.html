@@ -264,29 +264,7 @@
         </div>
         <div class="calc-nav">
           <div></div>
-          <button class="calc-next" onclick="nextStep(1)">Next →</button>
-        </div>
-      </div>
-
-      <!-- Step 2: Stats -->
-      <div id="step-2" style="display:none">
-        <div class="calc-q">Your stats</div>
-        <div class="calc-q-sub">Used to calculate your personal calorie needs. Nothing is stored.</div>
-        <div class="calc-inputs">
-          <div class="calc-field"><label>Age</label><input type="number" id="i-age" placeholder="25" inputmode="numeric"></div>
-          <div class="calc-field"><label>Weight (kg)</label><input type="number" id="i-weight" placeholder="75" inputmode="decimal"></div>
-          <div class="calc-field"><label>Height (cm)</label><input type="number" id="i-height" placeholder="175" inputmode="numeric"></div>
-          <div class="calc-field">
-            <label>Gender</label>
-            <select id="i-gender" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--txt);font-size:15px;outline:none;font-family:var(--font);appearance:none">
-              <option value="m">Male</option>
-              <option value="f">Female</option>
-            </select>
-          </div>
-        </div>
-        <div class="calc-nav">
-          <button class="calc-back" onclick="prevStep(2)">← Back</button>
-          <button class="calc-next" onclick="nextStep(2)">Next →</button>
+          <button class="calc-next" onclick="goNext(1)">Next</button>
         </div>
       </div>
 
