@@ -113,10 +113,11 @@
   .day-macro .dm-val{font-weight:600;}
   .result-meals{margin-bottom:24px;}
   .result-meals h4{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--txt2);}
-  .meal-row{background:var(--bg2);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);}
-  .meal-row .meal-name{font-size:13px;font-weight:600;}
+  .result-meals h4 .highlight{color:var(--g);font-style:italic;}
+  .meal-row{background:var(--bg2);border-radius:12px;padding:16px 18px;margin-bottom:10px;border:1px solid var(--border);}
+  .meal-row .meal-name{font-size:14px;font-weight:600;}
   .meal-row .meal-eg{font-size:12px;color:var(--txt3);margin-top:2px;}
-  .meal-row .meal-cals{font-size:13px;font-weight:700;color:var(--o);}
+  .meal-row .meal-cals{font-size:14px;font-weight:700;color:var(--o);}
   .result-timeline{background:rgba(57,217,138,0.06);border:1px solid rgba(57,217,138,0.15);border-radius:12px;padding:16px;margin-bottom:24px;}
   .result-timeline h4{font-size:13px;font-weight:700;color:var(--g);margin-bottom:10px;}
   .timeline-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
@@ -364,7 +365,7 @@
         <div class="macro-box macro-fat"><div class="val" id="r-fat">—g</div><div class="lbl">Fats</div></div>
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:24px;font-size:13px;color:var(--txt2);line-height:1.75">
-        <strong style="color:var(--txt)">What do these numbers mean?</strong> There are no banned foods — you can eat anything you enjoy as long as you stay within your calorie goal and hit your macro numbers. <strong style="color:var(--txt)">Calories</strong> are the total amount of energy in your food. <strong style="color:var(--txt)">Macros</strong> (protein, carbs and fats) are what those calories are made of — think of calories as the budget and macros as how you spend it. Protein and carbs each have 4 calories per gram; fat has 9. Your <strong style="color:var(--g)">protein target</strong> is the most important number — it protects your muscle when you're cutting and builds new muscle when you're in a surplus.
+        <strong style="color:var(--txt)">What do these numbers mean?</strong> There are no banned foods — you can eat anything you enjoy as long as you stay within your calorie goal and hit your macro numbers. <strong style="color:var(--txt)">Calories</strong> are the total amount of energy in your food. <strong style="color:var(--txt)">Macros</strong> (protein, carbs and fats) are what those calories are made of — think of calories as the budget and macros as how you spend it. Protein and carbs each have 4 calories per gram; fat has 9. Your <strong style="color:var(--g)">protein target</strong> is the most important number — it protects your muscle when cutting and is the key driver of muscle growth regardless of your goal.
       </div>
 
       <div class="result-day-split">
@@ -385,7 +386,7 @@
       </div>
 
       <div class="result-meals">
-        <h4>What this looks like as food (training day example)</h4>
+        <h4>What this looks like as food (training day <span class="highlight">example</span>)</h4>
         <div id="meal-rows"></div>
       </div>
 
@@ -550,7 +551,7 @@ function calcResult(){
     {name:'Pre-workout',cal:Math.round(tCal*0.12),items:`30g whey protein (1 scoop) in water + 1 banana — or — 2 rice cakes + 15g peanut butter`,visual:`30g whey = 1 standard scoop · 15g peanut butter = 1 heaped teaspoon`},
     {name:'Dinner',cal:Math.round(tCal*0.28),items:`${Math.round(160*s/10)*10}g salmon fillet + ${Math.round(150*s/10)*10}g sweet potato (cooked) + 200g broccoli`,visual:`salmon = ${s<1?'deck of cards sized':'large fillet'} · ${Math.round(150*s/10)*10}g sweet potato = ${s<1.2?'1 medium potato':'1 large potato'} · 200g broccoli = 2 large florets`},
   ];
-  document.getElementById('meal-rows').innerHTML=meals.map(m=>`<div class="meal-row"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:13px;font-weight:600">${m.name}</span><span style="font-size:13px;font-weight:700;color:var(--o)">${m.cal} kcal</span></div><div style="font-size:13px;color:var(--txt2);margin-bottom:4px">${m.items}</div><div style="font-size:11px;color:var(--txt3);font-style:italic">${m.visual}</div></div>`).join('');
+  document.getElementById('meal-rows').innerHTML=meals.map(m=>`<div class="meal-row"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:14px;font-weight:700">${m.name}</span><span style="font-size:14px;font-weight:700;color:var(--o)">${m.cal} kcal</span></div><div style="font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:8px">${m.items}</div><div style="font-size:12px;color:var(--txt3);font-style:italic;line-height:1.5">${m.visual}</div></div>`).join('');
   // Timeline
   if(goal==='lose'){const w=Math.abs(state.rateAdj)*7/7700;document.getElementById('tl-weekly').textContent='↓ ~'+w.toFixed(2)+'kg';document.getElementById('tl-4w').textContent='↓ ~'+(w*4).toFixed(1)+'kg';document.getElementById('tl-12w').textContent='↓ ~'+(w*12).toFixed(1)+'kg';document.getElementById('r-timeline').style.display='block';}
   else if(goal==='build'){const w=state.rateAdj*7/7700;document.getElementById('tl-weekly').textContent='↑ ~'+w.toFixed(2)+'kg';document.getElementById('tl-4w').textContent='Noticeable strength increase';document.getElementById('tl-12w').textContent='↑ ~'+(w*12).toFixed(1)+'kg total';document.getElementById('r-timeline').style.display='block';}
