@@ -279,7 +279,29 @@
         </div>
       </div>
 
-      <!-- Step 3: Activity -->
+      <!-- Step 3: Stats -->
+      <div id="step-stats" style="display:none">
+        <div class="calc-q">Your stats</div>
+        <div class="calc-q-sub">Used to calculate your personal calorie needs. Nothing is stored.</div>
+        <div class="calc-inputs">
+          <div class="calc-field"><label>Age</label><input type="number" id="i-age" placeholder="25" inputmode="numeric"></div>
+          <div class="calc-field"><label>Weight (kg)</label><input type="number" id="i-weight" placeholder="75" inputmode="decimal"></div>
+          <div class="calc-field"><label>Height (cm)</label><input type="number" id="i-height" placeholder="175" inputmode="numeric"></div>
+          <div class="calc-field">
+            <label>Gender</label>
+            <select id="i-gender" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--txt);font-size:15px;outline:none;font-family:var(--font);-webkit-appearance:none">
+              <option value="m">Male</option>
+              <option value="f">Female</option>
+            </select>
+          </div>
+        </div>
+        <div class="calc-nav">
+          <button class="calc-back" onclick="goPrev('stats')">Back</button>
+          <button class="calc-next" onclick="goNext('stats')">Next</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Activity -->
       <div id="step-3" style="display:none">
         <div class="calc-q">How active are you day-to-day?</div>
         <div class="calc-q-sub">Include your job and your training. Most people underestimate this.</div>
@@ -474,22 +496,22 @@ function goNext(from){
       const def=opts.find(o=>o.def);if(def)state.rateAdj=def.adj;
       document.getElementById('rate-opts').innerHTML=opts.map(o=>`<div class="calc-opt${o.def?' selected':''}" onclick="selectOpt(this,'rateAdj',${o.adj})"><div class="opt-label">${o.label}</div><div class="opt-desc">${o.desc}</div></div>`).join('');
       showStep('rate');
-    } else {state.rateAdj=0;showStep(3);}
+    } else {state.rateAdj=0;showStep('stats');}
     return;
   }
-  if(from==='rate'){showStep(3);return;}
-  if(from===3){
+  if(from==='rate'){showStep('stats');return;}
+  if(from==='stats'){
     if(!document.getElementById('i-age').value||!document.getElementById('i-weight').value||!document.getElementById('i-height').value){alert('Please fill in all fields');return;}
-    showStep(4);return;
+    showStep(3);return;
   }
-  if(from===4){showStep(5);return;}
+  if(from===3){showStep(4);return;}
 }
 
 function goPrev(from){
   if(from==='rate'){showStep(1);return;}
-  if(from===3){(state.goal==='lose'||state.goal==='build')?showStep('rate'):showStep(1);return;}
+  if(from==='stats'){(state.goal==='lose'||state.goal==='build')?showStep('rate'):showStep(1);return;}
+  if(from===3){showStep('stats');return;}
   if(from===4){showStep(3);return;}
-  if(from===5){showStep(4);return;}
 }
 
 function calcResult(){
