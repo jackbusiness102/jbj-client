@@ -23,9 +23,8 @@
   .nav-links{display:flex;align-items:center;gap:28px;}
   .nav-links a{color:var(--txt2);text-decoration:none;font-size:14px;transition:color .2s;}
   .nav-links a:hover{color:var(--txt);}
-  .nav-cta{background:var(--g);color:#000;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .2s;}
-  .nav-cta:hover{opacity:.85;color:#000;}
-  .nav-login{color:var(--txt3) !important;font-size:13px;}
+  .nav-login{color:var(--txt2) !important;font-size:13px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;transition:all .2s;}
+  .nav-login:hover{border-color:rgba(255,255,255,0.4);color:var(--txt) !important;}
 
   /* HERO */
   .hero{min-height:100vh;display:flex;align-items:center;padding:100px 40px 80px;position:relative;overflow:hidden;}
@@ -189,8 +188,7 @@
     <a href="#blueprint" class="nav-link-hide">Blueprint</a>
     <a href="#about" class="nav-link-hide">About</a>
     <a href="#faq" class="nav-link-hide">FAQ</a>
-    <a href="index.html" class="nav-login">Client login →</a>
-    <a href="#blueprint" class="nav-cta">Get Your Blueprint</a>
+    <a href="index.html" class="nav-login">Client login</a>
   </div>
 </nav>
 
@@ -221,30 +219,6 @@
   </div>
 </section>
 
-<!-- SOCIAL PROOF STRIP -->
-<div class="proof-strip">
-  <div class="proof-inner">
-    <div class="proof-label">Client results</div>
-    <div class="proof-items">
-      <div class="proof-item">
-        <div class="proof-av">S</div>
-        <div class="proof-text"><div class="name">Sarah M.</div><div class="result">↓ 12kg in 16 weeks</div></div>
-      </div>
-      <div class="proof-item">
-        <div class="proof-av" style="background:linear-gradient(135deg,var(--b),var(--p))">D</div>
-        <div class="proof-text"><div class="name">Daniel K.</div><div class="result">↑ 8kg muscle gained</div></div>
-      </div>
-      <div class="proof-item">
-        <div class="proof-av" style="background:linear-gradient(135deg,var(--o),#e05c5c)">L</div>
-        <div class="proof-text"><div class="name">Lizelle P.</div><div class="result">First 100kg deadlift</div></div>
-      </div>
-      <div class="proof-item">
-        <div class="proof-av" style="background:linear-gradient(135deg,#c45ce0,var(--b))">M</div>
-        <div class="proof-text"><div class="name">Mike R.</div><div class="result">↓ 9kg in 12 weeks</div></div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- BLUEPRINT CALCULATOR -->
 <section id="blueprint">
@@ -272,22 +246,18 @@
         <div class="calc-q-sub">This shapes everything — your calories, macros, and approach.</div>
         <div class="calc-opts">
           <div class="calc-opt" onclick="selectOpt(this,'goal','lose')">
-            <div class="opt-icon">🔥</div>
             <div class="opt-label">Lose fat</div>
             <div class="opt-desc">Lean out while keeping muscle</div>
           </div>
           <div class="calc-opt" onclick="selectOpt(this,'goal','build')">
-            <div class="opt-icon">💪</div>
             <div class="opt-label">Build muscle</div>
             <div class="opt-desc">Add size and strength</div>
           </div>
           <div class="calc-opt" onclick="selectOpt(this,'goal','recomp')">
-            <div class="opt-icon">⚡</div>
             <div class="opt-label">Recomp</div>
             <div class="opt-desc">Lose fat and build muscle together</div>
           </div>
           <div class="calc-opt" onclick="selectOpt(this,'goal','maintain')">
-            <div class="opt-icon">🎯</div>
             <div class="opt-label">Maintain</div>
             <div class="opt-desc">Stay where I am, perform better</div>
           </div>
@@ -320,27 +290,46 @@
         </div>
       </div>
 
+      <!-- Step 2: Rate -->
+      <div id="step-rate" style="display:none">
+        <div class="calc-q" id="rate-title">How fast do you want to lose weight?</div>
+        <div class="calc-q-sub">A bigger deficit = faster results but harder to sustain. We recommend starting moderate.</div>
+        <div class="calc-opts" style="grid-template-columns:1fr" id="rate-opts"></div>
+        <div class="calc-nav">
+          <button class="calc-back" onclick="goPrev('rate')">Back</button>
+          <button class="calc-next" onclick="goNext('rate')">Next</button>
+        </div>
+      </div>
+
       <!-- Step 3: Activity -->
       <div id="step-3" style="display:none">
-        <div class="calc-q">How active are you?</div>
-        <div class="calc-q-sub">Think about your typical week including work and gym.</div>
+        <div class="calc-q">How active are you day-to-day?</div>
+        <div class="calc-q-sub">Include your job and your training. Most people underestimate this.</div>
         <div class="calc-opts" style="grid-template-columns:1fr">
           <div class="calc-opt" onclick="selectOpt(this,'activity',1.2)">
-            <div class="opt-label">Sedentary — desk job, little to no exercise</div>
+            <div class="opt-label">Sedentary</div>
+            <div class="opt-desc">Desk job or studying. No planned exercise. Fewer than 5,000 steps/day.</div>
           </div>
           <div class="calc-opt" onclick="selectOpt(this,'activity',1.375)">
-            <div class="opt-label">Lightly active — 1–3 gym sessions/week</div>
+            <div class="opt-label">Lightly active</div>
+            <div class="opt-desc">Mostly sitting at work. 1–2 gym sessions/week. Around 5,000–7,500 steps/day.</div>
           </div>
           <div class="calc-opt selected" onclick="selectOpt(this,'activity',1.55)">
-            <div class="opt-label">Moderately active — 3–5 sessions/week</div>
+            <div class="opt-label">Moderately active</div>
+            <div class="opt-desc">Office job. 3–4 gym sessions/week. Around 7,500–10,000 steps/day.</div>
           </div>
           <div class="calc-opt" onclick="selectOpt(this,'activity',1.725)">
-            <div class="opt-label">Very active — 6+ sessions/week or physical job</div>
+            <div class="opt-label">Very active</div>
+            <div class="opt-desc">Physical job (trades, retail, healthcare) OR 5–6 gym sessions/week. On your feet most of the day.</div>
+          </div>
+          <div class="calc-opt" onclick="selectOpt(this,'activity',1.9)">
+            <div class="opt-label">Extremely active</div>
+            <div class="opt-desc">Physical job AND daily gym, or training twice a day. Rarely sitting down.</div>
           </div>
         </div>
         <div class="calc-nav">
-          <button class="calc-back" onclick="prevStep(3)">← Back</button>
-          <button class="calc-next" onclick="nextStep(3)">Next →</button>
+          <button class="calc-back" onclick="goPrev(3)">Back</button>
+          <button class="calc-next" onclick="goNext(3)">Next</button>
         </div>
       </div>
 
@@ -355,8 +344,8 @@
           <div class="calc-opt" onclick="selectOpt(this,'traindays',5)"><div class="opt-label">5+ days</div></div>
         </div>
         <div class="calc-nav">
-          <button class="calc-back" onclick="prevStep(4)">← Back</button>
-          <button class="calc-next" onclick="calcResult()">Get My Blueprint ✓</button>
+          <button class="calc-back" onclick="goPrev(4)">Back</button>
+          <button class="calc-next" onclick="calcResult()">Get My Blueprint</button>
         </div>
       </div>
     </div>
@@ -374,17 +363,20 @@
         <div class="macro-box macro-carb"><div class="val" id="r-carb">—g</div><div class="lbl">Carbs</div></div>
         <div class="macro-box macro-fat"><div class="val" id="r-fat">—g</div><div class="lbl">Fats</div></div>
       </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:24px;font-size:13px;color:var(--txt2);line-height:1.75">
+        <strong style="color:var(--txt)">What do these numbers mean?</strong> There are no banned foods — you can eat anything you enjoy as long as you stay within your calorie goal and hit your macro numbers. <strong style="color:var(--txt)">Calories</strong> are the total amount of energy in your food. <strong style="color:var(--txt)">Macros</strong> (protein, carbs and fats) are what those calories are made of — think of calories as the budget and macros as how you spend it. Protein and carbs each have 4 calories per gram; fat has 9. Your <strong style="color:var(--g)">protein target</strong> is the most important number — it protects your muscle when you're cutting and builds new muscle when you're in a surplus.
+      </div>
 
       <div class="result-day-split">
         <div class="day-box">
-          <h4>🏋️ Training days <span>(higher carbs)</span></h4>
+          <h4>Training days <span>(higher carbs)</span></h4>
           <div class="day-macro"><span>Calories</span><span class="dm-val" id="rt-cal">—</span></div>
           <div class="day-macro"><span>Protein</span><span class="dm-val" id="rt-pro">—g</span></div>
           <div class="day-macro"><span>Carbs</span><span class="dm-val" id="rt-carb">—g</span></div>
           <div class="day-macro"><span>Fats</span><span class="dm-val" id="rt-fat">—g</span></div>
         </div>
         <div class="day-box">
-          <h4>😴 Rest days <span>(lower carbs)</span></h4>
+          <h4>Rest days <span>(lower carbs)</span></h4>
           <div class="day-macro"><span>Calories</span><span class="dm-val" id="rr-cal">—</span></div>
           <div class="day-macro"><span>Protein</span><span class="dm-val" id="rr-pro">—g</span></div>
           <div class="day-macro"><span>Carbs</span><span class="dm-val" id="rr-carb">—g</span></div>
@@ -393,15 +385,12 @@
       </div>
 
       <div class="result-meals">
-        <h4>What this looks like as food (training day)</h4>
-        <div class="meal-row"><div><div class="meal-name">Breakfast</div><div class="meal-eg" id="m-breakfast">—</div></div><div class="meal-cals" id="m-breakfast-cal">—</div></div>
-        <div class="meal-row"><div><div class="meal-name">Lunch</div><div class="meal-eg" id="m-lunch">—</div></div><div class="meal-cals" id="m-lunch-cal">—</div></div>
-        <div class="meal-row"><div><div class="meal-name">Pre-workout snack</div><div class="meal-eg" id="m-pre">—</div></div><div class="meal-cals" id="m-pre-cal">—</div></div>
-        <div class="meal-row"><div><div class="meal-name">Dinner</div><div class="meal-eg" id="m-dinner">—</div></div><div class="meal-cals" id="m-dinner-cal">—</div></div>
+        <h4>What this looks like as food (training day example)</h4>
+        <div id="meal-rows"></div>
       </div>
 
       <div class="result-timeline" id="r-timeline">
-        <h4>📅 Honest timeline</h4>
+        <h4>Honest timeline</h4>
         <div class="timeline-row"><span class="tw">Weekly change</span><span class="tv" id="tl-weekly">—</span></div>
         <div class="timeline-row"><span class="tw">4 weeks</span><span class="tv" id="tl-4w">—</span></div>
         <div class="timeline-row"><span class="tw">12 weeks</span><span class="tv" id="tl-12w">—</span></div>
@@ -429,20 +418,20 @@
         <p style="color:var(--txt2);font-size:15px;line-height:1.65;margin-bottom:20px">Most people fail not because they lack discipline — they fail because their plan doesn't fit their lifestyle. That's what I fix.</p>
         <div class="about-points">
           <div class="about-point">
-            <div class="about-point-icon">📋</div>
+            <div class="about-point-icon">01</div>
             <div class="about-point-text"><div class="title">Personalised programming</div><div class="desc">Your workouts are built around your schedule, equipment, and goals — not a template everyone else gets.</div></div>
           </div>
           <div class="about-point">
-            <div class="about-point-icon">🥗</div>
+            <div class="about-point-icon">02</div>
             <div class="about-point-text"><div class="title">Nutrition guidance</div><div class="desc">No food bans, no meal plans that last 3 days. Macros and habits that fit your life.</div></div>
           </div>
           <div class="about-point">
-            <div class="about-point-icon">📱</div>
+            <div class="about-point-icon">03</div>
             <div class="about-point-text"><div class="title">Dedicated client app</div><div class="desc">Track your sessions, message your coach, and log progress — all in one place.</div></div>
           </div>
         </div>
       </div>
-      <div class="about-img"><div>🏋️</div></div>
+      <div class="about-img"><p style="color:var(--txt3);font-size:13px">Your photo here</p></div>
     </div>
   </div>
 </section>
@@ -475,8 +464,20 @@
 <div class="preview-banner">Preview only — not live</div>
 
 <script>
-const state={goal:null,activity:1.55,traindays:4};
-let currentStep=1;
+const state={goal:null,activity:1.55,traindays:4,rateAdj:0};
+
+const RATE_OPTS={
+  lose:[
+    {label:'0.25 kg/week — slow & sustainable',desc:'Minimal muscle loss, easier to maintain.',adj:-275},
+    {label:'0.5 kg/week — moderate (recommended)',desc:'The sweet spot. Steady progress without sacrificing muscle or energy.',adj:-550,def:true},
+    {label:'0.75 kg/week — aggressive',desc:'Faster results but harder to sustain. Higher risk of fatigue.',adj:-825},
+  ],
+  build:[
+    {label:'0.1 kg/week — lean bulk',desc:'Minimal fat gain. Progress is slow but you will stay lean.',adj:110},
+    {label:'0.25 kg/week — moderate (recommended)',desc:'Good balance of muscle gain and manageable fat gain.',adj:275,def:true},
+    {label:'0.4 kg/week — aggressive bulk',desc:'Faster muscle gain but expect more fat gain alongside it.',adj:440},
+  ]
+};
 
 function selectOpt(el,key,val){
   el.closest('.calc-opts').querySelectorAll('.calc-opt').forEach(o=>o.classList.remove('selected'));
@@ -484,33 +485,33 @@ function selectOpt(el,key,val){
   state[key]=val;
 }
 
-function nextStep(from){
-  if(from===1&&!state.goal){alert('Please select a goal');return;}
-  if(from===2){
+function showStep(id){document.querySelectorAll('[id^="step-"]').forEach(s=>s.style.display='none');const el=document.getElementById('step-'+id);if(el)el.style.display='block';}
+
+function goNext(from){
+  if(from===1){
+    if(!state.goal){alert('Please select a goal');return;}
+    if(state.goal==='lose'||state.goal==='build'){
+      const opts=RATE_OPTS[state.goal];
+      document.getElementById('rate-title').textContent=state.goal==='lose'?'How fast do you want to lose weight?':'How fast do you want to build muscle?';
+      const def=opts.find(o=>o.def);if(def)state.rateAdj=def.adj;
+      document.getElementById('rate-opts').innerHTML=opts.map(o=>`<div class="calc-opt${o.def?' selected':''}" onclick="selectOpt(this,'rateAdj',${o.adj})"><div class="opt-label">${o.label}</div><div class="opt-desc">${o.desc}</div></div>`).join('');
+      showStep('rate');
+    } else {state.rateAdj=0;showStep(3);}
+    return;
+  }
+  if(from==='rate'){showStep(3);return;}
+  if(from===3){
     if(!document.getElementById('i-age').value||!document.getElementById('i-weight').value||!document.getElementById('i-height').value){alert('Please fill in all fields');return;}
+    showStep(4);return;
   }
-  document.getElementById('step-'+from).style.display='none';
-  const next=from+1;
-  document.getElementById('step-'+next).style.display='block';
-  updateSteps(next);
-  currentStep=next;
+  if(from===4){showStep(5);return;}
 }
 
-function prevStep(from){
-  document.getElementById('step-'+from).style.display='none';
-  const prev=from-1;
-  document.getElementById('step-'+prev).style.display='block';
-  updateSteps(prev);
-  currentStep=prev;
-}
-
-function updateSteps(active){
-  for(let i=1;i<=4;i++){
-    const el=document.getElementById('s'+i);
-    if(i<active)el.className='step done';
-    else if(i===active)el.className='step active';
-    else el.className='step';
-  }
+function goPrev(from){
+  if(from==='rate'){showStep(1);return;}
+  if(from===3){(state.goal==='lose'||state.goal==='build')?showStep('rate'):showStep(1);return;}
+  if(from===4){showStep(3);return;}
+  if(from===5){showStep(4);return;}
 }
 
 function calcResult(){
@@ -518,40 +519,21 @@ function calcResult(){
   const weight=parseFloat(document.getElementById('i-weight').value)||75;
   const height=parseInt(document.getElementById('i-height').value)||175;
   const gender=document.getElementById('i-gender').value;
-  const activity=state.activity||1.55;
   const goal=state.goal||'lose';
-  const traindays=state.traindays||4;
-
-  // Mifflin-St Jeor BMR
-  let bmr=gender==='m'
-    ?(10*weight)+(6.25*height)-(5*age)+5
-    :(10*weight)+(6.25*height)-(5*age)-161;
-  const tdee=Math.round(bmr*activity);
-
-  let cal,label;
-  if(goal==='lose'){cal=tdee-400;label='Fat loss — moderate deficit';}
-  else if(goal==='build'){cal=tdee+250;label='Muscle gain — lean surplus';}
-  else if(goal==='recomp'){cal=tdee;label='Body recomposition — maintenance calories';}
-  else{cal=tdee;label='Maintenance — performance focus';}
-
+  let bmr=gender==='m'?(10*weight)+(6.25*height)-(5*age)+5:(10*weight)+(6.25*height)-(5*age)-161;
+  const tdee=Math.round(bmr*(state.activity||1.55));
+  const cal=Math.max(1200,tdee+(state.rateAdj||0));
+  let label=goal==='lose'?'Fat loss — '+Math.abs(state.rateAdj)+' kcal deficit/day':goal==='build'?'Muscle gain — '+state.rateAdj+' kcal surplus/day':goal==='recomp'?'Body recomposition — maintenance':'Maintenance — performance focus';
   const pro=Math.round(weight*2.2);
   const fat=Math.round(cal*0.25/9);
   const carb=Math.round((cal-pro*4-fat*9)/4);
-
-  // Training day (more carbs) vs rest day (less carbs)
-  const tCarb=Math.round(carb*1.25);
-  const tFat=Math.round(fat*0.85);
-  const tCal=Math.round(pro*4+tCarb*4+tFat*9);
-  const rCarb=Math.round(carb*0.65);
-  const rFat=Math.round(fat*1.2);
-  const rCal=Math.round(pro*4+rCarb*4+rFat*9);
-
+  const tCarb=Math.round(carb*1.25),tFat=Math.round(fat*0.85),tCal=Math.round(pro*4+tCarb*4+tFat*9);
+  const rCarb=Math.round(carb*0.65),rFat=Math.round(fat*1.2),rCal=Math.round(pro*4+rCarb*4+rFat*9);
   document.getElementById('r-cal').textContent=cal;
   document.getElementById('r-pro').textContent=pro+'g';
   document.getElementById('r-carb').textContent=carb+'g';
   document.getElementById('r-fat').textContent=fat+'g';
   document.getElementById('r-subtitle').textContent=label;
-
   document.getElementById('rt-cal').textContent=tCal+' kcal';
   document.getElementById('rt-pro').textContent=pro+'g';
   document.getElementById('rt-carb').textContent=tCarb+'g';
@@ -560,36 +542,25 @@ function calcResult(){
   document.getElementById('rr-pro').textContent=pro+'g';
   document.getElementById('rr-carb').textContent=rCarb+'g';
   document.getElementById('rr-fat').textContent=rFat+'g';
-
-  // Sample meals (training day)
-  const b=Math.round(tCal*0.28),l=Math.round(tCal*0.32),pre=Math.round(tCal*0.12),d=Math.round(tCal*0.28);
-  document.getElementById('m-breakfast').textContent='Greek yoghurt, oats, banana, honey';
-  document.getElementById('m-breakfast-cal').textContent=b+' kcal';
-  document.getElementById('m-lunch').textContent='Chicken breast, rice, roasted veg, olive oil';
-  document.getElementById('m-lunch-cal').textContent=l+' kcal';
-  document.getElementById('m-pre').textContent='Rice cakes, peanut butter, whey shake';
-  document.getElementById('m-pre-cal').textContent=pre+' kcal';
-  document.getElementById('m-dinner').textContent='Salmon, sweet potato, broccoli';
-  document.getElementById('m-dinner-cal').textContent=d+' kcal';
-
+  // Meals
+  const s=tCal/2000;
+  const meals=[
+    {name:'Breakfast',cal:Math.round(tCal*0.28),items:`${Math.round(150*s/10)*10}g Greek yoghurt + ${Math.round(60*s/10)*10}g oats (dry) + 1 banana (120g)`,visual:`${Math.round(150*s/10)*10}g yoghurt = 1 small tub · ${Math.round(60*s/10)*10}g oats = ${s<1?'half a mug':'a full mug'} dry · 1 banana = a standard medium banana`},
+    {name:'Lunch',cal:Math.round(tCal*0.32),items:`${Math.round(150*s/10)*10}g chicken breast + ${Math.round(160*s/10)*10}g cooked white rice + 150g mixed veg + 10ml olive oil`,visual:`chicken = ${s<1?'palm-sized fillet':'large hand-sized fillet'} · rice = ${s<1?'a tight fist':'2 tight fists'} · 10ml oil = 2 teaspoons`},
+    {name:'Pre-workout',cal:Math.round(tCal*0.12),items:`30g whey protein (1 scoop) in water + 1 banana — or — 2 rice cakes + 15g peanut butter`,visual:`30g whey = 1 standard scoop · 15g peanut butter = 1 heaped teaspoon`},
+    {name:'Dinner',cal:Math.round(tCal*0.28),items:`${Math.round(160*s/10)*10}g salmon fillet + ${Math.round(150*s/10)*10}g sweet potato (cooked) + 200g broccoli`,visual:`salmon = ${s<1?'deck of cards sized':'large fillet'} · ${Math.round(150*s/10)*10}g sweet potato = ${s<1.2?'1 medium potato':'1 large potato'} · 200g broccoli = 2 large florets`},
+  ];
+  document.getElementById('meal-rows').innerHTML=meals.map(m=>`<div class="meal-row"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:13px;font-weight:600">${m.name}</span><span style="font-size:13px;font-weight:700;color:var(--o)">${m.cal} kcal</span></div><div style="font-size:13px;color:var(--txt2);margin-bottom:4px">${m.items}</div><div style="font-size:11px;color:var(--txt3);font-style:italic">${m.visual}</div></div>`).join('');
   // Timeline
-  if(goal==='lose'){
-    const weeklyLoss=Math.round((400/7700)*10)/10;
-    document.getElementById('tl-weekly').textContent='↓ ~'+weeklyLoss+'kg';
-    document.getElementById('tl-4w').textContent='↓ ~'+(weeklyLoss*4).toFixed(1)+'kg';
-    document.getElementById('tl-12w').textContent='↓ ~'+(weeklyLoss*12).toFixed(1)+'kg';
-  } else if(goal==='build'){
-    document.getElementById('tl-weekly').textContent='↑ ~0.15–0.25kg muscle/week';
-    document.getElementById('tl-4w').textContent='Noticeable strength increase';
-    document.getElementById('tl-12w').textContent='Visible muscle growth + 3–5kg total';
-  } else {
-    document.getElementById('r-timeline').style.display='none';
-  }
-
+  if(goal==='lose'){const w=Math.abs(state.rateAdj)*7/7700;document.getElementById('tl-weekly').textContent='↓ ~'+w.toFixed(2)+'kg';document.getElementById('tl-4w').textContent='↓ ~'+(w*4).toFixed(1)+'kg';document.getElementById('tl-12w').textContent='↓ ~'+(w*12).toFixed(1)+'kg';document.getElementById('r-timeline').style.display='block';}
+  else if(goal==='build'){const w=state.rateAdj*7/7700;document.getElementById('tl-weekly').textContent='↑ ~'+w.toFixed(2)+'kg';document.getElementById('tl-4w').textContent='Noticeable strength increase';document.getElementById('tl-12w').textContent='↑ ~'+(w*12).toFixed(1)+'kg total';document.getElementById('r-timeline').style.display='block';}
+  else{document.getElementById('r-timeline').style.display='none';}
   document.getElementById('calc-wrap').style.display='none';
   document.getElementById('result-card').classList.add('show');
   document.getElementById('result-card').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
+document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.closest('.faq-item').classList.toggle('open')));
 </script>
 </body>
 </html>
