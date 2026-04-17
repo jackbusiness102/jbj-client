@@ -794,9 +794,12 @@ async function loadHomeData(){
   // Workout cards — fetch all incomplete sessions and split into current vs upcoming
   const{data:allPending}=await sb.from('sessions').select('*').eq('client_id',user.id).or('completed.eq.false,completed.is.null').order('created_at',{ascending:true}).limit(10);
   const today=new Date();today.setHours(0,0,0,0);
-  // Sort by parsed date ascending so nearest is first
+  // Non-future sessions (today/undated) first, then future sessions by date
   const sorted=(allPending||[]).filter(x=>x.exercises?.length).sort((a,b)=>{
     const da=parseSessionDate(a.date),db=parseSessionDate(b.date);
+    const aFuture=da&&da.getTime()>today.getTime();
+    const bFuture=db&&db.getTime()>today.getTime();
+    if(aFuture!==bFuture)return aFuture?1:-1;
     if(da&&db)return da-db;
     return 0;
   });
@@ -927,8 +930,16 @@ function parseSessionDate(dateStr){
 }
 
 async function loadSessionData(){
-  const{data}=await sb.from('sessions').select('*').eq('client_id',user.id).or('completed.eq.false,completed.is.null').order('created_at',{ascending:false}).limit(1);
-  const s=data?.[0];
+  const{data:_sessAll}=await sb.from('sessions').select('*').eq('client_id',user.id).or('completed.eq.false,completed.is.null').order('created_at',{ascending:true}).limit(10);
+  const _sessToday=new Date();_sessToday.setHours(0,0,0,0);
+  const _sessSorted=(_sessAll||[]).filter(x=>x.exercises?.length).sort((a,b)=>{
+    const da=parseSessionDate(a.date),db=parseSessionDate(b.date);
+    const aF=da&&da.getTime()>_sessToday.getTime(),bF=db&&db.getTime()>_sessToday.getTime();
+    if(aF!==bF)return aF?1:-1;
+    if(da&&db)return da-db;
+    return 0;
+  });
+  const s=_sessSorted[0];
   if(!s?.exercises?.length){
     document.getElementById('session-title').textContent="Today's Session";
     document.getElementById('session-sub').textContent='No session assigned';
