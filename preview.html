@@ -551,18 +551,28 @@
         <button class="modal-close" onclick="closeConsult()">×</button>
       </div>
       <div class="modal-sub">Fill this in and I'll get back to you within 24 hours. No commitment, just a conversation about your goals.</div>
-      <div class="modal-field"><label>Your goal</label>
-        <select id="cf-goal"><option value="lose">Lose fat</option><option value="build">Build muscle</option><option value="recomp">Body recomposition</option><option value="maintain">General health</option></select>
+
+      <div class="modal-field"><label>Your main goal</label>
+        <select id="cf-goal"><option value="lose">Lose fat</option><option value="build">Build muscle</option><option value="recomp">Body recomposition</option><option value="maintain">General health / fitness</option></select>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="modal-field"><label>Current weight (kg)</label><input type="number" id="cf-weight" placeholder="75" inputmode="decimal"></div>
         <div class="modal-field"><label>Goal weight (kg)</label><input type="number" id="cf-goalweight" placeholder="70" inputmode="decimal"></div>
       </div>
-      <div class="modal-field"><label>Tell me about yourself — lifestyle, schedule, any injuries</label><textarea id="cf-msg" placeholder="e.g. I work a desk job, train 3x a week, struggle with eating well on weekends..."></textarea></div>
+      <div class="modal-field"><label>Do you have any previous experience with personal training or fitness programs?</label><input type="text" id="cf-q1" placeholder="Your answer..."></div>
+      <div class="modal-field"><label>Are you currently following any specific diet or nutritional plan?</label><input type="text" id="cf-q2" placeholder="Your answer..."></div>
+      <div class="modal-field"><label>Do you have any medical conditions or injuries I should be aware of?</label><input type="text" id="cf-q3" placeholder="Your answer..."></div>
+      <div class="modal-field"><label>What is your current level of physical activity?</label><input type="text" id="cf-q4" placeholder="e.g. gym 3x/week, sedentary job, walk daily..."></div>
+      <div class="modal-field"><label>Do you have any fitness preferences or dislikes?</label><input type="text" id="cf-q5" placeholder="e.g. love lifting, hate cardio..."></div>
+      <div class="modal-field"><label>What does a typical day of eating look like for you?</label><textarea id="cf-q6" placeholder="Rough overview of your usual meals..."></textarea></div>
+      <div class="modal-field"><label>How much time can you commit to training each week?</label><input type="text" id="cf-q7" placeholder="e.g. 4 hours spread across 3 sessions"></div>
+      <div class="modal-field"><label>What motivates you to stay committed to your goals?</label><input type="text" id="cf-q8" placeholder="Your answer..."></div>
+      <div class="modal-field"><label>Any specific milestones or deadlines you want to hit?</label><input type="text" id="cf-q9" placeholder="e.g. holiday in August, wedding in 6 months..."></div>
+
       <div style="border-top:1px solid var(--border);margin:20px 0"></div>
       <div class="modal-field"><label>Your name</label><input type="text" id="cf-name" placeholder="Jack"></div>
       <div class="modal-field"><label>Email address</label><input type="email" id="cf-email" placeholder="you@email.com"></div>
-      <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="submitConsult()">Send my details →</button>
+      <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;color:#000" onclick="submitConsult()">Send my details →</button>
       <p style="font-size:11px;color:var(--txt3);text-align:center;margin-top:10px">I'll respond within 24 hours. No spam ever.</p>
     </div>
     <div class="modal-success" id="consult-success">
@@ -772,13 +782,36 @@ async function submitConsult(){
   const name=document.getElementById('cf-name').value.trim();
   const email=document.getElementById('cf-email').value.trim();
   if(!name||!email){alert('Please enter your name and email');return;}
-  const payload={name,email,goal:document.getElementById('cf-goal').value,currentWeight:document.getElementById('cf-weight').value,goalWeight:document.getElementById('cf-goalweight').value,message:document.getElementById('cf-msg').value};
-const FORMSPREE_ID='YOUR_FORM_ID';
+  const btn=document.querySelector('#consult-form-wrap .btn-primary');
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
+  const payload={
+    name,email,
+    goal:document.getElementById('cf-goal').value,
+    currentWeight:document.getElementById('cf-weight').value,
+    goalWeight:document.getElementById('cf-goalweight').value,
+    previousExperience:document.getElementById('cf-q1').value,
+    currentDiet:document.getElementById('cf-q2').value,
+    injuriesOrConditions:document.getElementById('cf-q3').value,
+    activityLevel:document.getElementById('cf-q4').value,
+    fitnessPreferences:document.getElementById('cf-q5').value,
+    typicalDayOfEating:document.getElementById('cf-q6').value,
+    timeCommitment:document.getElementById('cf-q7').value,
+    motivation:document.getElementById('cf-q8').value,
+    milestones:document.getElementById('cf-q9').value,
+  };
   try{
-    const r=await fetch('https://formspree.io/f/'+FORMSPREE_ID,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
-    if(r.ok){document.getElementById('consult-form-wrap').style.display='none';document.getElementById('consult-success').style.display='block';}
-    else{alert('Something went wrong. Please try again or email me directly.');}
-  }catch(e){alert('Network error. Please try again.');}
+    const r=await fetch('https://formspree.io/f/mjgjojdl',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok){
+      document.getElementById('consult-form-wrap').style.display='none';
+      document.getElementById('consult-success').style.display='block';
+    } else {
+      if(btn){btn.disabled=false;btn.textContent='Send my details →';}
+      alert('Something went wrong. Please try again.');
+    }
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Send my details →';}
+    alert('Network error. Please check your connection and try again.');
+  }
 }
 </script>
 </body>
