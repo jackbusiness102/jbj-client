@@ -479,12 +479,12 @@
       </div>
 
       <div class="result-cta">
-        <p>Want the full breakdown as a PDF, plus a free week of meal ideas tailored to your numbers?</p>
+        <p>Save your results as a PDF to refer back to whenever you need.</p>
         <div class="email-gate">
-          <input type="email" placeholder="Your email address">
-          <button>Send it →</button>
+          <input type="email" id="pdf-email" placeholder="Your email (optional — to receive a copy)">
+          <button onclick="sendPDF()">Save as PDF →</button>
         </div>
-        <p style="font-size:11px;color:var(--txt3);margin-top:10px">No spam. Just your plan.</p>
+        <p style="font-size:11px;color:var(--txt3);margin-top:10px" id="pdf-status">Your numbers, saved to your device.</p>
       </div>
     </div>
   </div>
@@ -728,6 +728,30 @@ function calcResult(){
 }
 
 document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.closest('.faq-item').classList.toggle('open')));
+
+async function sendPDF(){
+  const email=document.getElementById('pdf-email').value.trim();
+  const statusEl=document.getElementById('pdf-status');
+  // If email provided, send via Formspree first
+  if(email){
+    const FORMSPREE_ID='YOUR_FORM_ID';
+    const rc=document.getElementById('r-cal').textContent;
+    const rp=document.getElementById('r-pro').textContent;
+    const rb=document.getElementById('r-carb').textContent;
+    const rf=document.getElementById('r-fat').textContent;
+    try{
+      await fetch('https://formspree.io/f/'+FORMSPREE_ID,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_subject:'Blueprint Results Request',email,calories:rc,protein:rp,carbs:rb,fat:rf})});
+      statusEl.textContent='Sent! Check your inbox.';
+    }catch(e){statusEl.textContent='Could not send email, printing locally instead.';}
+  }
+  // Print the result card
+  const card=document.getElementById('result-card');
+  const orig=document.body.innerHTML;
+  document.body.innerHTML=`<div style="background:#fff;color:#111;font-family:sans-serif;padding:32px;max-width:600px;margin:0 auto">${card.innerHTML}</div>`;
+  window.print();
+  document.body.innerHTML=orig;
+  location.reload();
+}
 
 function openConsult(){
   // Pre-fill from calculator if available
