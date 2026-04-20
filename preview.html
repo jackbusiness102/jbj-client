@@ -805,8 +805,9 @@ async function submitConsult(){
       document.getElementById('consult-form-wrap').style.display='none';
       document.getElementById('consult-success').style.display='block';
     } else {
+      const errData=await r.json().catch(()=>({}));
       if(btn){btn.disabled=false;btn.textContent='Send my details →';}
-      alert('Something went wrong. Please try again.');
+      alert('Error: '+(errData.error||errData.errors?.map(e=>e.message).join(', ')||r.status+' '+r.statusText));
     }
   }catch(e){
     if(btn){btn.disabled=false;btn.textContent='Send my details →';}
