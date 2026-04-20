@@ -114,10 +114,21 @@
   .result-meals{margin-bottom:24px;}
   .result-meals h4{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--txt2);}
   .result-meals h4 .highlight{color:var(--g);font-style:italic;}
-  .meal-row{background:var(--bg2);border-radius:12px;padding:16px 18px;margin-bottom:10px;border:1px solid var(--border);}
-  .meal-row .meal-name{font-size:14px;font-weight:600;}
-  .meal-row .meal-eg{font-size:12px;color:var(--txt3);margin-top:2px;}
-  .meal-row .meal-cals{font-size:14px;font-weight:700;color:var(--o);}
+  .meal-row{background:var(--bg2);border-radius:12px;padding:16px 18px;margin-bottom:10px;border:1px solid var(--border);cursor:pointer;transition:border-color .2s;}
+  .meal-row:hover{border-color:rgba(255,255,255,0.15);}
+  .meal-row.open{border-color:rgba(57,217,138,0.3);}
+  .meal-row-head{display:flex;justify-content:space-between;align-items:center;}
+  .meal-row-macros{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
+  .meal-macro-chip{font-size:12px;background:var(--bg3);border-radius:6px;padding:3px 8px;color:var(--txt2);}
+  .meal-macro-chip span{font-weight:700;color:var(--txt);}
+  .meal-alts{display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
+  .meal-row.open .meal-alts{display:block;}
+  .meal-alt-group{margin-bottom:12px;}
+  .meal-alt-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt3);margin-bottom:6px;}
+  .meal-alt-list{display:flex;flex-wrap:wrap;gap:6px;}
+  .meal-alt-item{font-size:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:4px 10px;color:var(--txt2);}
+  .meal-toggle{font-size:18px;color:var(--txt3);transition:transform .2s;line-height:1;}
+  .meal-row.open .meal-toggle{transform:rotate(45deg);}
   .result-timeline{background:rgba(57,217,138,0.06);border:1px solid rgba(57,217,138,0.15);border-radius:12px;padding:16px;margin-bottom:24px;}
   .result-timeline h4{font-size:13px;font-weight:700;color:var(--g);margin-bottom:10px;}
   .timeline-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
@@ -443,7 +454,8 @@
       </div>
 
       <div class="result-meals">
-        <h4>What this looks like as food (training day <span class="highlight">example</span>)</h4>
+        <h4>Build your meal plan (training day <span class="highlight">example</span>)</h4>
+        <p style="font-size:12px;color:var(--txt3);margin-bottom:12px;line-height:1.6">Unlike a cookie-cutter plan, this lets you pick the foods you actually enjoy. Tap any meal to see food options for each macro.</p>
         <div id="meal-rows"></div>
         <div id="eatout-tip" style="display:none;margin-top:12px;background:rgba(91,141,238,0.08);border:1px solid rgba(91,141,238,0.2);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--txt2);line-height:1.65"></div>
         <div id="mealprep-tip" style="display:none;margin-top:10px;background:rgba(57,217,138,0.06);border:1px solid rgba(57,217,138,0.15);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--txt2);line-height:1.65"></div>
@@ -644,33 +656,21 @@ function calcResult(){
   document.getElementById('rr-pro').textContent=pro+'g';
   document.getElementById('rr-carb').textContent=rCarb+'g';
   document.getElementById('rr-fat').textContent=rFat+'g';
-  // Meals — shaped by lifestyle answers
-  const s=tCal/2000;
+  // Meals — macro targets per meal with food alternatives
   const mf=state.mealFreq||'4med';
-  let meals=[];
-  if(mf==='3big'){
-    meals=[
-      {name:'Breakfast',cal:Math.round(tCal*0.33),items:`${Math.round(180*s/10)*10}g Greek yoghurt + ${Math.round(70*s/10)*10}g oats (dry) + 1 banana (120g) + 30g whey stirred in`,visual:`${Math.round(180*s/10)*10}g yoghurt = 1 large tub · ${Math.round(70*s/10)*10}g oats = ${s<1?'just over half a mug':'a full mug'} dry`},
-      {name:'Lunch',cal:Math.round(tCal*0.38),items:`${Math.round(200*s/10)*10}g chicken breast + ${Math.round(200*s/10)*10}g cooked white rice + 150g mixed veg + 10ml olive oil`,visual:`chicken = ${s<1?'palm-sized fillet':'large hand-sized fillet'} · rice = ${s<1?'a tight fist':'2 tight fists'} · 10ml oil = 2 teaspoons`},
-      {name:'Dinner',cal:Math.round(tCal*0.29),items:`${Math.round(180*s/10)*10}g salmon fillet + ${Math.round(160*s/10)*10}g sweet potato (cooked) + 200g broccoli`,visual:`salmon = ${s<1?'deck of cards sized':'large fillet'} · ${Math.round(160*s/10)*10}g sweet potato = ${s<1.2?'1 medium potato':'1 large potato'} · 200g broccoli = 2 large florets`},
-    ];
-  } else if(mf==='5small'){
-    meals=[
-      {name:'Breakfast',cal:Math.round(tCal*0.20),items:`${Math.round(120*s/10)*10}g Greek yoghurt + ${Math.round(50*s/10)*10}g oats (dry) + handful of berries`,visual:`${Math.round(120*s/10)*10}g yoghurt = 1 small tub · ${Math.round(50*s/10)*10}g oats = ${s<1?'a third of a mug':'half a mug'} dry`},
-      {name:'Mid-morning',cal:Math.round(tCal*0.13),items:`30g whey protein (1 scoop) in water + 1 apple + 15g mixed nuts`,visual:`30g whey = 1 standard scoop · 15g nuts = a small handful`},
-      {name:'Lunch',cal:Math.round(tCal*0.25),items:`${Math.round(130*s/10)*10}g chicken breast + ${Math.round(130*s/10)*10}g cooked white rice + 100g mixed veg`,visual:`chicken = ${s<1?'small palm-sized fillet':'palm-sized fillet'} · rice = ${s<1?'half a fist':'a tight fist'}`},
-      {name:'Pre-workout',cal:Math.round(tCal*0.12),items:`30g whey protein in water + 1 banana, or 2 rice cakes + 15g peanut butter`,visual:`30g whey = 1 standard scoop · 15g peanut butter = 1 heaped teaspoon`},
-      {name:'Dinner',cal:Math.round(tCal*0.30),items:`${Math.round(160*s/10)*10}g salmon fillet + ${Math.round(150*s/10)*10}g sweet potato (cooked) + 200g broccoli`,visual:`salmon = ${s<1?'deck of cards sized':'large fillet'} · ${Math.round(150*s/10)*10}g sweet potato = ${s<1.2?'1 medium potato':'1 large potato'}`},
-    ];
-  } else {
-    meals=[
-      {name:'Breakfast',cal:Math.round(tCal*0.28),items:`${Math.round(150*s/10)*10}g Greek yoghurt + ${Math.round(60*s/10)*10}g oats (dry) + 1 banana (120g)`,visual:`${Math.round(150*s/10)*10}g yoghurt = 1 small tub · ${Math.round(60*s/10)*10}g oats = ${s<1?'half a mug':'a full mug'} dry · 1 banana = a standard medium banana`},
-      {name:'Lunch',cal:Math.round(tCal*0.32),items:`${Math.round(150*s/10)*10}g chicken breast + ${Math.round(160*s/10)*10}g cooked white rice + 150g mixed veg + 10ml olive oil`,visual:`chicken = ${s<1?'palm-sized fillet':'large hand-sized fillet'} · rice = ${s<1?'a tight fist':'2 tight fists'} · 10ml oil = 2 teaspoons`},
-      {name:'Pre-workout',cal:Math.round(tCal*0.12),items:`30g whey protein (1 scoop) in water + 1 banana, or 2 rice cakes + 15g peanut butter`,visual:`30g whey = 1 standard scoop · 15g peanut butter = 1 heaped teaspoon`},
-      {name:'Dinner',cal:Math.round(tCal*0.28),items:`${Math.round(160*s/10)*10}g salmon fillet + ${Math.round(150*s/10)*10}g sweet potato (cooked) + 200g broccoli`,visual:`salmon = ${s<1?'deck of cards sized':'large fillet'} · ${Math.round(150*s/10)*10}g sweet potato = ${s<1.2?'1 medium potato':'1 large potato'} · 200g broccoli = 2 large florets`},
-    ];
-  }
-  document.getElementById('meal-rows').innerHTML=meals.map(m=>`<div class="meal-row"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:14px;font-weight:700">${m.name}</span><span style="font-size:14px;font-weight:700;color:var(--o)">${m.cal} kcal</span></div><div style="font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:8px">${m.items}</div><div style="font-size:12px;color:var(--txt3);font-style:italic;line-height:1.5">${m.visual}</div></div>`).join('');
+  const fracs=mf==='3big'?[.33,.38,.29]:mf==='5small'?[.20,.13,.25,.12,.30]:[.28,.32,.12,.28];
+  const mnames=mf==='3big'?['Breakfast','Lunch','Dinner']:mf==='5small'?['Breakfast','Mid-morning','Lunch','Pre-workout','Dinner']:['Breakfast','Lunch','Pre-workout','Dinner'];
+  function carbAlts(g){const r=Math.round;return[`${r(g/0.66*10)}g dry oats`,`${Math.max(1,r(g/27))} banana${g>27?'s':''}`,`${r(g/0.28*10)}g cooked white rice`,`${Math.max(1,r(g/18))} slice${g>18?'s':''} wholegrain bread`,`${r(g/0.20*10)}g cooked sweet potato`,`${Math.max(1,r(g/7))} rice cake${g>7?'s':''}`];}
+  function proAlts(g){const r=Math.round;return[`${r(g/0.31*10)}g cooked chicken breast`,`${Math.max(1,r(g/8))} egg${g>8?'s':''}`,`${r(g/0.25*10)}g canned tuna`,`${Math.max(1,r(g/24))} scoop whey (${r(g/24)*30}g)`,`${r(g/0.20*10)}g salmon fillet`,`${r(g/0.22*10)}g lean beef mince`];}
+  function fatAlts(g){const r=Math.round;return[`${r(g/14*10)/10} tbsp olive oil`,`${r(g/8*10)/10} tbsp peanut butter`,`${r(g/0.49*10)}g almonds`,`${r(g/0.15*10)}g avocado`];}
+  const mealData=fracs.map((f,i)=>{
+    const mCal=Math.round(tCal*f);
+    const mPro=Math.round(pro*f);
+    const mCarb=Math.round(tCarb*f);
+    const mFat=Math.round(tFat*f);
+    return{name:mnames[i],cal:mCal,pro:mPro,carb:mCarb,fat:mFat};
+  });
+  document.getElementById('meal-rows').innerHTML=mealData.map((m,i)=>`<div class="meal-row" onclick="this.classList.toggle('open')" id="mr-${i}"><div class="meal-row-head"><span style="font-size:14px;font-weight:700">${m.name}</span><div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:700;color:var(--o)">${m.cal} kcal</span><span class="meal-toggle">+</span></div></div><div class="meal-row-macros"><div class="meal-macro-chip">Protein <span>${m.pro}g</span></div><div class="meal-macro-chip">Carbs <span>${m.carb}g</span></div><div class="meal-macro-chip">Fat <span>${m.fat}g</span></div></div><div class="meal-alts"><div class="meal-alt-group"><div class="meal-alt-label">Protein options (${m.pro}g)</div><div class="meal-alt-list">${proAlts(m.pro).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div><div class="meal-alt-group"><div class="meal-alt-label">Carb options (${m.carb}g)</div><div class="meal-alt-list">${carbAlts(m.carb).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div><div class="meal-alt-group"><div class="meal-alt-label">Fat options (${m.fat}g)</div><div class="meal-alt-list">${fatAlts(m.fat).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div></div></div>`).join('');
   // Eating out tip
   const eoEl=document.getElementById('eatout-tip');
   if(state.eatsOut==='often'){eoEl.style.display='block';eoEl.innerHTML='<strong style="color:var(--b)">Since you eat out often:</strong> stick to protein + veg-based dishes when you can. Grilled over fried, skip the extra sides, and ask for sauces on the side. You don\'t need to be perfect, just consistent.';}
