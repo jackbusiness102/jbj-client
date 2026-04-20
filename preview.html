@@ -784,23 +784,23 @@ async function submitConsult(){
   if(!name||!email){alert('Please enter your name and email');return;}
   const btn=document.querySelector('#consult-form-wrap .btn-primary');
   if(btn){btn.disabled=true;btn.textContent='Sending...';}
-  const payload={
-    name,email,
-    goal:document.getElementById('cf-goal').value,
-    currentWeight:document.getElementById('cf-weight').value,
-    goalWeight:document.getElementById('cf-goalweight').value,
-    previousExperience:document.getElementById('cf-q1').value,
-    currentDiet:document.getElementById('cf-q2').value,
-    injuriesOrConditions:document.getElementById('cf-q3').value,
-    activityLevel:document.getElementById('cf-q4').value,
-    fitnessPreferences:document.getElementById('cf-q5').value,
-    typicalDayOfEating:document.getElementById('cf-q6').value,
-    timeCommitment:document.getElementById('cf-q7').value,
-    motivation:document.getElementById('cf-q8').value,
-    milestones:document.getElementById('cf-q9').value,
-  };
+  const fd=new FormData();
+  fd.append('name',name);
+  fd.append('email',email);
+  fd.append('goal',document.getElementById('cf-goal').value);
+  fd.append('currentWeight',document.getElementById('cf-weight').value);
+  fd.append('goalWeight',document.getElementById('cf-goalweight').value);
+  fd.append('previousExperience',document.getElementById('cf-q1').value);
+  fd.append('currentDiet',document.getElementById('cf-q2').value);
+  fd.append('injuriesOrConditions',document.getElementById('cf-q3').value);
+  fd.append('activityLevel',document.getElementById('cf-q4').value);
+  fd.append('fitnessPreferences',document.getElementById('cf-q5').value);
+  fd.append('typicalDayOfEating',document.getElementById('cf-q6').value);
+  fd.append('timeCommitment',document.getElementById('cf-q7').value);
+  fd.append('motivation',document.getElementById('cf-q8').value);
+  fd.append('milestones',document.getElementById('cf-q9').value);
   try{
-    const r=await fetch('https://formspree.io/f/mjgjojdl',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+    const r=await fetch('https://formspree.io/f/mjgjojdl',{method:'POST',headers:{'Accept':'application/json'},body:fd});
     if(r.ok){
       document.getElementById('consult-form-wrap').style.display='none';
       document.getElementById('consult-success').style.display='block';
