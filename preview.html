@@ -454,6 +454,16 @@
         <div class="timeline-row"><span class="tw">Weekly change</span><span class="tv" id="tl-weekly">—</span></div>
         <div class="timeline-row"><span class="tw">4 weeks</span><span class="tv" id="tl-4w">—</span></div>
         <div class="timeline-row"><span class="tw">12 weeks</span><span class="tv" id="tl-12w">—</span></div>
+        <div id="tl-goal-row" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--txt2)">Reach goal weight</span><span style="font-weight:700;color:var(--g)" id="tl-goal-time">—</span></div>
+        <div id="tl-graph" style="margin-top:16px;display:none"></div>
+        <div style="margin-top:16px;font-size:12px;color:var(--txt3);line-height:1.7;border-top:1px solid var(--border);padding-top:14px">
+          <strong style="color:var(--txt2)">Keep in mind:</strong> this is a guide based on averages, not a guarantee. Your weight will go up and down week to week even when you're doing everything right — water retention, sleep, hormones all play a role. What matters is the trend over weeks, not the number on any single day.
+        </div>
+        <div style="margin-top:16px;background:rgba(57,217,138,0.06);border:1px solid rgba(57,217,138,0.2);border-radius:12px;padding:16px 18px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:6px">Want me to get you there as efficiently as possible?</div>
+          <div style="font-size:13px;color:var(--txt2);line-height:1.65;margin-bottom:14px">If you want a coach who checks in every week, adjusts your plan when life gets in the way, and makes sure you're actually moving in the right direction — that's what I do. No guesswork, no going it alone.</div>
+          <button class="btn-primary" style="width:100%;justify-content:center" onclick="openConsult()">Connect with me →</button>
+        </div>
       </div>
 
       <div class="result-cta">
@@ -672,9 +682,46 @@ function calcResult(){
   else if(state.mealPrep==='mix'){mpEl.style.display='block';mpEl.innerHTML='<strong style="color:var(--g)">Tip:</strong> even prepping just lunch for 3-4 days makes a big difference. The chicken + rice combo takes about 30 minutes to cook in bulk and removes the temptation to grab something off-plan mid-day.';}
   else{mpEl.style.display='none';}
   // Timeline
-  if(goal==='lose'){const w=Math.abs(state.rateAdj)*7/7700;document.getElementById('tl-weekly').textContent='↓ ~'+w.toFixed(2)+'kg';document.getElementById('tl-4w').textContent='↓ ~'+(w*4).toFixed(1)+'kg';document.getElementById('tl-12w').textContent='↓ ~'+(w*12).toFixed(1)+'kg';document.getElementById('r-timeline').style.display='block';}
-  else if(goal==='build'){const w=state.rateAdj*7/7700;document.getElementById('tl-weekly').textContent='↑ ~'+w.toFixed(2)+'kg';document.getElementById('tl-4w').textContent='Noticeable strength increase';document.getElementById('tl-12w').textContent='↑ ~'+(w*12).toFixed(1)+'kg total';document.getElementById('r-timeline').style.display='block';}
-  else{document.getElementById('r-timeline').style.display='none';}
+  const goalWeight=parseFloat(document.getElementById('i-goalweight').value)||null;
+  if(goal==='lose'||goal==='build'){
+    const dir=goal==='lose'?-1:1;
+    const wkly=Math.abs(state.rateAdj)*7/7700;
+    document.getElementById('tl-weekly').textContent=(dir<0?'↓':'↑')+' ~'+wkly.toFixed(2)+'kg';
+    document.getElementById('tl-4w').textContent=(dir<0?'↓ ~':'↑ ~')+(wkly*4).toFixed(1)+'kg'+(goal==='build'?' + strength increase':'');
+    document.getElementById('tl-12w').textContent=(dir<0?'↓ ~':'↑ ~')+(wkly*12).toFixed(1)+'kg';
+    // Goal weight row + graph
+    const goalRow=document.getElementById('tl-goal-row');
+    const graphEl=document.getElementById('tl-graph');
+    if(goalWeight&&wkly>0){
+      const diff=Math.abs(weight-goalWeight);
+      const weeks=Math.ceil(diff/wkly);
+      const months=(weeks/4.33).toFixed(1);
+      goalRow.style.display='flex';
+      document.getElementById('tl-goal-time').textContent='~'+weeks+' weeks ('+months+' months)';
+      // SVG graph
+      const pts=Math.min(weeks,52);
+      const W=300,H=100,pad=8;
+      const yStart=weight,yEnd=goalWeight;
+      const yMin=Math.min(yStart,yEnd)-2,yMax=Math.max(yStart,yEnd)+2;
+      const xS=x=>pad+(x/pts)*(W-pad*2);
+      const yS=y=>H-pad-((y-yMin)/(yMax-yMin))*(H-pad*2);
+      let path=`M${xS(0)},${yS(yStart)}`;
+      for(let i=1;i<=pts;i++){const yw=yStart+dir*(i*wkly);path+=` L${xS(i)},${yS(Math.max(Math.min(yw,yMax),yMin))}`;}
+      // Milestone markers at 4, 8, 12 weeks if within range
+      const markers=[4,8,12].filter(w=>w<=pts).map(w=>{
+        const yw=yStart+dir*(w*wkly);
+        return `<circle cx="${xS(w)}" cy="${yS(yw)}" r="3" fill="var(--g)"/><text x="${xS(w)}" y="${yS(yw)-7}" text-anchor="middle" fill="#aaa" font-size="9">${(yStart+dir*w*wkly).toFixed(1)}kg</text>`;
+      }).join('');
+      graphEl.style.display='block';
+      graphEl.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--g)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--g)" stop-opacity="0"/></linearGradient></defs><path d="${path} L${xS(pts)},${H} L${xS(0)},${H} Z" fill="url(#lg)"/><path d="${path}" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>${markers}<text x="${xS(0)}" y="${yS(yStart)+14}" text-anchor="middle" fill="#666" font-size="9">Now</text><text x="${xS(pts)}" y="${yS(goalWeight)+14}" text-anchor="end" fill="var(--g)" font-size="9">Goal</text></svg>`;
+    } else {
+      goalRow.style.display='none';
+      graphEl.style.display='none';
+    }
+    document.getElementById('r-timeline').style.display='block';
+  } else {
+    document.getElementById('r-timeline').style.display='none';
+  }
   document.getElementById('calc-wrap').style.display='none';
   document.getElementById('result-card').classList.add('show');
   document.getElementById('result-card').scrollIntoView({behavior:'smooth',block:'start'});
