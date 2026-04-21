@@ -214,6 +214,7 @@
     footer{flex-direction:column;gap:16px;text-align:center;padding:30px 20px;}
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -479,12 +480,16 @@
       </div>
 
       <div class="result-cta">
-        <p>Save your results as a PDF to refer back to whenever you need.</p>
-        <div class="email-gate">
-          <input type="email" id="pdf-email" placeholder="Your email (optional, to receive a copy)">
-          <button onclick="sendPDF()">Save as PDF →</button>
+        <div style="font-size:18px;font-weight:800;color:var(--txt);margin-bottom:8px;">Get your free workout plan</div>
+        <p>Based on your goal and training days, I'll send a personalised workout plan straight to your inbox — free.</p>
+        <div class="email-gate" style="flex-direction:column;gap:10px;">
+          <input type="text" id="plan-name" placeholder="Your first name">
+          <div style="display:flex;gap:10px;">
+            <input type="email" id="plan-email" placeholder="Your email address" style="flex:1;min-width:0;">
+            <button id="plan-btn" onclick="sendWorkoutPlan()">Send My Plan →</button>
+          </div>
         </div>
-        <p style="font-size:11px;color:var(--txt3);margin-top:10px" id="pdf-status">Your numbers, saved to your device.</p>
+        <p style="font-size:11px;color:var(--txt3);margin-top:10px" id="plan-status">Free. No spam. Just your plan.</p>
       </div>
     </div>
   </div>
@@ -779,28 +784,164 @@ function calcResult(){
 
 document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.closest('.faq-item').classList.toggle('open')));
 
-async function sendPDF(){
-  const email=document.getElementById('pdf-email').value.trim();
-  const statusEl=document.getElementById('pdf-status');
-  // If email provided, send via Formspree first
-  if(email){
-    const FORMSPREE_ID='mjgjojdl';
-    const rc=document.getElementById('r-cal').textContent;
-    const rp=document.getElementById('r-pro').textContent;
-    const rb=document.getElementById('r-carb').textContent;
-    const rf=document.getElementById('r-fat').textContent;
-    try{
-      await fetch('https://formspree.io/f/'+FORMSPREE_ID,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_subject:'Blueprint Results Request',email,calories:rc,protein:rp,carbs:rb,fat:rf})});
-      statusEl.textContent='Sent! Check your inbox.';
-    }catch(e){statusEl.textContent='Could not send email, printing locally instead.';}
+emailjs.init('2h43bnajJjfgORxCL');
+
+const PLANS={
+  2:{split:'Full Body',days:[
+    {name:'Day 1 - Full Body A',ex:[
+      {e:'Squat',s:'4',r:'6-8 reps',rest:'2-3 min'},
+      {e:'Bench Press',s:'4',r:'6-8 reps',rest:'2-3 min'},
+      {e:'Barbell Row',s:'4',r:'8 reps',rest:'2 min'},
+      {e:'Overhead Press',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Romanian Deadlift',s:'3',r:'10 reps',rest:'2 min'},
+      {e:'Lat Pulldown',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Plank',s:'3',r:'30 sec',rest:'60 sec'},
+    ]},
+    {name:'Day 2 - Full Body B',ex:[
+      {e:'Deadlift',s:'4',r:'5 reps',rest:'3 min'},
+      {e:'Incline Dumbbell Press',s:'4',r:'8 reps',rest:'2 min'},
+      {e:'Cable Row',s:'4',r:'10 reps',rest:'2 min'},
+      {e:'Dumbbell Shoulder Press',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Leg Press',s:'3',r:'12 reps',rest:'2 min'},
+      {e:'Pull-ups / Lat Pulldown',s:'3',r:'8 reps',rest:'2 min'},
+      {e:'Side Plank',s:'3',r:'20 sec each',rest:'60 sec'},
+    ]},
+  ]},
+  3:{split:'Push / Pull / Legs',days:[
+    {name:'Day 1 - Push',ex:[
+      {e:'Bench Press',s:'4',r:'6-8 reps',rest:'2-3 min'},
+      {e:'Overhead Press',s:'3',r:'8-10 reps',rest:'2 min'},
+      {e:'Incline Dumbbell Press',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Lateral Raises',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Tricep Pushdown',s:'3',r:'12 reps',rest:'60 sec'},
+      {e:'Overhead Tricep Extension',s:'2',r:'15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 2 - Pull',ex:[
+      {e:'Barbell Row',s:'4',r:'6-8 reps',rest:'2-3 min'},
+      {e:'Lat Pulldown',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Cable Row',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Face Pulls',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Bicep Curls',s:'3',r:'12 reps',rest:'60 sec'},
+      {e:'Hammer Curls',s:'2',r:'15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 3 - Legs',ex:[
+      {e:'Squat',s:'4',r:'6-8 reps',rest:'2-3 min'},
+      {e:'Romanian Deadlift',s:'3',r:'10 reps',rest:'2 min'},
+      {e:'Leg Press',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Leg Curl',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Leg Extension',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Calf Raises',s:'4',r:'15 reps',rest:'60 sec'},
+    ]},
+  ]},
+  4:{split:'Upper / Lower',days:[
+    {name:'Day 1 - Upper A (Strength)',ex:[
+      {e:'Bench Press',s:'4',r:'5 reps',rest:'3 min'},
+      {e:'Barbell Row',s:'4',r:'5 reps',rest:'3 min'},
+      {e:'Overhead Press',s:'3',r:'8 reps',rest:'2 min'},
+      {e:'Pull-ups / Lat Pulldown',s:'3',r:'8 reps',rest:'2 min'},
+      {e:'Incline Dumbbell Press',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Face Pulls',s:'3',r:'15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 2 - Lower A (Strength)',ex:[
+      {e:'Squat',s:'4',r:'5 reps',rest:'3 min'},
+      {e:'Romanian Deadlift',s:'3',r:'8 reps',rest:'2 min'},
+      {e:'Leg Press',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Leg Curl',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Calf Raises',s:'4',r:'15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 3 - Upper B (Hypertrophy)',ex:[
+      {e:'Incline Bench Press',s:'4',r:'8-10 reps',rest:'2 min'},
+      {e:'Cable Row',s:'4',r:'10 reps',rest:'90 sec'},
+      {e:'Dumbbell Shoulder Press',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Lateral Raises',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Bicep Curls',s:'3',r:'12 reps',rest:'60 sec'},
+      {e:'Tricep Pushdown',s:'3',r:'12 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 4 - Lower B (Hypertrophy)',ex:[
+      {e:'Deadlift',s:'4',r:'5 reps',rest:'3 min'},
+      {e:'Leg Press',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Walking Lunges',s:'3',r:'10 each leg',rest:'90 sec'},
+      {e:'Leg Curl',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Leg Extension',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Calf Raises',s:'4',r:'20 reps',rest:'60 sec'},
+    ]},
+  ]},
+  5:{split:'Push / Pull / Legs + Upper / Lower',days:[
+    {name:'Day 1 - Push',ex:[
+      {e:'Bench Press',s:'4',r:'5 reps',rest:'3 min'},
+      {e:'Overhead Press',s:'3',r:'8 reps',rest:'2 min'},
+      {e:'Incline Dumbbell Press',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Lateral Raises',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Tricep Pushdown',s:'3',r:'12 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 2 - Pull',ex:[
+      {e:'Barbell Row',s:'4',r:'5 reps',rest:'3 min'},
+      {e:'Lat Pulldown',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Cable Row',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Face Pulls',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Bicep Curls',s:'3',r:'12 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 3 - Legs',ex:[
+      {e:'Squat',s:'4',r:'6 reps',rest:'3 min'},
+      {e:'Romanian Deadlift',s:'3',r:'10 reps',rest:'2 min'},
+      {e:'Leg Press',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Leg Curl',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Calf Raises',s:'4',r:'15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 4 - Upper',ex:[
+      {e:'Incline Bench Press',s:'4',r:'8 reps',rest:'2 min'},
+      {e:'Dumbbell Row',s:'4',r:'10 reps',rest:'90 sec'},
+      {e:'Dumbbell Shoulder Press',s:'3',r:'10 reps',rest:'90 sec'},
+      {e:'Pull-ups / Assisted',s:'3',r:'8 reps',rest:'2 min'},
+      {e:'Lateral Raises',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Hammer Curls',s:'3',r:'12 reps',rest:'60 sec'},
+      {e:'Skull Crushers',s:'3',r:'12 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 5 - Lower',ex:[
+      {e:'Deadlift',s:'4',r:'5 reps',rest:'3 min'},
+      {e:'Leg Press',s:'3',r:'12 reps',rest:'90 sec'},
+      {e:'Walking Lunges',s:'3',r:'10 each leg',rest:'90 sec'},
+      {e:'Leg Curl',s:'3',r:'15 reps',rest:'60 sec'},
+      {e:'Calf Raises',s:'4',r:'20 reps',rest:'60 sec'},
+    ]},
+  ]},
+};
+
+function buildEmailHTML(name,goal,traindays,calories,protein,carbs,fat){
+  const plan=PLANS[traindays]||PLANS[4];
+  const goalLabel=goal==='lose'?'lose weight':goal==='build'?'build muscle':'maintain and recomp';
+  const G='#39d98a',D='#111111',D2='#1a1a1a',D3='#222222',B='#2a2a2a',T='#f0f0f0',T2='#aaaaaa',T3='#666666';
+  const exRow=ex=>`<tr><td style="padding:10px 14px;color:${T};font-size:13px;border-bottom:1px solid ${B};">${ex.e}</td><td style="padding:10px 14px;color:${G};font-size:13px;font-weight:700;text-align:center;border-bottom:1px solid ${B};">${ex.s}</td><td style="padding:10px 14px;color:${T2};font-size:13px;text-align:center;border-bottom:1px solid ${B};">${ex.r}</td><td style="padding:10px 14px;color:${T3};font-size:12px;text-align:center;border-bottom:1px solid ${B};">${ex.rest}</td></tr>`;
+  const dayBlock=day=>`<div style="margin-bottom:24px;"><div style="background:${G};color:#000;font-size:11px;font-weight:800;padding:9px 14px;border-radius:8px 8px 0 0;text-transform:uppercase;letter-spacing:0.8px;">${day.name}</div><table style="width:100%;border-collapse:collapse;background:${D2};border-radius:0 0 8px 8px;"><thead><tr style="background:${D3};"><th style="padding:8px 14px;color:${T3};font-size:11px;font-weight:600;text-align:left;">Exercise</th><th style="padding:8px 14px;color:${T3};font-size:11px;font-weight:600;text-align:center;">Sets</th><th style="padding:8px 14px;color:${T3};font-size:11px;font-weight:600;text-align:center;">Reps</th><th style="padding:8px 14px;color:${T3};font-size:11px;font-weight:600;text-align:center;">Rest</th></tr></thead><tbody>${day.ex.map(exRow).join('')}</tbody></table></div>`;
+  return`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:20px 0;background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background:${D};border-radius:16px;overflow:hidden;"><div style="padding:28px 32px 22px;border-bottom:2px solid ${G};"><div style="font-size:22px;font-weight:900;color:${T};letter-spacing:-0.5px;">Jacked<span style="color:${G};">ByJack</span></div><div style="font-size:12px;color:${T3};margin-top:3px;">Online Personal Training</div></div><div style="padding:32px;"><h1 style="color:${T};font-size:22px;font-weight:800;margin:0 0 10px 0;">Your Free Workout Plan</h1><p style="color:${T2};font-size:14px;line-height:1.65;margin:0 0 28px 0;">Hey <strong style="color:${T};">${name||'there'}</strong>, here is your personalised plan to help you <strong style="color:${T};">${goalLabel}</strong>. This is a <strong style="color:${G};">${plan.split}</strong> split built for <strong style="color:${T};">${traindays} training days</strong> per week.</p><div style="background:${D2};border-radius:12px;padding:20px 24px;margin-bottom:32px;border:1px solid ${B};"><div style="font-size:10px;font-weight:800;color:${G};margin-bottom:14px;text-transform:uppercase;letter-spacing:1.2px;">Your Daily Nutrition Targets</div><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:9px 0;color:${T2};font-size:13px;">Daily Calories</td><td style="padding:9px 0;color:${T};font-size:17px;font-weight:900;text-align:right;">${calories} kcal</td></tr><tr style="border-top:1px solid ${B};"><td style="padding:9px 0;color:${T2};font-size:13px;">Protein</td><td style="padding:9px 0;color:${G};font-size:14px;font-weight:700;text-align:right;">${protein}g</td></tr><tr style="border-top:1px solid ${B};"><td style="padding:9px 0;color:${T2};font-size:13px;">Carbohydrates</td><td style="padding:9px 0;color:${G};font-size:14px;font-weight:700;text-align:right;">${carbs}g</td></tr><tr style="border-top:1px solid ${B};"><td style="padding:9px 0;color:${T2};font-size:13px;">Fats</td><td style="padding:9px 0;color:${G};font-size:14px;font-weight:700;text-align:right;">${fat}g</td></tr></table></div>${plan.days.map(dayBlock).join('')}<div style="background:linear-gradient(135deg,rgba(57,217,138,0.12),rgba(57,217,138,0.04));border:1px solid rgba(57,217,138,0.25);border-radius:12px;padding:24px;margin-top:8px;text-align:center;"><div style="font-size:16px;font-weight:800;color:${T};margin-bottom:8px;">Ready to take it further?</div><p style="color:${T2};font-size:13px;line-height:1.65;margin:0 0 18px 0;">This plan is a starting point. If you want it fully customised to your body, schedule, and equipment with weekly check-ins, that is what I offer.</p><a href="https://jackedbyjack.xyz/preview.html" style="display:inline-block;background:${G};color:#000;font-weight:800;font-size:14px;padding:12px 28px;border-radius:10px;text-decoration:none;">Book a Free Consultation</a></div><div style="margin-top:32px;padding-top:24px;border-top:1px solid ${B};text-align:center;"><div style="font-size:13px;font-weight:800;color:${T};">Jacked<span style="color:${G};">ByJack</span></div><div style="font-size:12px;color:${T3};margin-top:3px;">jackedbyjack.xyz</div></div></div></div></body></html>`;
+}
+
+async function sendWorkoutPlan(){
+  const emailEl=document.getElementById('plan-email');
+  const nameEl=document.getElementById('plan-name');
+  const statusEl=document.getElementById('plan-status');
+  const btnEl=document.getElementById('plan-btn');
+  const email=emailEl.value.trim();
+  const name=nameEl.value.trim();
+  if(!email){statusEl.textContent='Please enter your email.';statusEl.style.color='#ff6b6b';return;}
+  btnEl.textContent='Sending...';btnEl.disabled=true;statusEl.textContent='';statusEl.style.color='';
+  const calories=document.getElementById('r-cal').textContent;
+  const protein=document.getElementById('r-pro').textContent;
+  const carbs=document.getElementById('r-carb').textContent;
+  const fat=document.getElementById('r-fat').textContent;
+  const html=buildEmailHTML(name,state.goal,state.traindays||4,calories,protein,carbs,fat);
+  try{
+    await emailjs.send('service_bpdohln','template_2wztmik',{to_email:email,to_name:name||'there',message:html});
+    statusEl.textContent='Sent! Check your inbox (and spam just in case).';
+    statusEl.style.color='#39d98a';
+    btnEl.textContent='Sent!';
+  }catch(e){
+    statusEl.textContent='Something went wrong. Please try again.';
+    statusEl.style.color='#ff6b6b';
+    btnEl.textContent='Send My Plan';
+    btnEl.disabled=false;
   }
-  // Print the result card
-  const card=document.getElementById('result-card');
-  const orig=document.body.innerHTML;
-  document.body.innerHTML=`<div style="background:#fff;color:#111;font-family:sans-serif;padding:32px;max-width:600px;margin:0 auto">${card.innerHTML}</div>`;
-  window.print();
-  document.body.innerHTML=orig;
-  location.reload();
 }
 
 function toggleMacro(chip,panelId){
