@@ -196,7 +196,8 @@
   @media(max-width:768px){
     nav{padding:0 16px;}
     .nav-link-hide{display:none;}
-    .nav-connect-hide{padding:7px 12px;font-size:12px;white-space:nowrap;}
+    .nav-logo{font-size:15px;}
+    .nav-connect-hide{padding:7px 12px;font-size:12px;white-space:nowrap;margin-left:6px;}
     .hero{padding:80px 20px 60px;}
     .hero-content{grid-template-columns:1fr;gap:40px;}
     .hero h1{font-size:36px;}
@@ -260,7 +261,7 @@
     <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px">
       <div>
         <h2 class="section-title">Get Your Lifestyle Blueprint</h2>
-        <p class="section-sub">Answer 4 quick questions. Get your personal calorie target, macro split for training and rest days, and a free sample day of eating.</p>
+        <p class="section-sub">Answer a couple of questions. Get your personal calorie target, macro split for training and rest days, and a free sample day of eating.</p>
       </div>
     </div>
 
@@ -374,7 +375,7 @@
         <div class="calc-opts">
           <div class="calc-opt" onclick="selectOpt(this,'traindays',2)"><div class="opt-label">2 days</div></div>
           <div class="calc-opt" onclick="selectOpt(this,'traindays',3)"><div class="opt-label">3 days</div></div>
-          <div class="calc-opt selected" onclick="selectOpt(this,'traindays',4)"><div class="opt-label">4 days</div></div>
+          <div class="calc-opt" onclick="selectOpt(this,'traindays',4)"><div class="opt-label">4 days</div></div>
           <div class="calc-opt" onclick="selectOpt(this,'traindays',5)"><div class="opt-label">5+ days</div></div>
         </div>
         <div class="calc-nav">
@@ -391,14 +392,14 @@
           <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--txt2)">How do you prefer to eat?</div>
           <div class="calc-opts">
             <div class="calc-opt" onclick="selectOpt(this,'mealFreq','3big')"><div class="opt-label">3 bigger meals</div><div class="opt-desc">Breakfast, lunch, dinner</div></div>
-            <div class="calc-opt selected" onclick="selectOpt(this,'mealFreq','4med')"><div class="opt-label">4 meals</div><div class="opt-desc">Including a pre-workout snack</div></div>
+            <div class="calc-opt" onclick="selectOpt(this,'mealFreq','4med')"><div class="opt-label">4 meals</div><div class="opt-desc">Including a pre-workout snack</div></div>
             <div class="calc-opt" onclick="selectOpt(this,'mealFreq','5small')"><div class="opt-label">5 smaller meals</div><div class="opt-desc">Spread throughout the day</div></div>
           </div>
         </div>
         <div style="margin-bottom:20px">
           <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--txt2)">How often do you eat out or get takeaway?</div>
           <div class="calc-opts">
-            <div class="calc-opt selected" onclick="selectOpt(this,'eatsOut','rarely')"><div class="opt-label">Rarely</div><div class="opt-desc">Most meals are home-cooked</div></div>
+            <div class="calc-opt" onclick="selectOpt(this,'eatsOut','rarely')"><div class="opt-label">Rarely</div><div class="opt-desc">Most meals are home-cooked</div></div>
             <div class="calc-opt" onclick="selectOpt(this,'eatsOut','sometimes')"><div class="opt-label">Sometimes</div><div class="opt-desc">A few times a week</div></div>
             <div class="calc-opt" onclick="selectOpt(this,'eatsOut','often')"><div class="opt-label">Often</div><div class="opt-desc">Most days include eating out</div></div>
           </div>
@@ -407,7 +408,7 @@
           <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--txt2)">Do you meal prep?</div>
           <div class="calc-opts">
             <div class="calc-opt" onclick="selectOpt(this,'mealPrep','yes')"><div class="opt-label">Yes</div><div class="opt-desc">I batch cook in advance</div></div>
-            <div class="calc-opt selected" onclick="selectOpt(this,'mealPrep','mix')"><div class="opt-label">Mix of both</div><div class="opt-desc">Depends on the week</div></div>
+            <div class="calc-opt" onclick="selectOpt(this,'mealPrep','mix')"><div class="opt-label">Mix of both</div><div class="opt-desc">Depends on the week</div></div>
             <div class="calc-opt" onclick="selectOpt(this,'mealPrep','no')"><div class="opt-label">No</div><div class="opt-desc">I cook fresh each time</div></div>
           </div>
         </div>
@@ -585,7 +586,7 @@
 <div class="preview-banner">Preview only — not live</div>
 
 <script>
-const state={goal:null,activity:1.55,traindays:4,rateAdj:0,mealFreq:'4med',eatsOut:'rarely',mealPrep:'mix'};
+const state={goal:null,activity:1.55,traindays:null,rateAdj:0,mealFreq:null,eatsOut:null,mealPrep:null};
 
 const RATE_OPTS={
   lose:[
@@ -626,7 +627,7 @@ function goNext(from){
     showStep(3);return;
   }
   if(from===3){showStep(4);return;}
-  if(from===4){showStep('life');return;}
+  if(from===4){if(!state.traindays){alert('Please select how many days you train');return;}showStep('life');return;}
 }
 
 function goPrev(from){
@@ -638,6 +639,7 @@ function goPrev(from){
 }
 
 function calcResult(){
+  if(!state.mealFreq||!state.eatsOut||!state.mealPrep){alert('Please answer all lifestyle questions');return;}
   const age=parseInt(document.getElementById('i-age').value)||25;
   const weight=parseFloat(document.getElementById('i-weight').value)||75;
   const height=parseInt(document.getElementById('i-height').value)||175;
