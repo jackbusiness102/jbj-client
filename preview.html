@@ -195,7 +195,8 @@
 
   @media(max-width:768px){
     nav{padding:0 20px;}
-    .nav-links .nav-link-hide{display:none;}
+    .nav-link-hide{display:none;}
+    .nav-connect-hide{display:none;}
     .hero{padding:80px 20px 60px;}
     .hero-content{grid-template-columns:1fr;gap:40px;}
     .hero h1{font-size:36px;}
@@ -222,7 +223,7 @@
     <a href="#blueprint" class="nav-link-hide">Blueprint</a>
     <a href="#about" class="nav-link-hide">About</a>
     <a href="#faq" class="nav-link-hide">FAQ</a>
-    <a href="#consult" class="btn-primary" style="padding:8px 16px;font-size:13px;color:#000" onclick="openConsult()">Connect with me</a>
+    <a href="#consult" class="btn-primary nav-connect-hide" style="padding:8px 16px;font-size:13px;color:#000" onclick="openConsult()">Connect with me</a>
     <a href="index.html" class="nav-login">Client login</a>
   </div>
 </nav>
@@ -668,9 +669,9 @@ function calcResult(){
   const mf=state.mealFreq||'4med';
   const fracs=mf==='3big'?[.33,.38,.29]:mf==='5small'?[.20,.13,.25,.12,.30]:[.28,.32,.12,.28];
   const mnames=mf==='3big'?['Breakfast','Lunch','Dinner']:mf==='5small'?['Breakfast','Mid-morning','Lunch','Pre-workout','Dinner']:['Breakfast','Lunch','Pre-workout','Dinner'];
-  function carbAlts(g){const r=Math.round;return[`${r(g/0.66)}g dry oats`,`${Math.max(1,r(g/27))} banana${g>27?'s':''}`,`${r(g/0.28)}g cooked white rice`,`${Math.max(1,r(g/18))} slice${g>18?'s':''} wholegrain bread`,`${r(g/0.20)}g cooked sweet potato`,`${Math.max(1,r(g/7))} rice cake${g>7?'s':''}`];}
-  function proAlts(g){const r=Math.round;return[`${r(g/0.31)}g cooked chicken breast`,`${Math.max(1,r(g/8))} egg${g>8?'s':''}`,`${r(g/0.25)}g canned tuna`,`${Math.max(1,r(g/24))} scoop whey (${r(g/24)*30}g)`,`${r(g/0.20)}g salmon fillet`,`${r(g/0.22)}g lean beef mince`];}
-  function fatAlts(g){const r=Math.round;return[`${r(g/14*10)/10} tbsp olive oil`,`${r(g/8*10)/10} tbsp peanut butter`,`${r(g/0.49)}g almonds`,`${r(g/0.15)}g avocado`];}
+  function carbAlts(g){const r=Math.round;return[`${r(g/0.66)}g dry oats`,`${Math.max(1,r(g/27))} banana${g>27?'s':''}`,`${r(g/0.28)}g cooked white rice`,`${r(g/0.25)}g cooked pasta`,`${Math.max(1,r(g/18))} slice${g>18?'s':''} wholegrain bread`,`${r(g/0.20)}g cooked sweet potato`,`${r(g/0.17)}g boiled potato`,`${r(g/0.22)}g cooked quinoa`,`${Math.max(1,r(g/7))} rice cake${g>7?'s':''}`,`${Math.max(1,r(g/12))} corn tortilla${g>12?'s':''}`,`${Math.max(1,r(g/25))} apple${g>25?'s':''}`];}
+  function proAlts(g){const r=Math.round;return[`${r(g/0.31)}g cooked chicken breast`,`${r(g/0.30)}g cooked turkey breast`,`${Math.max(1,r(g/8))} egg${g>8?'s':''}`,`${r(g/0.25)}g canned tuna`,`${r(g/0.22)}g canned sardines`,`${Math.max(1,r(g/24))} scoop whey (${r(g/24)*30}g)`,`${r(g/0.20)}g salmon fillet`,`${r(g/0.22)}g lean beef mince`,`${r(g/0.20)}g cooked prawns`,`${r(g/0.10)}g 0% Greek yoghurt`,`${r(g/0.11)}g cottage cheese`];}
+  function fatAlts(g){const r=Math.round;return[`${r(g/14*10)/10} tbsp olive oil`,`${r(g/14*10)/10} tbsp coconut oil`,`${r(g/8*10)/10} tbsp peanut butter`,`${r(g/8*10)/10} tbsp almond butter`,`${r(g/0.49)}g almonds`,`${r(g/0.65)}g walnuts`,`${r(g/0.44)}g cashews`,`${r(g/0.15)}g avocado`,`${Math.max(1,r(g/5))} whole egg${g>5?'s':''} (yolks)`];}
   const mealData=fracs.map((f,i)=>{
     const mCal=Math.round(tCal*f);
     const mPro=Math.round(pro*f);
