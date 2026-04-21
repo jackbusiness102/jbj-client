@@ -468,11 +468,11 @@
         <div id="tl-goal-row" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--txt2)">Reach goal weight</span><span style="font-weight:700;color:var(--g)" id="tl-goal-time">—</span></div>
         <div id="tl-graph" style="margin-top:16px;display:none"></div>
         <div style="margin-top:16px;font-size:12px;color:var(--txt3);line-height:1.7;border-top:1px solid var(--border);padding-top:14px">
-          <strong style="color:var(--txt2)">Keep in mind:</strong> this is a guide based on averages, not a guarantee. Your weight will go up and down week to week even when you're doing everything right — water retention, sleep, hormones all play a role. What matters is the trend over weeks, not the number on any single day.
+          <strong style="color:var(--txt2)">Keep in mind:</strong> this is a guide based on averages, not a guarantee. Your weight will go up and down week to week even when you're doing everything right. Water retention, sleep, hormones all play a role. What matters is the trend over weeks, not the number on any single day.
         </div>
         <div style="margin-top:16px;background:rgba(57,217,138,0.06);border:1px solid rgba(57,217,138,0.2);border-radius:12px;padding:16px 18px">
           <div style="font-size:14px;font-weight:700;margin-bottom:6px">Want me to get you there as efficiently as possible?</div>
-          <div style="font-size:13px;color:var(--txt2);line-height:1.65;margin-bottom:14px">If you want a coach who checks in every week, adjusts your plan when life gets in the way, and makes sure you're actually moving in the right direction — that's what I do. No guesswork, no going it alone.</div>
+          <div style="font-size:13px;color:var(--txt2);line-height:1.65;margin-bottom:14px">If you want a coach who checks in every week, adjusts your plan when life gets in the way, and makes sure you're actually moving in the right direction. That's what I do. No guesswork, no going it alone.</div>
           <button class="btn-primary" style="width:100%;justify-content:center" onclick="openConsult()">Connect with me →</button>
         </div>
       </div>
@@ -480,7 +480,7 @@
       <div class="result-cta">
         <p>Save your results as a PDF to refer back to whenever you need.</p>
         <div class="email-gate">
-          <input type="email" id="pdf-email" placeholder="Your email (optional — to receive a copy)">
+          <input type="email" id="pdf-email" placeholder="Your email (optional, to receive a copy)">
           <button onclick="sendPDF()">Save as PDF →</button>
         </div>
         <p style="font-size:11px;color:var(--txt3);margin-top:10px" id="pdf-status">Your numbers, saved to your device.</p>
@@ -679,7 +679,7 @@ function calcResult(){
     const mFat=Math.round(tFat*f);
     return{name:mnames[i],cal:mCal,pro:mPro,carb:mCarb,fat:mFat};
   });
-  document.getElementById('meal-rows').innerHTML=mealData.map((m,i)=>`<div class="meal-row" id="mr-${i}"><div class="meal-row-head"><span style="font-size:14px;font-weight:700">${m.name}</span><span style="font-size:14px;font-weight:700;color:var(--o)">${m.cal} kcal</span></div><div class="meal-row-macros" style="margin-top:10px"><div class="meal-macro-chip" onclick="toggleMacro(this,'pro-${i}')">Protein <span>${m.pro}g</span><span class="chip-arrow">▼</span></div><div class="meal-macro-chip" onclick="toggleMacro(this,'carb-${i}')">Carbs <span>${m.carb}g</span><span class="chip-arrow">▼</span></div><div class="meal-macro-chip" onclick="toggleMacro(this,'fat-${i}')">Fat <span>${m.fat}g</span><span class="chip-arrow">▼</span></div></div><div class="meal-alt-panel" id="pro-${i}"><div class="meal-alt-label">Protein sources — ${m.pro}g</div><div class="meal-alt-list">${proAlts(m.pro).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div><div class="meal-alt-panel" id="carb-${i}"><div class="meal-alt-label">Carb sources — ${m.carb}g</div><div class="meal-alt-list">${carbAlts(m.carb).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div><div class="meal-alt-panel" id="fat-${i}"><div class="meal-alt-label">Fat sources — ${m.fat}g</div><div class="meal-alt-list">${fatAlts(m.fat).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div></div>`).join('');
+  document.getElementById('meal-rows').innerHTML=mealData.map((m,i)=>`<div class="meal-row" id="mr-${i}"><div class="meal-row-head"><span style="font-size:14px;font-weight:700">${m.name}</span><span style="font-size:14px;font-weight:700;color:var(--o)">${m.cal} kcal</span></div><div class="meal-row-macros" style="margin-top:10px"><div class="meal-macro-chip" onclick="toggleMacro(this,'pro-${i}')">Protein <span>${m.pro}g</span><span class="chip-arrow">▼</span></div><div class="meal-macro-chip" onclick="toggleMacro(this,'carb-${i}')">Carbs <span>${m.carb}g</span><span class="chip-arrow">▼</span></div><div class="meal-macro-chip" onclick="toggleMacro(this,'fat-${i}')">Fat <span>${m.fat}g</span><span class="chip-arrow">▼</span></div></div><div class="meal-alt-panel" id="pro-${i}"><div class="meal-alt-label">Protein sources: ${m.pro}g</div><div class="meal-alt-list">${proAlts(m.pro).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div><div class="meal-alt-panel" id="carb-${i}"><div class="meal-alt-label">Carb sources: ${m.carb}g</div><div class="meal-alt-list">${carbAlts(m.carb).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div><div class="meal-alt-panel" id="fat-${i}"><div class="meal-alt-label">Fat sources: ${m.fat}g</div><div class="meal-alt-list">${fatAlts(m.fat).map(a=>`<div class="meal-alt-item">${a}</div>`).join('')}</div></div></div>`).join('');
   // Eating out tip
   const eoEl=document.getElementById('eatout-tip');
   if(state.eatsOut==='often'){eoEl.style.display='block';eoEl.innerHTML='<strong style="color:var(--b)">Since you eat out often:</strong> stick to protein + veg-based dishes when you can. Grilled over fried, skip the extra sides, and ask for sauces on the side. You don\'t need to be perfect, just consistent.';}
