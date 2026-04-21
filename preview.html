@@ -669,9 +669,30 @@ function calcResult(){
   const mf=state.mealFreq||'4med';
   const fracs=mf==='3big'?[.33,.38,.29]:mf==='5small'?[.20,.13,.25,.12,.30]:[.28,.32,.12,.28];
   const mnames=mf==='3big'?['Breakfast','Lunch','Dinner']:mf==='5small'?['Breakfast','Mid-morning','Lunch','Pre-workout','Dinner']:['Breakfast','Lunch','Pre-workout','Dinner'];
-  function carbAlts(g){const r=Math.round;return[`${r(g/0.66)}g dry oats`,`${Math.max(1,r(g/27))} banana${g>27?'s':''}`,`${r(g/0.28)}g cooked white rice`,`${r(g/0.25)}g cooked pasta`,`${Math.max(1,r(g/18))} slice${g>18?'s':''} wholegrain bread`,`${r(g/0.20)}g cooked sweet potato`,`${r(g/0.17)}g boiled potato`,`${r(g/0.22)}g cooked quinoa`,`${Math.max(1,r(g/7))} rice cake${g>7?'s':''}`,`${Math.max(1,r(g/12))} corn tortilla${g>12?'s':''}`,`${Math.max(1,r(g/25))} apple${g>25?'s':''}`];}
-  function proAlts(g){const r=Math.round;return[`${r(g/0.31)}g cooked chicken breast`,`${r(g/0.30)}g cooked turkey breast`,`${Math.max(1,r(g/8))} egg${g>8?'s':''}`,`${r(g/0.25)}g canned tuna`,`${r(g/0.22)}g canned sardines`,`${Math.max(1,r(g/24))} scoop whey (${r(g/24)*30}g)`,`${r(g/0.20)}g salmon fillet`,`${r(g/0.22)}g lean beef mince`,`${r(g/0.20)}g cooked prawns`,`${r(g/0.10)}g 0% Greek yoghurt`,`${r(g/0.11)}g cottage cheese`];}
-  function fatAlts(g){const r=Math.round;return[`${r(g/14*10)/10} tbsp olive oil`,`${r(g/14*10)/10} tbsp coconut oil`,`${r(g/8*10)/10} tbsp peanut butter`,`${r(g/8*10)/10} tbsp almond butter`,`${r(g/0.49)}g almonds`,`${r(g/0.65)}g walnuts`,`${r(g/0.44)}g cashews`,`${r(g/0.15)}g avocado`,`${Math.max(1,r(g/5))} whole egg${g>5?'s':''} (yolks)`];}
+  function carbAlts(g){const r=Math.round;return[
+    `${r(g/0.66)}g dry oats`,`${r(g/0.84)}g cornflakes`,`${r(g/0.60)}g granola`,
+    `${r(g/0.28)}g cooked white rice`,`${r(g/0.25)}g cooked pasta`,`${r(g/0.22)}g cooked quinoa`,
+    `${Math.max(1,r(g/14))} slice${g>14?'s':''} white bread`,`${Math.max(1,r(g/18))} slice${g>18?'s':''} wholegrain bread`,`${Math.max(1,r(g/16))} slice${g>16?'s':''} sourdough`,`${Math.max(1,r(g/45))} bagel${g>45?'s':''}`,`${Math.max(1,r(g/22))} crumpet${g>22?'s':''}`,
+    `${r(g/0.20)}g cooked sweet potato`,`${r(g/0.17)}g boiled potato`,
+    `${Math.max(1,r(g/7))} rice cake${g>7?'s':''}`,`${Math.max(1,r(g/12))} corn tortilla${g>12?'s':''}`,
+    `${Math.max(1,r(g/27))} banana${g>27?'s':''}`,`${Math.max(1,r(g/25))} apple${g>25?'s':''}`,`${r(g/0.14)}g blueberries`,`${r(g/0.08)}g strawberries`,`${r(g/0.12)}g raspberries`,`${r(g/0.17)}g grapes`,`${r(g/0.15)}g mango`,`${r(g/0.12)}g orange`,
+    `${Math.max(1,r(g/35))} can cola (330ml)`,`${r(g/0.75)}g gummy sweets`,`${r(g/0.60)}g milk chocolate`,`${r(g/0.75)}g dates`,
+  ];}
+  function proAlts(g){const r=Math.round;return[
+    `${r(g/0.31)}g cooked chicken breast`,`${r(g/0.30)}g cooked turkey breast`,`${r(g/0.27)}g beef steak`,`${r(g/0.22)}g lean beef mince`,`${r(g/0.24)}g canned chicken`,
+    `${r(g/0.20)}g salmon fillet`,`${r(g/0.20)}g smoked salmon`,`${r(g/0.25)}g canned tuna`,`${r(g/0.22)}g canned sardines`,`${r(g/0.20)}g cooked prawns`,
+    `${Math.max(1,r(g/8))} egg${g>8?'s':''}`,`${Math.max(1,r(g/24))} scoop whey (${r(g/24)*30}g)`,
+    `${r(g/0.10)}g 0% Greek yoghurt`,`${r(g/0.11)}g cottage cheese`,`${r(g/0.10)}g skyr`,`${r(g/0.18)}g deli turkey slices`,
+    `${r(g/0.08)}g firm tofu`,`${r(g/0.11)}g edamame`,
+  ];}
+  function fatAlts(g){const r=Math.round;return[
+    `${r(g/14*10)/10} tbsp olive oil`,`${r(g/14*10)/10} tbsp coconut oil`,`${r(g/10*10)/10} tbsp butter`,
+    `${r(g/8*10)/10} tbsp peanut butter`,`${r(g/9*10)/10} tbsp almond butter`,`${r(g/10*10)/10} tbsp mayonnaise`,
+    `${r(g/0.49)}g almonds`,`${r(g/0.44)}g cashews`,`${r(g/0.44)}g pistachios`,`${r(g/0.65)}g walnuts`,`${r(g/0.67)}g Brazil nuts`,`${r(g/0.76)}g macadamia nuts`,
+    `${r(g/0.15)}g avocado`,`${r(g/0.34)}g cheddar cheese`,`${r(g/0.34)}g cream cheese`,
+    `${r(g/0.43)}g dark chocolate (85%)`,`${r(g/0.30)}g milk chocolate`,`${r(g/0.35)}g crisps`,
+    `${Math.max(1,r(g/5))} whole egg${g>5?'s':''}`,
+  ];}
   const mealData=fracs.map((f,i)=>{
     const mCal=Math.round(tCal*f);
     const mPro=Math.round(pro*f);
