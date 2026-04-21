@@ -374,10 +374,12 @@
         <div class="calc-q">How many days a week do you train?</div>
         <div class="calc-q-sub">This lets us split your macros between training and rest days.</div>
         <div class="calc-opts">
+          <div class="calc-opt" onclick="selectOpt(this,'traindays',1)"><div class="opt-label">1 day</div></div>
           <div class="calc-opt" onclick="selectOpt(this,'traindays',2)"><div class="opt-label">2 days</div></div>
           <div class="calc-opt" onclick="selectOpt(this,'traindays',3)"><div class="opt-label">3 days</div></div>
           <div class="calc-opt" onclick="selectOpt(this,'traindays',4)"><div class="opt-label">4 days</div></div>
-          <div class="calc-opt" onclick="selectOpt(this,'traindays',5)"><div class="opt-label">5+ days</div></div>
+          <div class="calc-opt" onclick="selectOpt(this,'traindays',5)"><div class="opt-label">5 days</div></div>
+          <div class="calc-opt" onclick="selectOpt(this,'traindays',6)"><div class="opt-label">6 days</div></div>
         </div>
         <div class="calc-nav">
           <button class="calc-back" onclick="goPrev(4)">Back</button>
@@ -657,8 +659,9 @@ function calcResult(){
   const pro=Math.round(weight*2.2);
   const fat=Math.round(cal*0.25/9);
   const carb=Math.round((cal-pro*4-fat*9)/4);
-  const tCarb=Math.round(carb*1.25),tFat=Math.round(fat*0.85),tCal=Math.round(pro*4+tCarb*4+tFat*9);
-  const rCarb=Math.round(carb*0.65),rFat=Math.round(fat*1.2),rCal=Math.round(pro*4+rCarb*4+rFat*9);
+  const td=state.traindays||4,rd=7-td;
+  const tCarb=Math.round(carb*(1+0.35*rd/7)),tFat=Math.round(fat*(1-0.20*rd/7)),tCal=Math.round(pro*4+tCarb*4+tFat*9);
+  const rCarb=rd>0?Math.round(carb*(1-0.35*td/7)):carb,rFat=rd>0?Math.round(fat*(1+0.20*td/7)):fat,rCal=rd>0?Math.round(pro*4+rCarb*4+rFat*9):tCal;
   document.getElementById('r-cal').textContent=cal;
   document.getElementById('r-pro').textContent=pro+'g';
   document.getElementById('r-carb').textContent=carb+'g';
@@ -787,123 +790,208 @@ document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.
 emailjs.init('2h43bnajJjfgORxCL');
 
 const PLANS={
-  2:{split:'Full Body',days:[
-    {name:'Day 1 - Full Body A',ex:[
-      {e:'Squat',s:'4',r:'6-8 reps',rest:'2-3 min'},
-      {e:'Bench Press',s:'4',r:'6-8 reps',rest:'2-3 min'},
-      {e:'Barbell Row',s:'4',r:'8 reps',rest:'2 min'},
-      {e:'Overhead Press',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Romanian Deadlift',s:'3',r:'10 reps',rest:'2 min'},
-      {e:'Lat Pulldown',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Plank',s:'3',r:'30 sec',rest:'60 sec'},
-    ]},
-    {name:'Day 2 - Full Body B',ex:[
-      {e:'Deadlift',s:'4',r:'5 reps',rest:'3 min'},
-      {e:'Incline Dumbbell Press',s:'4',r:'8 reps',rest:'2 min'},
-      {e:'Cable Row',s:'4',r:'10 reps',rest:'2 min'},
-      {e:'Dumbbell Shoulder Press',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Leg Press',s:'3',r:'12 reps',rest:'2 min'},
-      {e:'Pull-ups / Lat Pulldown',s:'3',r:'8 reps',rest:'2 min'},
-      {e:'Side Plank',s:'3',r:'20 sec each',rest:'60 sec'},
+  1:{split:'Full Body',days:[
+    {name:'Full Body',ex:[
+      {e:'Leg press',s:'3',r:'10-15 reps',rest:'2 min'},
+      {e:'Leg extension',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'Lying leg curl',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Abductors',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Bench press',s:'3',r:'8-12 reps',rest:'2 min'},
+      {e:'Peck Deck',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'Machine Row (narrow grip)',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'2',r:'10-12 reps',rest:'90 sec'},
+      {e:'Shoulder press',s:'2',r:'10-15 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Preacher curl machine',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'Single arm tricep pushdown',s:'2',r:'12-15 reps',rest:'60 sec'},
     ]},
   ]},
-  3:{split:'Push / Pull / Legs',days:[
-    {name:'Day 1 - Push',ex:[
-      {e:'Bench Press',s:'4',r:'6-8 reps',rest:'2-3 min'},
-      {e:'Overhead Press',s:'3',r:'8-10 reps',rest:'2 min'},
-      {e:'Incline Dumbbell Press',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Lateral Raises',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Tricep Pushdown',s:'3',r:'12 reps',rest:'60 sec'},
-      {e:'Overhead Tricep Extension',s:'2',r:'15 reps',rest:'60 sec'},
+  2:{split:'Full Body',days:[
+    {name:'Day 1 - Full Body A',ex:[
+      {e:'Leg press',s:'4',r:'10-15 reps',rest:'2 min'},
+      {e:'Lying leg curl',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Abductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Bench press',s:'3',r:'8-12 reps',rest:'2 min'},
+      {e:'Peck Deck',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Machine Row (narrow grip)',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Shoulder press',s:'3',r:'10-15 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Preacher curl machine',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Single arm tricep pushdown',s:'3',r:'12-15 reps',rest:'60 sec'},
     ]},
-    {name:'Day 2 - Pull',ex:[
-      {e:'Barbell Row',s:'4',r:'6-8 reps',rest:'2-3 min'},
-      {e:'Lat Pulldown',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Cable Row',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Face Pulls',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Bicep Curls',s:'3',r:'12 reps',rest:'60 sec'},
-      {e:'Hammer Curls',s:'2',r:'15 reps',rest:'60 sec'},
+    {name:'Day 2 - Full Body B',ex:[
+      {e:'Leg extension',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Seated leg curl',s:'3',r:'12-15 reps',rest:'90 sec'},
+      {e:'Adductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Cable flies',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Peck Deck',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'Machine Row (wide grip)',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Preacher curl machine',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'OH single arm tricep extension',s:'3',r:'12-15 reps',rest:'60 sec'},
     ]},
-    {name:'Day 3 - Legs',ex:[
-      {e:'Squat',s:'4',r:'6-8 reps',rest:'2-3 min'},
-      {e:'Romanian Deadlift',s:'3',r:'10 reps',rest:'2 min'},
-      {e:'Leg Press',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Leg Curl',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Leg Extension',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Calf Raises',s:'4',r:'15 reps',rest:'60 sec'},
+  ]},
+  3:{split:'Upper / Lower / Full Body',days:[
+    {name:'Day 1 - Upper',ex:[
+      {e:'Bench press',s:'4',r:'8-10 reps',rest:'2 min'},
+      {e:'Peck Deck',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Cable flies',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Machine Row (narrow grip)',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Machine Row (wide grip)',s:'2',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Shoulder press',s:'3',r:'10-15 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Preacher curl machine',s:'4',r:'12-15 reps',rest:'60 sec'},
+      {e:'OH single arm tricep extension',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Single arm tricep pushdown',s:'2',r:'12-15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 2 - Lower',ex:[
+      {e:'Leg press',s:'4',r:'10-12 reps',rest:'2 min'},
+      {e:'Leg extension',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Lying leg curl',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Seated leg curl',s:'3',r:'12-15 reps',rest:'90 sec'},
+      {e:'Abductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Adductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'4',r:'15-20 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 3 - Full Body',ex:[
+      {e:'Leg press',s:'3',r:'10-15 reps',rest:'2 min'},
+      {e:'Lying leg curl',s:'2',r:'10-12 reps',rest:'90 sec'},
+      {e:'Standing calf raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Bench press',s:'3',r:'8-12 reps',rest:'2 min'},
+      {e:'Machine Row (narrow grip)',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Shoulder press',s:'2',r:'10-15 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Preacher curl machine',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Single arm tricep pushdown',s:'2',r:'12-15 reps',rest:'60 sec'},
     ]},
   ]},
   4:{split:'Upper / Lower',days:[
-    {name:'Day 1 - Upper A (Strength)',ex:[
-      {e:'Bench Press',s:'4',r:'5 reps',rest:'3 min'},
-      {e:'Barbell Row',s:'4',r:'5 reps',rest:'3 min'},
-      {e:'Overhead Press',s:'3',r:'8 reps',rest:'2 min'},
-      {e:'Pull-ups / Lat Pulldown',s:'3',r:'8 reps',rest:'2 min'},
-      {e:'Incline Dumbbell Press',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Face Pulls',s:'3',r:'15 reps',rest:'60 sec'},
+    {name:'Day 1 - Upper A',ex:[
+      {e:'Bench press',s:'3',r:'8-10 reps',rest:'2 min'},
+      {e:'Peck Deck',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Machine Row (narrow grip)',s:'4',r:'8-10 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Shoulder press',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Preacher curl machine',s:'3',r:'10-12 reps',rest:'60 sec'},
+      {e:'Single arm tricep pushdown',s:'3',r:'10-12 reps',rest:'60 sec'},
     ]},
-    {name:'Day 2 - Lower A (Strength)',ex:[
-      {e:'Squat',s:'4',r:'5 reps',rest:'3 min'},
-      {e:'Romanian Deadlift',s:'3',r:'8 reps',rest:'2 min'},
-      {e:'Leg Press',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Leg Curl',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Calf Raises',s:'4',r:'15 reps',rest:'60 sec'},
+    {name:'Day 2 - Lower A',ex:[
+      {e:'Leg press',s:'4',r:'10-12 reps',rest:'2 min'},
+      {e:'Leg extension',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Lying leg curl',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Abductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'4',r:'12-15 reps',rest:'60 sec'},
     ]},
-    {name:'Day 3 - Upper B (Hypertrophy)',ex:[
-      {e:'Incline Bench Press',s:'4',r:'8-10 reps',rest:'2 min'},
-      {e:'Cable Row',s:'4',r:'10 reps',rest:'90 sec'},
-      {e:'Dumbbell Shoulder Press',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Lat Pulldown',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Lateral Raises',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Bicep Curls',s:'3',r:'12 reps',rest:'60 sec'},
-      {e:'Tricep Pushdown',s:'3',r:'12 reps',rest:'60 sec'},
+    {name:'Day 3 - Upper B',ex:[
+      {e:'Cable flies',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Peck Deck',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Machine Row (wide grip)',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'3',r:'12-15 reps',rest:'90 sec'},
+      {e:'Shoulder press',s:'2',r:'12-15 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Preacher curl machine',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'OH single arm tricep extension',s:'3',r:'12-15 reps',rest:'60 sec'},
     ]},
-    {name:'Day 4 - Lower B (Hypertrophy)',ex:[
-      {e:'Deadlift',s:'4',r:'5 reps',rest:'3 min'},
-      {e:'Leg Press',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Walking Lunges',s:'3',r:'10 each leg',rest:'90 sec'},
-      {e:'Leg Curl',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Leg Extension',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Calf Raises',s:'4',r:'20 reps',rest:'60 sec'},
+    {name:'Day 4 - Lower B',ex:[
+      {e:'Leg press',s:'3',r:'12-15 reps',rest:'2 min'},
+      {e:'Leg extension',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Seated leg curl',s:'4',r:'12-15 reps',rest:'90 sec'},
+      {e:'Adductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'3',r:'15-20 reps',rest:'60 sec'},
     ]},
   ]},
   5:{split:'Push / Pull / Legs + Upper / Lower',days:[
     {name:'Day 1 - Push',ex:[
-      {e:'Bench Press',s:'4',r:'5 reps',rest:'3 min'},
-      {e:'Overhead Press',s:'3',r:'8 reps',rest:'2 min'},
-      {e:'Incline Dumbbell Press',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Lateral Raises',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Tricep Pushdown',s:'3',r:'12 reps',rest:'60 sec'},
+      {e:'Bench press',s:'4',r:'6-10 reps',rest:'2 min'},
+      {e:'Peck Deck',s:'3',r:'10-12 reps',rest:'60 sec'},
+      {e:'Cable flies',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Shoulder press',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Single arm tricep pushdown',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'OH single arm tricep extension',s:'2',r:'12-15 reps',rest:'60 sec'},
     ]},
     {name:'Day 2 - Pull',ex:[
-      {e:'Barbell Row',s:'4',r:'5 reps',rest:'3 min'},
-      {e:'Lat Pulldown',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Cable Row',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Face Pulls',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Bicep Curls',s:'3',r:'12 reps',rest:'60 sec'},
+      {e:'Machine Row (narrow grip)',s:'4',r:'8-10 reps',rest:'90 sec'},
+      {e:'Machine Row (wide grip)',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Preacher curl machine',s:'4',r:'12-15 reps',rest:'60 sec'},
     ]},
     {name:'Day 3 - Legs',ex:[
-      {e:'Squat',s:'4',r:'6 reps',rest:'3 min'},
-      {e:'Romanian Deadlift',s:'3',r:'10 reps',rest:'2 min'},
-      {e:'Leg Press',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Leg Curl',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Calf Raises',s:'4',r:'15 reps',rest:'60 sec'},
+      {e:'Leg press',s:'4',r:'10-12 reps',rest:'2 min'},
+      {e:'Leg extension',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Lying leg curl',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Seated leg curl',s:'3',r:'12-15 reps',rest:'90 sec'},
+      {e:'Abductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Adductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'4',r:'12-15 reps',rest:'60 sec'},
     ]},
     {name:'Day 4 - Upper',ex:[
-      {e:'Incline Bench Press',s:'4',r:'8 reps',rest:'2 min'},
-      {e:'Dumbbell Row',s:'4',r:'10 reps',rest:'90 sec'},
-      {e:'Dumbbell Shoulder Press',s:'3',r:'10 reps',rest:'90 sec'},
-      {e:'Pull-ups / Assisted',s:'3',r:'8 reps',rest:'2 min'},
-      {e:'Lateral Raises',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Hammer Curls',s:'3',r:'12 reps',rest:'60 sec'},
-      {e:'Skull Crushers',s:'3',r:'12 reps',rest:'60 sec'},
+      {e:'Peck Deck',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'Machine Row (narrow grip)',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Machine Row (wide grip)',s:'2',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'2',r:'10-12 reps',rest:'90 sec'},
+      {e:'Shoulder press',s:'2',r:'10-15 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Preacher curl machine',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'OH single arm tricep extension',s:'2',r:'12-15 reps',rest:'60 sec'},
     ]},
     {name:'Day 5 - Lower',ex:[
-      {e:'Deadlift',s:'4',r:'5 reps',rest:'3 min'},
-      {e:'Leg Press',s:'3',r:'12 reps',rest:'90 sec'},
-      {e:'Walking Lunges',s:'3',r:'10 each leg',rest:'90 sec'},
-      {e:'Leg Curl',s:'3',r:'15 reps',rest:'60 sec'},
-      {e:'Calf Raises',s:'4',r:'20 reps',rest:'60 sec'},
+      {e:'Leg press',s:'3',r:'10-15 reps',rest:'2 min'},
+      {e:'Leg extension',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'Seated leg curl',s:'3',r:'12-15 reps',rest:'90 sec'},
+      {e:'Lying leg curl',s:'2',r:'10-12 reps',rest:'90 sec'},
+      {e:'Abductors',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Adductors',s:'2',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'3',r:'12-15 reps',rest:'60 sec'},
+    ]},
+  ]},
+  6:{split:'Push / Pull / Legs x2',days:[
+    {name:'Day 1 - Push A',ex:[
+      {e:'Bench press',s:'3',r:'8-10 reps',rest:'2 min'},
+      {e:'Peck Deck',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Shoulder press',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Single arm tricep pushdown',s:'3',r:'12-15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 2 - Pull A',ex:[
+      {e:'Machine Row (narrow grip)',s:'4',r:'8-10 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Preacher curl machine',s:'3',r:'12-15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 3 - Legs A',ex:[
+      {e:'Leg press',s:'4',r:'10-12 reps',rest:'2 min'},
+      {e:'Leg extension',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Lying leg curl',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Abductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'3',r:'12-15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 4 - Push B',ex:[
+      {e:'Cable flies',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Peck Deck',s:'2',r:'12-15 reps',rest:'60 sec'},
+      {e:'Shoulder press',s:'3',r:'10-12 reps',rest:'90 sec'},
+      {e:'Cable lateral raise',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'OH single arm tricep extension',s:'3',r:'12-15 reps',rest:'60 sec'},
+      {e:'Single arm tricep pushdown',s:'2',r:'12-15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 5 - Pull B',ex:[
+      {e:'Machine Row (wide grip)',s:'4',r:'10-12 reps',rest:'90 sec'},
+      {e:'Lat Pulldown',s:'3',r:'12-15 reps',rest:'90 sec'},
+      {e:'Preacher curl machine',s:'3',r:'12-15 reps',rest:'60 sec'},
+    ]},
+    {name:'Day 6 - Legs B',ex:[
+      {e:'Leg press',s:'3',r:'12-15 reps',rest:'2 min'},
+      {e:'Leg extension',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Seated leg curl',s:'4',r:'12-15 reps',rest:'90 sec'},
+      {e:'Adductors',s:'3',r:'15-20 reps',rest:'60 sec'},
+      {e:'Standing calf raise',s:'3',r:'12-15 reps',rest:'60 sec'},
     ]},
   ]},
 };
