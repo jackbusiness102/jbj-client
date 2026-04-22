@@ -193,6 +193,40 @@
   /* PREVIEW BANNER */
   .preview-banner{position:fixed;bottom:16px;right:16px;background:#1c1c1e;border:1px solid rgba(57,217,138,0.3);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--g);font-weight:600;z-index:9999;pointer-events:none;}
 
+  /* GUIDE */
+  .guide-wrap{display:flex;flex-direction:column;gap:12px;}
+  .guide-main{border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .guide-main-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;cursor:pointer;background:var(--bg2);transition:background .2s;user-select:none;}
+  .guide-main-hd:hover{background:var(--bg3);}
+  .guide-main-hd.open{background:var(--bg3);}
+  .guide-main-title{font-size:17px;font-weight:700;color:var(--txt);}
+  .guide-tag{font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;background:var(--g);color:#000;text-transform:uppercase;letter-spacing:0.5px;}
+  .guide-chevron{font-size:22px;color:var(--g);transition:transform .25s;display:inline-block;}
+  .guide-main-hd.open .guide-chevron{transform:rotate(180deg);}
+  .guide-main-bd{display:none;padding:16px;border-top:1px solid var(--border);background:var(--bg);display:none;flex-direction:column;gap:8px;}
+  .guide-main-bd.open{display:flex;}
+  .guide-sub{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .guide-sub-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;background:var(--bg2);font-size:14px;font-weight:600;color:var(--txt);transition:background .2s;user-select:none;}
+  .guide-sub-hd:hover{background:var(--bg3);}
+  .guide-sub-hd.open{background:var(--bg3);color:var(--g);}
+  .guide-chevron2{font-size:18px;color:var(--txt3);transition:transform .25s;display:inline-block;}
+  .guide-sub-hd.open .guide-chevron2{transform:rotate(180deg);color:var(--g);}
+  .guide-sub-bd{display:none;padding:8px;border-top:1px solid var(--border);background:var(--bg);flex-direction:column;gap:6px;}
+  .guide-sub-bd.open{display:flex;}
+  .guide-topic{border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);}
+  .guide-topic-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:rgba(255,255,255,0.03);font-size:13px;font-weight:600;color:var(--txt2);transition:all .15s;user-select:none;}
+  .guide-topic-hd:hover{background:rgba(57,217,138,0.06);color:var(--txt);}
+  .guide-topic-hd.open{color:var(--g);background:rgba(57,217,138,0.06);}
+  .guide-topic-hd span{font-size:18px;color:var(--txt3);transition:transform .2s;line-height:1;}
+  .guide-topic-hd.open span{transform:rotate(45deg);color:var(--g);}
+  .guide-topic-bd{display:none;padding:16px;background:rgba(57,217,138,0.03);border-top:1px solid rgba(57,217,138,0.08);}
+  .guide-topic-bd.open{display:block;}
+  .guide-topic-bd p{font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:10px;}
+  .guide-topic-bd p:last-child{margin-bottom:0;}
+  .guide-topic-bd ul{padding-left:18px;margin:8px 0;}
+  .guide-topic-bd ul li{font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:4px;}
+  .guide-topic-bd strong{color:var(--txt);}
+
   @media(max-width:768px){
     nav{padding:0 16px;}
     .nav-link-hide{display:none;}
@@ -223,6 +257,7 @@
   <div class="nav-logo">Jacked<span>ByJack</span></div>
   <div class="nav-links">
     <a href="#blueprint" class="nav-link-hide">Blueprint</a>
+    <a href="#guide" class="nav-link-hide">Guide</a>
     <a href="#about" class="nav-link-hide">About</a>
     <a href="#faq" class="nav-link-hide">FAQ</a>
     <a href="#consult" class="btn-primary nav-connect-hide" style="padding:8px 16px;font-size:13px;color:#000" onclick="openConsult()">Connect with me</a>
@@ -253,6 +288,18 @@
     </div>
   </div>
 </section>
+
+
+<!-- GUIDE TEASER STRIP -->
+<div style="background:linear-gradient(135deg,rgba(57,217,138,0.1),rgba(57,217,138,0.04));border-top:1px solid rgba(57,217,138,0.2);border-bottom:1px solid rgba(57,217,138,0.2);padding:20px 40px;">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="background:var(--g);color:#000;font-size:11px;font-weight:800;padding:5px 10px;border-radius:6px;white-space:nowrap;text-transform:uppercase;letter-spacing:0.5px;">Free Guide</div>
+      <div style="font-size:15px;font-weight:600;color:var(--txt);">Full weight loss and muscle building guide on this page</div>
+    </div>
+    <a href="#guide" style="color:var(--g);font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;">Read the guide →</a>
+  </div>
+</div>
 
 
 <!-- BLUEPRINT CALCULATOR -->
@@ -521,6 +568,132 @@
         </div>
       </div>
       <div class="about-img"><p style="color:var(--txt3);font-size:13px">Your photo here</p></div>
+    </div>
+  </div>
+</section>
+
+</section>
+
+<!-- GUIDE -->
+<section id="guide">
+  <div class="section-inner">
+    <div class="section-label">Free Education</div>
+    <h2 class="section-title">The complete guide to <span style="color:var(--g)">transforming your body</span></h2>
+    <p style="color:var(--txt2);font-size:15px;line-height:1.65;margin-bottom:36px;max-width:600px;">Everything you need to understand how fat loss and muscle building actually work. No fluff, no gimmicks. Just the fundamentals that get results.</p>
+
+    <div class="guide-wrap">
+
+      <!-- WEIGHT LOSS GUIDE -->
+      <div class="guide-main">
+        <div class="guide-main-hd" onclick="toggleGuide(this)">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="guide-tag">Fat Loss</div>
+            <span class="guide-main-title">Weight Loss Guide</span>
+          </div>
+          <span class="guide-chevron">&#8964;</span>
+        </div>
+        <div class="guide-main-bd">
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">Foundation: Understanding Calories<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">What is a calorie?<span>+</span></div><div class="guide-topic-bd"><p>A calorie is simply a unit of energy. When you eat food, your body breaks it down and uses that energy to power everything from breathing to walking to thinking.</p><p>Your body needs a certain amount of energy each day just to function. When you eat more than you burn, the excess is stored as fat. When you eat less, your body turns to stored fat for fuel. That is weight loss in its simplest form.</p><p>The key point: no food is inherently fattening. What matters is the total calories you consume relative to the amount you burn. A chocolate bar will not make you fat. Consistently eating more than you burn will.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">What is TDEE?<span>+</span></div><div class="guide-topic-bd"><p>Your TDEE (Total Daily Energy Expenditure) is the total number of calories your body burns in a day. It has four parts:</p><ul><li><strong>BMR:</strong> Calories burned at complete rest just to keep you alive</li><li><strong>NEAT:</strong> Calories burned through daily movement like walking, fidgeting, and standing</li><li><strong>EAT:</strong> Calories burned through deliberate exercise</li><li><strong>TEF:</strong> Calories burned digesting food (roughly 10% of what you eat)</li></ul><p>Most people underestimate their TDEE. They feel like they are barely eating but not losing weight because they are actually at or above maintenance without realising it.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Calorie deficit explained<span>+</span></div><div class="guide-topic-bd"><p>A calorie deficit means eating fewer calories than your body burns. When you are in a deficit, your body has to find energy from somewhere and that somewhere is stored body fat.</p><p>A safe, sustainable deficit is typically 300-500 calories below your TDEE. This creates roughly 0.3-0.5 kg of fat loss per week. Larger deficits are possible but come with trade-offs: more muscle loss, lower energy, worse gym performance, and a much harder time sticking to it.</p><p>The maths: 1 kg of fat contains roughly 7,700 calories. At a 500 calorie per day deficit, that is about 15 days per kg of pure fat lost. In practice, weight loss is faster at first due to water weight, then stabilises.</p></div></div>
+            </div>
+          </div>
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">Nutrition for Fat Loss<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Protein - why it matters most<span>+</span></div><div class="guide-topic-bd"><p>Protein is the most important macronutrient when losing weight, for three reasons:</p><ul><li><strong>It preserves muscle.</strong> In a calorie deficit your body breaks down both fat and muscle. High protein signals your body to hold onto muscle so more of your weight loss comes from fat.</li><li><strong>It keeps you full.</strong> Protein activates satiety hormones more than carbs or fat, meaning you feel fuller for longer on fewer calories.</li><li><strong>It burns more calories to digest.</strong> Your body burns 20-30% of protein calories just processing it, compared to 5-10% for carbs and almost nothing for fat.</li></ul><p>Target: 1.6-2.2g of protein per kg of bodyweight per day. For a 75kg person that is 120-165g per day.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Carbs - not the enemy<span>+</span></div><div class="guide-topic-bd"><p>Carbohydrates do not cause fat gain on their own. Only a calorie surplus does. The idea that carbs make you fat comes from the fact that they cause water retention, which shows up on the scale but is not actual fat.</p><p>Where carbs matter for fat loss:</p><ul><li>They fuel your workouts, helping you maintain muscle and performance</li><li>Fibre from carbs keeps you full and supports gut health</li><li>Cutting carbs too aggressively leads to low energy, poor gym performance, and is hard to sustain</li></ul><p>Instead of cutting carbs, focus on quality. Prioritise oats, rice, potato, fruit, and vegetables. Limit ultra-processed options not because they are magical fat-storing foods, but because they are easy to overeat.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Fats - the good, the bad, the misunderstood<span>+</span></div><div class="guide-topic-bd"><p>Dietary fat does not automatically become body fat. Fat gain only happens when total calories exceed what you burn. Fat is actually essential for hormone production, brain function, joint health, and absorbing vitamins A, D, E, and K.</p><p>The issue with fat for weight loss is its calorie density: 9 calories per gram versus 4 for protein and carbs. High-fat foods are easy to overeat without realising. A tablespoon of olive oil is 120 calories. A handful of almonds is 170 calories.</p><p>Do not fear fat, just be precise with how much you eat. Prioritise unsaturated sources like olive oil, avocado, nuts, and fish. Keep saturated fat moderate.</p></div></div>
+            </div>
+          </div>
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">Training for Fat Loss<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Why weights beat cardio for fat loss<span>+</span></div><div class="guide-topic-bd"><p>Cardio burns calories during the session. Weights burn calories during the session AND increase your metabolism long-term by building muscle. Muscle is metabolically active tissue, the more you have the more calories your body burns at rest.</p><p>Two people with the same bodyweight can have very different TDEEs based on their muscle mass alone. Someone with more muscle burns more calories doing nothing.</p><p>Excessive cardio can also eat into muscle mass, especially combined with a calorie deficit. This makes your physique look smaller rather than toned. You lose the shape that muscle gives you. Lift weights to preserve muscle. Use cardio as a supplementary tool.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">How much cardio do you actually need?<span>+</span></div><div class="guide-topic-bd"><p>The honest answer: none, if your diet is dialled in. Cardio is just another way to create a calorie deficit. If you are already hitting your calorie targets through diet, cardio is optional.</p><p>That said, cardio has genuine health benefits: heart health, improved recovery, and reduced stress. 2-3 sessions of 20-30 minutes per week is plenty for most people. You do not need to spend hours on a treadmill.</p><p>If you enjoy cardio, great. If you hate it, you do not need it. Focus on the weights and manage your deficit through food.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Progressive overload during fat loss<span>+</span></div><div class="guide-topic-bd"><p>Progressive overload means consistently increasing the demands on your muscles over time. In a calorie deficit, your main goal is not to get stronger but to maintain strength, which signals your body to hold onto muscle.</p><p>Try to match or slightly exceed your performance from the previous session. Same weight for one more rep. Same reps with slightly more weight. If your performance drops significantly, your deficit is likely too aggressive or you are not eating enough protein.</p></div></div>
+            </div>
+          </div>
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">The Practical Stuff<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Tracking food - why you're eating more than you think<span>+</span></div><div class="guide-topic-bd"><p>Studies consistently show that people underestimate their calorie intake by 20-40%. That is 400-800 calories per day on a 2,000 calorie diet. This is the single biggest reason people feel like they are doing everything right but not losing weight.</p><p>Tracking does not have to be forever. Even 2-4 weeks of tracking gives you a reality check on portion sizes and helps you build an intuitive sense of what your targets look like.</p><p>Use a food tracking app. Weigh food raw, before cooking. Track cooking oils, sauces, and drinks. These are the most commonly missed items and they add up fast.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Meal timing - does it matter?<span>+</span></div><div class="guide-topic-bd"><p>For fat loss: mostly no. Total daily calories and protein drive fat loss, not when you eat them. Eating breakfast does not kickstart your metabolism. Intermittent fasting works because it often reduces overall calorie intake, not because of anything magical about the fasting window itself.</p><p>What does matter:</p><ul><li>Spreading protein across meals every 3-4 hours maximises muscle retention</li><li>Having carbs and protein around training sessions supports performance and recovery</li><li>Eating at consistent times each day helps manage hunger</li></ul></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Alcohol and body composition<span>+</span></div><div class="guide-topic-bd"><p>Alcohol is 7 calories per gram, more than carbs or protein. A pint of beer is roughly 180-200 calories. A glass of wine is 120-150 calories. These add up quickly and are easy to forget when tracking.</p><p>More importantly, alcohol impairs fat oxidation. When alcohol is in your system, your body prioritises metabolising it over burning fat. So alcohol does not just add calories, it also temporarily pauses fat burning.</p><p>It also disrupts sleep quality, which negatively impacts recovery, hunger hormones, and muscle retention. You do not have to stop drinking. Just be honest about how much you are consuming and account for the calories.</p></div></div>
+            </div>
+          </div>
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">Mindset and Sustainability<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Why diets fail<span>+</span></div><div class="guide-topic-bd"><p>Most diets fail because they are built on restriction: cut out entire food groups, eat only clean foods, eliminate anything enjoyable. This creates a relationship with food based on guilt and willpower, which is exhausting and unsustainable.</p><p>Research on flexible dieting consistently shows better long-term outcomes than rigid approaches. When no food is banned, you are less likely to binge when you encounter it. A slice of pizza becomes just a slice of pizza, not a moral failure that derails your entire diet.</p><p>The goal is not to eat perfectly. It is to hit your calorie and protein targets most of the time, enjoy food socially, and build habits that last years, not weeks.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">The 80/20 rule<span>+</span></div><div class="guide-topic-bd"><p>80% of your diet should come from whole, minimally processed foods: lean proteins, vegetables, fruits, and whole grains. These are nutrient-dense, filling, and support your health.</p><p>20% can be whatever you enjoy. Pizza, chocolate, a beer with friends. This 20% is what makes the other 80% sustainable. It removes the all-or-nothing mentality that causes binging and guilt cycles.</p><p>This is not permission to eat junk constantly. It is permission to be a normal person who eats in a way that you can actually maintain for the rest of your life.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Plateaus - why they happen and how to break them<span>+</span></div><div class="guide-topic-bd"><p>Weight loss is not linear. Your weight fluctuates daily based on water retention, sodium intake, stress, sleep, and hormones. This is normal. A true plateau is when your weight has not changed in 3-4 weeks, not 3-4 days.</p><p>If you are genuinely plateauing:</p><ul><li>Check your tracking first. Are you actually in a deficit, or have portions crept up?</li><li>Reduce calories by 100-200 per day. You do not need a big cut.</li><li>Add one extra 20-minute walk per day.</li><li>Consider a diet break at maintenance for 1-2 weeks to restore hormones and reset motivation.</li></ul></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Sleep and stress - the most underrated factors<span>+</span></div><div class="guide-topic-bd"><p>Poor sleep elevates cortisol, a stress hormone that promotes fat storage, reduces testosterone, increases hunger hormones, and reduces fullness hormones. You can be doing everything else right and poor sleep will sabotage your results.</p><p>Chronic stress has similar effects and also drives emotional eating, making sticking to a diet significantly harder.</p><p>Aim for 7-9 hours of sleep. Keep a consistent schedule. Manage stress through exercise, social connection, and limiting excessive caffeine and alcohol late in the day.</p></div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MUSCLE BUILDING GUIDE -->
+      <div class="guide-main">
+        <div class="guide-main-hd" onclick="toggleGuide(this)">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="guide-tag" style="background:var(--b);">Muscle</div>
+            <span class="guide-main-title">Muscle Building Guide</span>
+          </div>
+          <span class="guide-chevron">&#8964;</span>
+        </div>
+        <div class="guide-main-bd">
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">Understanding Muscle Growth<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">How muscles actually grow<span>+</span></div><div class="guide-topic-bd"><p>Muscle growth (hypertrophy) happens through muscle protein synthesis. When you train, you create micro-damage in muscle fibres. During rest, your body repairs these and makes them slightly thicker and stronger. Over time, this results in visible muscle growth.</p><p>For this to happen you need three things: a training stimulus (lifting weights), sufficient protein (the building blocks for repair), and adequate recovery (sleep, rest days, and managed stress).</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Calorie surplus for muscle building<span>+</span></div><div class="guide-topic-bd"><p>Building muscle requires extra energy. You cannot build something from nothing. A calorie surplus means eating slightly more than your TDEE, giving your body the raw material it needs to build new tissue.</p><p>The size of the surplus matters. A small surplus of 200-300 calories above TDEE keeps fat gain minimal while supporting muscle growth. A large surplus results in faster weight gain, but most of it will be fat. There is a limit to how fast your body can build muscle regardless of how much you eat.</p><p>Realistic muscle gain rates: 0.5-1 kg per month for beginners, 0.25-0.5 kg per month for intermediates, and less for advanced lifters.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Progressive overload - the one principle that drives everything<span>+</span></div><div class="guide-topic-bd"><p>Progressive overload is the gradual increase of stress placed on your body during training. Your muscles adapt to whatever demands you place on them. If you always lift the same weight for the same reps, your muscles have no reason to grow.</p><p>Progress does not only mean more weight on the bar. You can progress by adding reps at the same weight, reducing rest periods, improving technique, or adding a set. Any form of progression signals your body to adapt and grow.</p><p>Track your workouts. If you do not know what you did last session, you cannot beat it.</p></div></div>
+            </div>
+          </div>
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">Nutrition for Muscle Building<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Protein targets<span>+</span></div><div class="guide-topic-bd"><p>Protein is the raw material from which muscle is built. Without enough, your body cannot build new muscle tissue regardless of how hard you train.</p><p>Target: 1.6-2.2g per kg of bodyweight per day. More than this provides no additional benefit. For a 75kg person, that is 120-165g per day.</p><p>Spread your protein across 3-5 meals. Your body can only effectively utilise roughly 30-40g per meal for muscle protein synthesis. Eating 150g in one sitting does not give you five times the benefit of eating 30g.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Carbs for performance and growth<span>+</span></div><div class="guide-topic-bd"><p>Carbohydrates are your primary training fuel. They are stored in muscles as glycogen and used during high-intensity exercise. Low carb equals lower glycogen, equals worse training performance, equals slower muscle growth.</p><p>For muscle building, carbs are your friend. Eat them before training for fuel and after training to replenish glycogen and support recovery. Do not fear them.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Fats and hormones<span>+</span></div><div class="guide-topic-bd"><p>Dietary fat is essential for hormone production, particularly testosterone. Low-fat diets are associated with lower testosterone levels, which directly impacts your ability to build muscle.</p><p>Keep fat intake at 0.5-1g per kg of bodyweight per day. Do not go lower than this. Prioritise whole food sources like eggs, fatty fish, nuts, olive oil, and avocado.</p></div></div>
+            </div>
+          </div>
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">Training for Muscle Building<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">The best training splits<span>+</span></div><div class="guide-topic-bd"><p>The most important variable is not which split you use, it is consistency and progressive overload. That said, here is what works well:</p><ul><li><strong>2-3 days:</strong> Full body - hit every muscle group each session</li><li><strong>3-4 days:</strong> Upper/Lower - divide between upper and lower body</li><li><strong>4-5 days:</strong> Push/Pull/Legs - group muscles by movement pattern</li><li><strong>5-6 days:</strong> PPL twice per week - higher frequency and volume</li></ul><p>Higher frequency, hitting each muscle 2x per week, tends to produce better results than once per week. Most research supports 10-20 sets per muscle group per week as the effective range.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Volume and intensity<span>+</span></div><div class="guide-topic-bd"><p>Volume is the total amount of work done (sets x reps x weight). More volume generally produces more muscle growth up to a point. Too much leads to fatigue that impairs recovery and growth.</p><p>Intensity means how hard the sets are. Training close to failure, 1-3 reps in reserve, produces the best hypertrophy stimulus. You do not have to train to failure every set, but you should not be leaving 8 reps in the tank either.</p><p>Rep ranges: 6-30 reps per set all produce hypertrophy. The sweet spot for most exercises is 8-15 reps. Lower reps build more strength, which indirectly supports muscle growth over time.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Rest and recovery<span>+</span></div><div class="guide-topic-bd"><p>Muscle is not built in the gym. It is built during recovery. Training creates the stimulus and rest allows the adaptation to happen.</p><p>Most muscle groups need 48-72 hours of recovery between sessions. This is why training full body 7 days a week is counterproductive. You are re-damaging muscles before they have fully recovered.</p><p>Sleep is when most muscle repair and growth hormone release happens. 7-9 hours is the target. Even one night of poor sleep measurably reduces muscle protein synthesis the following day.</p></div></div>
+            </div>
+          </div>
+
+          <div class="guide-sub">
+            <div class="guide-sub-hd" onclick="toggleGuide(this)">Common Mistakes<span class="guide-chevron2">&#8964;</span></div>
+            <div class="guide-sub-bd">
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Not eating enough<span>+</span></div><div class="guide-topic-bd"><p>The most common mistake when trying to build muscle is not eating enough. Building muscle requires a calorie surplus. If you are training hard but not gaining weight, you are not eating enough. Track your calories for a week and see where you actually are.</p><p>Consistency matters more than any single day. Hit your calorie and protein targets every day, not just on gym days. Your muscles grow on rest days too and they need fuel to do it.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Changing programs too often<span>+</span></div><div class="guide-topic-bd"><p>Consistency is the most important factor in muscle building. Every time you start a new program, your body goes through a learning phase before it can maximise the stimulus. If you change programs every 3-4 weeks, you never get the full benefit of adaptation.</p><p>Stick with the same program for at least 8-12 weeks. Trust the process. Progress is rarely visible week to week. It happens over months and years.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Neglecting sleep<span>+</span></div><div class="guide-topic-bd"><p>You can train perfectly and eat perfectly and still see poor results if you are not sleeping enough. Growth hormone is primarily released during deep sleep. Muscle protein synthesis is elevated during sleep.</p><p>Aim for 7-9 hours consistently. Keep a regular sleep schedule. Going to bed and waking at the same time each day is more important than total hours alone.</p></div></div>
+              <div class="guide-topic"><div class="guide-topic-hd" onclick="toggleGuide(this)">Too much cardio<span>+</span></div><div class="guide-topic-bd"><p>Cardio burns calories you need for muscle growth. Excessive cardio while trying to build muscle is working against yourself. It increases calorie requirements significantly, can interfere with recovery, and can compete directly with the adaptations from strength training.</p><p>If you enjoy cardio, keep it to 2-3 short sessions per week at low to moderate intensity. Do not run 10km on rest days and expect to build muscle on the same programme.</p></div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1049,6 +1222,13 @@ async function sendWorkoutPlan(){
     btnEl.textContent='Send My Plan';
     btnEl.disabled=false;
   }
+}
+
+function toggleGuide(hd){
+  const bd=hd.nextElementSibling;
+  const isOpen=hd.classList.contains('open');
+  hd.classList.toggle('open',!isOpen);
+  bd.classList.toggle('open',!isOpen);
 }
 
 function toggleMacro(chip,panelId){
