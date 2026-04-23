@@ -1199,69 +1199,6 @@ const PLANS={
   ]},
 };
 
-function buildEmailHTML(name,goal,calories,protein,carbs,fat){
-  const G='#1a9e63',D='#ffffff',D2='#f4f4f5',B='#e4e4e7',T='#111111',T2='#555555',T3='#888888';
-  const isLose=goal==='lose'||goal==='recomp'||goal==='maintain'||!goal;
-  const isBuild=goal==='build';
-  const guideTitle=isBuild?'Muscle Building Guide':'Fat Loss Guide';
-  const goalLabel=isBuild?'build muscle':goal==='recomp'?'recomp':'lose weight';
-
-  const sec=(title,items)=>`<div style="margin-bottom:28px;"><div style="font-size:11px;font-weight:800;color:${G};text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid ${B};">${title}</div>${items.map(i=>`<div style="margin-bottom:16px;"><div style="font-size:14px;font-weight:700;color:${T};margin-bottom:5px;">${i.t}</div><div style="font-size:13px;color:${T2};line-height:1.75;">${i.b}</div></div>`).join('')}</div>`;
-
-  const lossGuide=`
-    ${sec('The Basics',[
-      {t:'What is a calorie?',b:'A calorie is a unit of energy. Your body needs a set amount each day to function. Eat more than you burn and the excess is stored as fat. Eat less and your body uses stored fat for fuel. No food is inherently fattening — what matters is your total intake versus what you burn.'},
-      {t:'What is TDEE?',b:'Your Total Daily Energy Expenditure is everything your body burns in a day: your resting metabolism, daily movement, exercise, and digesting food. Most people underestimate their TDEE, which is why they feel like they are barely eating but not losing weight.'},
-      {t:'The calorie deficit',b:'A deficit means eating less than you burn. A safe deficit of 300-500 calories per day creates 0.3-0.5 kg of fat loss per week. Larger deficits lead to muscle loss, low energy, and are hard to stick to. Slow and steady wins every time.'},
-    ])}
-    ${sec('Your Macros',[
-      {t:'Protein — the most important one',b:'Protein preserves muscle in a deficit, keeps you fuller for longer, and burns more calories just being digested. Target 1.6-2.2g per kg of bodyweight per day. For most people that is 120-180g per day. This is the number to prioritise above everything else.'},
-      {t:'Carbs — not the enemy',b:'Carbs do not cause fat gain. Only a calorie surplus does. They fuel your workouts and keep your energy up. Cutting them too aggressively tanks your gym performance and makes the diet miserable. Focus on quality sources: oats, rice, potato, fruit.'},
-      {t:'Fats — essential, not optional',b:'Fat is needed for hormones, brain function, and absorbing vitamins. It is calorie-dense at 9 cal per gram so it is easy to overeat without realising. Be precise with portions but do not cut it out. Prioritise olive oil, avocado, nuts, and fatty fish.'},
-    ])}
-    ${sec('Training',[
-      {t:'Weights beat cardio for fat loss',b:'Cardio burns calories during the session. Weights burn calories during the session AND raise your metabolism long-term by building muscle. Muscle burns more calories at rest. Too much cardio also eats into muscle mass, leaving you looking smaller rather than leaner.'},
-      {t:'How much cardio do you need?',b:'Honestly — none, if your diet is dialled in. 2-3 sessions of 20-30 minutes per week is plenty. You do not need to spend hours on a treadmill. Manage your deficit through food. Use cardio as a supplement, not your main strategy.'},
-      {t:'Progressive overload',b:'In a deficit your goal is to maintain strength, which tells your body to hold onto muscle. Try to match or beat your last session each time. If your performance is dropping significantly, your deficit is too aggressive or you are not hitting your protein target.'},
-    ])}
-    ${sec('Practical Tips',[
-      {t:'Track your food',b:'Studies show people underestimate their calorie intake by 20-40%. That is 400-800 extra calories per day going unnoticed. Even 2-4 weeks of tracking builds an accurate picture of what you are eating. Weigh food raw. Track oils, sauces, and drinks — these are where people go wrong.'},
-      {t:'Meal timing',b:'Total daily calories and protein drive fat loss, not when you eat them. Spreading protein across 3-5 meals throughout the day maximises muscle retention. Have carbs and protein around your training sessions for performance and recovery.'},
-      {t:'Plateaus',b:'True plateaus happen after 3-4 weeks of no change, not 3-4 days. First check your tracking — portions often creep up unnoticed. Then reduce calories by 100-200 per day or add one extra 20-minute walk. Small adjustments are all you need.'},
-    ])}
-    ${sec('Mindset',[
-      {t:'Why diets fail',b:'Restriction-based diets fail because they rely on willpower. When no food is banned you are far less likely to binge. A slice of pizza is just a slice of pizza — not a reason to give up. Aim to hit your targets 80-90% of the time and enjoy the rest without guilt.'},
-      {t:'Sleep and stress',b:'Poor sleep raises cortisol (a fat-storing stress hormone), increases hunger, and tanks your motivation. Chronic stress does the same. 7-9 hours of sleep per night is not optional — it is part of the plan. Address sleep before adding more cardio or cutting more calories.'},
-    ])}`;
-
-  const buildGuide=`
-    ${sec('How Muscle Growth Works',[
-      {t:'The basics of hypertrophy',b:'Muscle grows when you create a stimulus through training, give your body the raw materials through protein and calories, and allow recovery through rest and sleep. All three have to be in place. Training without eating enough or sleeping enough will leave you spinning your wheels.'},
-      {t:'Calorie surplus',b:'You cannot build something from nothing. A surplus of 200-300 calories above your TDEE is the sweet spot — enough to support muscle growth without piling on fat. Eating 1,000 calories over does not build muscle faster. There is a limit to how fast your body can build muscle regardless of how much you eat.'},
-      {t:'Progressive overload',b:'This is the one principle that drives all muscle growth. Consistently increase the demand on your muscles over time: more weight, more reps, an extra set, less rest. If you are not progressing, you are not growing. Track every session so you always know what you need to beat.'},
-    ])}
-    ${sec('Your Macros',[
-      {t:'Protein',b:'Protein is the building material for muscle. Target 1.6-2.2g per kg of bodyweight per day. Spread it across 3-5 meals — your body can only use around 30-40g per meal for muscle protein synthesis. More than 2.2g per kg provides no additional benefit.'},
-      {t:'Carbs for performance',b:'Carbs are your primary fuel source for training. Low carb means low glycogen means worse sessions means slower muscle growth. Eat them before training for fuel and after to replenish and support recovery. Do not fear them when building muscle.'},
-      {t:'Fats and hormones',b:'Dietary fat is essential for testosterone production. Low fat diets are associated with lower testosterone, which directly impacts your ability to build muscle. Keep fat at 0.5-1g per kg of bodyweight per day. Eggs, fatty fish, nuts, and olive oil are your go-to sources.'},
-    ])}
-    ${sec('Training',[
-      {t:'The best splits',b:'The split matters less than consistency and progressive overload. Higher frequency (hitting each muscle twice per week) tends to outperform lower frequency. Aim for 10-20 sets per muscle group per week across your sessions. More than that requires exceptional recovery.'},
-      {t:'Volume and intensity',b:'Train close to failure — 1-3 reps in reserve. If you are leaving 8 reps in the tank every set, the stimulus for growth is minimal. You do not need to train to failure every set but you need to work hard. 8-15 reps per set is the sweet spot for hypertrophy.'},
-      {t:'Recovery',b:'Muscle is not built in the gym. It is built during recovery. Most muscle groups need 48-72 hours between sessions. Sleep is when growth hormone is released and muscle protein synthesis is highest. 7-9 hours is the target — non-negotiable if muscle building is the goal.'},
-    ])}
-    ${sec('Common Mistakes',[
-      {t:'Not eating enough',b:'This is the most common mistake. If you are training consistently but not gaining weight, you are simply not eating enough. Track your calories for one week and see where you actually are. Hit your targets every day, not just on gym days.'},
-      {t:'Changing programs too often',b:'Every time you start a new program your body goes through a learning phase. If you switch every 3-4 weeks you never get the full benefit of adaptation. Commit to the same program for at least 8-12 weeks before making changes. Progress is measured over months, not days.'},
-      {t:'Too much cardio',b:'Cardio burns the calories you need for muscle growth. Keep it to 2-3 short low-intensity sessions per week if you enjoy it. Running 10km on rest days while trying to build muscle is working against yourself.'},
-    ])}`;
-
-  const guide=isBuild?buildGuide:lossGuide;
-
-  const macroBlock=calories?`<div style="background:${D2};border-radius:12px;padding:20px 24px;margin-bottom:32px;border:1px solid ${B};"><div style="font-size:10px;font-weight:800;color:${G};margin-bottom:14px;text-transform:uppercase;letter-spacing:1.2px;">Your Personal Calorie and Macro Targets</div><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:9px 0;color:${T2};font-size:13px;">Daily Calories</td><td style="padding:9px 0;color:${T};font-size:17px;font-weight:900;text-align:right;">${calories} kcal</td></tr><tr style="border-top:1px solid ${B};"><td style="padding:9px 0;color:${T2};font-size:13px;">Protein</td><td style="padding:9px 0;color:${G};font-size:14px;font-weight:700;text-align:right;">${protein}</td></tr><tr style="border-top:1px solid ${B};"><td style="padding:9px 0;color:${T2};font-size:13px;">Carbohydrates</td><td style="padding:9px 0;color:${G};font-size:14px;font-weight:700;text-align:right;">${carbs}</td></tr><tr style="border-top:1px solid ${B};"><td style="padding:9px 0;color:${T2};font-size:13px;">Fats</td><td style="padding:9px 0;color:${G};font-size:14px;font-weight:700;text-align:right;">${fat}</td></tr></table></div>`:`<div style="background:${D2};border-radius:12px;padding:20px 24px;margin-bottom:32px;border:1px solid ${B};"><div style="font-size:10px;font-weight:800;color:${G};margin-bottom:10px;text-transform:uppercase;letter-spacing:1.2px;">Want Your Personal Calorie Targets?</div><p style="color:${T2};font-size:13px;line-height:1.65;margin:0 0 14px 0;">Use the free calculator at jackedbyjack.xyz to get your exact calorie and macro targets based on your stats, goal, and lifestyle.</p><a href="https://jackedbyjack.xyz/preview.html#blueprint" style="display:inline-block;background:${G};color:#ffffff;font-weight:700;font-size:13px;padding:10px 22px;border-radius:8px;text-decoration:none;">Get My Targets →</a></div>`;
-  return`<div style="max-width:600px;margin:0 auto;background:${D};border-radius:0;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;"><div style="background:#111111;padding:24px 32px;border-bottom:3px solid ${G};"><div style="font-size:20px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">Jacked<span style="color:${G};">ByJack</span></div><div style="font-size:11px;color:#888888;margin-top:3px;">Online Personal Training</div></div><div style="padding:32px;background:#ffffff;"><h1 style="color:${T};font-size:22px;font-weight:800;margin:0 0 8px 0;">${guideTitle}</h1><p style="color:${T2};font-size:14px;line-height:1.65;margin:0 0 28px 0;">Hey <strong style="color:${T};">${name||'there'}</strong>, here is everything you need to know to <strong style="color:${T};">${goalLabel}</strong>. Read through it, save it, and come back to it whenever you need a reminder of the fundamentals.</p>${macroBlock}${guide}<div style="background:#f0faf5;border:1px solid #b6e8cf;border-radius:12px;padding:24px;text-align:center;margin-top:8px;"><div style="font-size:16px;font-weight:800;color:${T};margin-bottom:8px;">Want a plan built specifically around you?</div><p style="color:${T2};font-size:13px;line-height:1.65;margin:0 0 18px 0;">This guide gives you the knowledge. If you want a fully personalised programme with weekly check-ins and adjustments, that is exactly what I offer.</p><a href="https://jackedbyjack.xyz/preview.html" style="display:inline-block;background:${G};color:#ffffff;font-weight:800;font-size:14px;padding:12px 28px;border-radius:10px;text-decoration:none;">Book a Free Consultation</a></div><div style="margin-top:32px;padding-top:20px;border-top:1px solid ${B};text-align:center;"><div style="font-size:12px;font-weight:800;color:${T3};">JackedByJack · jackedbyjack.xyz</div></div></div></div>`;
-}
-
 async function sendWorkoutPlan(){
   const emailEl=document.getElementById('plan-email');
   const nameEl=document.getElementById('plan-name');
@@ -1275,10 +1212,9 @@ async function sendWorkoutPlan(){
   const protein=document.getElementById('r-pro').textContent;
   const carbs=document.getElementById('r-carb').textContent;
   const fat=document.getElementById('r-fat').textContent;
-  const html=buildEmailHTML(name,state.goal,calories,protein,carbs,fat);
   try{
-    await emailjs.send('service_bpdohln','template_2wztmik',{to_email:email,to_name:name||'there',message:html});
-    statusEl.textContent='Sent! Check your inbox (and spam just in case).';
+    await emailjs.send('service_bpdohln','template_blueprint',{to_email:email,to_name:name||'there',calories,protein,carbs,fat});
+    statusEl.textContent='Sent! Check your inbox.';
     statusEl.style.color='#39d98a';
     btnEl.textContent='Sent!';
   }catch(e){
@@ -1298,10 +1234,9 @@ async function sendGuide(){
   const name=nameEl.value.trim();
   if(!email){statusEl.textContent='Please enter your email.';statusEl.style.color='#ff6b6b';return;}
   btnEl.textContent='Sending...';btnEl.disabled=true;statusEl.textContent='';statusEl.style.color='';
-  const html=buildEmailHTML(name,'lose',null,null,null,null);
   try{
-    await emailjs.send('service_bpdohln','template_2wztmik',{to_email:email,to_name:name||'there',message:html});
-    statusEl.textContent='Sent! Check your inbox (and spam just in case).';
+    await emailjs.send('service_bpdohln','template_guide',{to_email:email,to_name:name||'there'});
+    statusEl.textContent='Sent! Check your inbox.';
     statusEl.style.color='#39d98a';
     btnEl.textContent='Sent!';
   }catch(e){
