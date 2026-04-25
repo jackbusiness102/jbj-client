@@ -973,6 +973,16 @@ document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.
 
 emailjs.init('2h43bnajJjfgORxCL');
 
+function emailRateLimitOk(key){
+  const now=Date.now();
+  const data=JSON.parse(localStorage.getItem(key)||'{"count":0,"ts":0}');
+  if(now-data.ts>86400000){data.count=0;data.ts=now;}
+  if(data.count>=3)return false;
+  data.count++;
+  localStorage.setItem(key,JSON.stringify(data));
+  return true;
+}
+
 const PLANS={
   1:{split:'Full Body',days:[
     {name:'Full Body',ex:[
@@ -1207,6 +1217,7 @@ async function sendWorkoutPlan(){
   const email=emailEl.value.trim();
   const name=nameEl.value.trim();
   if(!email){statusEl.textContent='Please enter your email.';statusEl.style.color='#ff6b6b';return;}
+  if(!emailRateLimitOk('rl_blueprint')){statusEl.textContent='You have already requested this today. Check your inbox.';statusEl.style.color='#f5a623';return;}
   btnEl.textContent='Sending...';btnEl.disabled=true;statusEl.textContent='';statusEl.style.color='';
   const calories=document.getElementById('r-cal').textContent;
   const protein=document.getElementById('r-pro').textContent;
@@ -1233,6 +1244,7 @@ async function sendGuide(){
   const email=emailEl.value.trim();
   const name=nameEl.value.trim();
   if(!email){statusEl.textContent='Please enter your email.';statusEl.style.color='#ff6b6b';return;}
+  if(!emailRateLimitOk('rl_guide')){statusEl.textContent='You have already requested this today. Check your inbox.';statusEl.style.color='#f5a623';return;}
   btnEl.textContent='Sending...';btnEl.disabled=true;statusEl.textContent='';statusEl.style.color='';
   try{
     await emailjs.send('service_bpdohln','template_guide',{to_email:email,to_name:name||'there'});
